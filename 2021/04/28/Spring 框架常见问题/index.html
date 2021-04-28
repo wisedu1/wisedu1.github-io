@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Spring," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="[TOC] Spring 框架常见问题1 基础概念1.1 什么是 Spring Framewoks？Spring 是一个开源应用框架，旨在降低应用程序开发的复杂度。 它是轻量级、松散耦合的。 它具有分层体系结构，允许用户选择组件，同时还为J2EE应用程序开发提供了一个有凝聚力的框架。 它可以集成其他框架，如 Structs、Hibernate、EJB 等，所以又称为框架的框架。 1.2  Spri">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring 框架常见问题">
+<meta property="og:url" content="http://wisedu1.github.io/2021/04/28/Spring%20%E6%A1%86%E6%9E%B6%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="wisedu1&#39;s blog">
+<meta property="og:description" content="[TOC] Spring 框架常见问题1 基础概念1.1 什么是 Spring Framewoks？Spring 是一个开源应用框架，旨在降低应用程序开发的复杂度。 它是轻量级、松散耦合的。 它具有分层体系结构，允许用户选择组件，同时还为J2EE应用程序开发提供了一个有凝聚力的框架。 它可以集成其他框架，如 Structs、Hibernate、EJB 等，所以又称为框架的框架。 1.2  Spri">
+<meta property="og:locale">
+<meta property="og:image" content="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/Spring%20Framework%20Runtime.png">
+<meta property="og:image" content="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/Spring%20container.png">
+<meta property="og:image" content="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/%E5%8C%BA%E5%88%86%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E6%B3%A8%E5%85%A5%E5%92%8Csetter%E6%B3%A8%E5%85%A5.png">
+<meta property="og:image" content="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/%E5%8C%BA%E5%88%86BeanFactory%E5%92%8CApplicationContext.png">
+<meta property="og:image" content="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/Spring%20bean%20%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.png">
+<meta property="og:image" content="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/Spring%20DAO%20%E6%8A%9B%E5%87%BA%E7%9A%84%E5%BC%82%E5%B8%B8.png">
+<meta property="og:image" content="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/AOP.png">
+<meta property="og:image" content="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/weaving.png">
+<meta property="og:image" content="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/DispatcherServlet%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B.png">
+<meta property="og:image" content="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81.jpg">
+<meta property="article:published_time" content="2021-04-28T08:26:29.000Z">
+<meta property="article:modified_time" content="2021-04-28T09:56:38.054Z">
+<meta property="article:author" content="wisedu1 宇神">
+<meta property="article:tag" content="Spring">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/Spring%20Framework%20Runtime.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://wisedu1.github.io/2021/04/28/Spring 框架常见问题/"/>
+
+
+
+
+
+  <title>Spring 框架常见问题 | wisedu1's blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">wisedu1's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">技术成就生活</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://wisedu1.github.io/2021/04/28/Spring%20%E6%A1%86%E6%9E%B6%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wisedu1's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Spring 框架常见问题</h1>
+        
+
+        <div class="post-meta">
+
+    <i class="fa fa-thumb-tack"></i>
+    <font color=7D26CD>置顶</font>
+    <span class="post-meta-divider">|</span>
+
+
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-04-28T16:26:29+08:00">
+                2021-04-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%A1%86%E6%9E%B6/" itemprop="url" rel="index">
+                    <span itemprop="name">框架</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  5.8k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  22
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>[TOC]</p>
+<h1 id="Spring-框架常见问题"><a href="#Spring-框架常见问题" class="headerlink" title="Spring 框架常见问题"></a>Spring 框架常见问题</h1><h2 id="1-基础概念"><a href="#1-基础概念" class="headerlink" title="1 基础概念"></a>1 基础概念</h2><h3 id="1-1-什么是-Spring-Framewoks？"><a href="#1-1-什么是-Spring-Framewoks？" class="headerlink" title="1.1 什么是 Spring Framewoks？"></a>1.1 什么是 Spring Framewoks？</h3><p>Spring 是一个开源应用框架，旨在降低应用程序开发的复杂度。</p>
+<p>它是轻量级、松散耦合的。</p>
+<p>它具有分层体系结构，允许用户选择组件，同时还为<code>J2EE</code>应用程序开发提供了一个有凝聚力的框架。</p>
+<p>它可以集成其他框架，如 Structs、Hibernate、EJB 等，所以又称为<strong>框架的框架</strong>。</p>
+<h3 id="1-2-Spring-Framework-的优点有哪些？"><a href="#1-2-Spring-Framework-的优点有哪些？" class="headerlink" title="1.2  Spring Framework 的优点有哪些？"></a>1.2  Spring Framework 的优点有哪些？</h3><p>由于 Spring Frameworks 的分层架构，用户可以自由选择自己需要的组件。</p>
+<p>Spring Framework 支持 **POJO (Plain Old Java Object) **编程，从而具备持续集成和可测试性。</p>
+<p>由于依赖注入和控制反转，JDBC 得以简化。</p>
+<p>它是开源免费的。</p>
+<h3 id="1-3-Spinrg-Framework-有哪些不同的功能？"><a href="#1-3-Spinrg-Framework-有哪些不同的功能？" class="headerlink" title="1.3 Spinrg Framework 有哪些不同的功能？"></a>1.3 Spinrg Framework 有哪些不同的功能？</h3><p>轻量级 - Spring 在代码量和透明度方面都很轻便。</p>
+<p>IOC - 控制反转</p>
+<p>AOP - 面向切面编程可以将应用业务逻辑和系统服务分离，以实现高内聚。</p>
+<p>容器 - Spring 负责创建和管理对象（Bean）的生命周期和配置。</p>
+<p>MVC - 对 web 应用提供了高度可配置性，其他框架的集成也十分方便。</p>
+<p>事务管理 - 提供了用于事务管理的通用抽象层。Spring 的事务支持也可用于容器较少的环境。</p>
+<p>JDBC 异常 - Spring 的 JDBC 抽象层提供了一个异常层次结构，简化了错误处理策略。</p>
+<h3 id="1-4-Spring-Framework-中有多少个模块，它们分别是什么？"><a href="#1-4-Spring-Framework-中有多少个模块，它们分别是什么？" class="headerlink" title="1.4 Spring Framework 中有多少个模块，它们分别是什么？"></a>1.4 Spring Framework 中有多少个模块，它们分别是什么？</h3><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/Spring%20Framework%20Runtime.png"></p>
+<p><strong>Spring 核心容器 – 该层基本上是 Spring Framework 的核心。它包含以下模块：</strong></p>
+<ul>
+<li>Spring Core</li>
+<li>Spring Bean</li>
+<li>SpEL (Spring Expression Language)</li>
+<li>Spring Context</li>
+</ul>
+<p><strong>数据访问/集成 – 该层提供与数据库交互的支持。它包含以下模块：</strong></p>
+<ul>
+<li>JDBC (Java DataBase Connectivity)</li>
+<li>ORM (Object Relational Mapping)</li>
+<li>OXM (Object XML Mappers)</li>
+<li>JMS (Java Messaging Service)</li>
+<li>Transaction</li>
+</ul>
+<p><strong>Web – 该层提供了创建 Web 应用程序的支持。它包含以下模块：</strong></p>
+<ul>
+<li>Web</li>
+<li>Web – Servlet</li>
+<li>Web – Socket</li>
+<li>Web – Portlet</li>
+</ul>
+<p><strong>AOP – 该层支持面向切面编程。</strong></p>
+<p><strong>Instrumentation – 该层为类检测和类加载器实现提供支持。</strong></p>
+<p><strong>Test – 该层为使用 JUnit 和 TestNG 进行测试提供支持。</strong></p>
+<p><strong>几个杂项模块:</strong></p>
+<ul>
+<li>Messaging – 该模块为 STOMP 提供支持。它还支持注解编程模型，该模型用于从 WebSocket 客户端路由和处理 STOMP 消息</li>
+<li>Aspects – 该模块为与 AspectJ 的集成提供支持。</li>
+</ul>
+<h3 id="1-5-什么是-Spring-配置文件？"><a href="#1-5-什么是-Spring-配置文件？" class="headerlink" title="1.5 什么是 Spring 配置文件？"></a>1.5 什么是 Spring 配置文件？</h3><p>Spring 配置文件是 XML 文件。该文件主要包含类信息。它描述了这些类是如何配置以及相互引入的。但是，XML 配置文件冗长且更加干净。如果没有正确规划和编写，那么在大项目中管理变得非常困难。</p>
+<h3 id="1-6-Spring-应用程序有哪些不同组件？"><a href="#1-6-Spring-应用程序有哪些不同组件？" class="headerlink" title="1.6 Spring 应用程序有哪些不同组件？"></a>1.6 Spring 应用程序有哪些不同组件？</h3><p>Spring 应用一般有以下组件：</p>
+<p><strong>接口</strong> - 定义功能。</p>
+<p><strong>Bean 类</strong> - 它包含属性，setter 和 getter 方法，函数等。</p>
+<p><strong>Spring 面向切面编程（AOP）</strong> - 提供面向切面编程的功能。</p>
+<p><strong>Bean 配置文件</strong> - 包含类的信息以及如何配置它们。</p>
+<p><strong>用户程序</strong> - 它使用接口。</p>
+<h3 id="1-7-使用-Spring-有哪些方式？"><a href="#1-7-使用-Spring-有哪些方式？" class="headerlink" title="1.7 使用 Spring 有哪些方式？"></a>1.7 使用 Spring 有哪些方式？</h3><p>使用 Spring 有以下方式：</p>
+<ul>
+<li>作为一个成熟的 Spring Web 应用程序。</li>
+<li>作为第三方 Web 框架，使用 Spring Frameworks 中间层。</li>
+<li>用于远程使用。</li>
+<li>作为企业级 Java Bean，它可以包装现有的 POJO（Plain Old Java Objects）。</li>
+</ul>
+<h2 id="2-依赖注入（Ioc）"><a href="#2-依赖注入（Ioc）" class="headerlink" title="2 依赖注入（Ioc）"></a>2 依赖注入（Ioc）</h2><h3 id="2-1-什么是-Spring-IOC-容器？"><a href="#2-1-什么是-Spring-IOC-容器？" class="headerlink" title="2.1 什么是 Spring IOC 容器？"></a>2.1 什么是 Spring IOC 容器？</h3><p>Spring 框架的核心是 Spring 容器。容器创建对象，将它们装配在一起，配置它们并管理它们的完整生命周期。Spring 容器使用依赖注入来管理组成应用程序的组件。</p>
+<p>容器通过读取提供的配置元数据来接收对象进行实例化，配置和组装的指令。该元数据可以通过 XML，Java 注解或 Java 代码提供。</p>
+<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/Spring%20container.png"></p>
+<h3 id="2-2-什么是依赖注入？"><a href="#2-2-什么是依赖注入？" class="headerlink" title="2.2 什么是依赖注入？"></a>2.2 什么是依赖注入？</h3><p>在依赖注入中，您不必创建对象，但必须描述如何创建它们。您不是直接在代码中将组件和服务连接在一起，而是描述配置文件中哪些组件需要哪些服务。由 IoC 容器将它们装配在一起。</p>
+<h3 id="2-3-可以通过多少种方式完成依赖注入？"><a href="#2-3-可以通过多少种方式完成依赖注入？" class="headerlink" title="2.3 可以通过多少种方式完成依赖注入？"></a>2.3 可以通过多少种方式完成依赖注入？</h3><p>通常，依赖注入可以通过三种方式完成，即：</p>
+<ul>
+<li>构造函数注入</li>
+<li>setter 注入</li>
+<li>接口注入</li>
+</ul>
+<p>在 Spring Framework 中，仅使用构造函数和 setter 注入。</p>
+<h3 id="2-4-区分构造函数注入和-setter-注入"><a href="#2-4-区分构造函数注入和-setter-注入" class="headerlink" title="2.4 区分构造函数注入和 setter 注入"></a>2.4 区分构造函数注入和 setter 注入</h3><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/%E5%8C%BA%E5%88%86%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E6%B3%A8%E5%85%A5%E5%92%8Csetter%E6%B3%A8%E5%85%A5.png"></p>
+<h3 id="2-5-spring-中有多少种-IOC-容器？"><a href="#2-5-spring-中有多少种-IOC-容器？" class="headerlink" title="2.5 spring 中有多少种 IOC 容器？"></a>2.5 spring 中有多少种 IOC 容器？</h3><ul>
+<li>BeanFactory - BeanFactory 就像一个包含 bean 集合的工厂类。它会在客户端要求时实例化 bean。</li>
+<li>ApplicationContext - ApplicationContext 接口扩展了 BeanFactory 接口。它在 BeanFactory 基础上提供了一些额外的功能。</li>
+</ul>
+<h3 id="2-6-区分-BeanFactory-和-ApplicationContext"><a href="#2-6-区分-BeanFactory-和-ApplicationContext" class="headerlink" title="2.6 区分 BeanFactory 和 ApplicationContext"></a>2.6 区分 BeanFactory 和 ApplicationContext</h3><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/%E5%8C%BA%E5%88%86BeanFactory%E5%92%8CApplicationContext.png"></p>
+<h3 id="2-7-IoC-的一些好处"><a href="#2-7-IoC-的一些好处" class="headerlink" title="2.7 IoC 的一些好处"></a>2.7 IoC 的一些好处</h3><p>IoC 的一些好处是：</p>
+<ul>
+<li>它将最小化应用程序中的代码量。</li>
+<li>它将使您的应用程序易于测试，因为它不需要单元测试用例中的任何单例或 JNDI 查找机制。</li>
+<li>它以最小的影响和最少的侵入机制促进松耦合。</li>
+<li>它支持即时的实例化和延迟加载服务。</li>
+</ul>
+<h3 id="2-8-Spring-IoC-的实现机制"><a href="#2-8-Spring-IoC-的实现机制" class="headerlink" title="2.8 Spring IoC 的实现机制"></a>2.8 Spring IoC 的实现机制</h3><p>Spring 中的 IoC 的实现原理就是<strong>工厂模式</strong>加<strong>反射机制</strong>。</p>
+<p>示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">Fruit</span> </span>&#123;</span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">eat</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Apple</span> <span class="keyword">implements</span> <span class="title">Fruit</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eat</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Apple&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Orange</span> <span class="keyword">implements</span> <span class="title">Fruit</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eat</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Orange&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Factory</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Fruit <span class="title">getInstance</span><span class="params">(String ClassName)</span> </span>&#123;</span><br><span class="line">        Fruit f=<span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            f=(Fruit)Class.forName(ClassName).newInstance();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> f;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] a)</span> </span>&#123;</span><br><span class="line">        Fruit f=Factory.getInstance(<span class="string">&quot;io.github.dunwu.spring.Apple&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span>(f!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            f.eat();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-Beans"><a href="#3-Beans" class="headerlink" title="3 Beans"></a>3 Beans</h2><h3 id="3-1-什么是-spring-bean？"><a href="#3-1-什么是-spring-bean？" class="headerlink" title="3.1 什么是 spring bean？"></a>3.1 什么是 spring bean？</h3><ul>
+<li>它们是构成用户应用程序主干的对象。</li>
+<li>Bean 由 Spring IoC 容器管理。</li>
+<li>它们由 Spring IoC 容器实例化，配置，装配和管理。</li>
+<li>Bean 是基于用户提供给容器的配置元数据创建。</li>
+</ul>
+<h3 id="3-2-spring-提供了哪些配置方式？"><a href="#3-2-spring-提供了哪些配置方式？" class="headerlink" title="3.2 spring 提供了哪些配置方式？"></a>3.2 spring 提供了哪些配置方式？</h3><ul>
+<li><strong>基于 xml 配置</strong></li>
+</ul>
+<p>bean 所需的依赖项和服务在 XML 格式的配置文件中指定。这些配置文件通常包含许多 bean 定义和特定于应用程序的配置选项。它们通常以 bean 标签开头。例如：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;studentbean&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.edureka.firstSpring.StudentBean&quot;</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;name&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Edureka&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>基于注解配置</strong></li>
+</ul>
+<p>您可以通过在相关的类，方法或字段声明上使用注解，将 bean 配置为组件类本身，而不是使用 XML 来描述 bean 装配。默认情况下，Spring 容器中未打开注解装配。因此，您需要在使用它之前在 Spring 配置文件中启用它。例如：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">context:annotation-config</span>/&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- bean definitions go here --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>基于 Java API 配置</strong></li>
+</ul>
+<p>Spring 的 Java 配置是通过使用 @Bean 和 @Configuration 来实现。</p>
+<ol>
+<li>@Bean 注解扮演与 <bean /> 元素相同的角色。</li>
+<li>@Configuration 类允许通过简单地调用同一个类中的其他 @Bean 方法来定义 bean 间依赖关系。</li>
+</ol>
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StudentConfig</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> StudentBean <span class="title">myStudent</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> StudentBean();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-spring-支持集中-bean-scope？"><a href="#3-3-spring-支持集中-bean-scope？" class="headerlink" title="3.3 spring 支持集中 bean scope？"></a>3.3 spring 支持集中 bean scope？</h3><p>Spring bean 支持 5 种 scope：</p>
+<ul>
+<li>Singleton - 每个 Spring IoC 容器仅有一个单实例。</li>
+<li>Prototype - 每次请求都会产生一个新的实例。</li>
+<li>Request - 每一次 HTTP 请求都会产生一个新的实例，并且该 bean 仅在当前 HTTP 请求内有效。</li>
+<li>Session - 每一次 HTTP 请求都会产生一个新的 bean，同时该 bean 仅在当前 HTTP session 内有效。</li>
+<li>Global-session - 类似于标准的 HTTP Session 作用域，不过它仅仅在基于 portlet 的 web 应用中才有意义。Portlet 规范定义了全局 Session 的概念，它被所有构成某个 portlet web 应用的各种不同的 portlet 所共享。在 global session 作用域中定义的 bean 被限定于全局 portlet Session 的生命周期范围内。如果你在 web 中使用 global session 作用域来标识 bean，那么 web 会自动当成 session 类型来使用。</li>
+</ul>
+<p>仅当用户使用支持 Web 的 ApplicationContext 时，最后三个才可用。更多spring内容</p>
+<h3 id="3-4-spring-bean-容器的生命周期是什么样的？"><a href="#3-4-spring-bean-容器的生命周期是什么样的？" class="headerlink" title="3.4 spring bean 容器的生命周期是什么样的？"></a>3.4 spring bean 容器的生命周期是什么样的？</h3><p>spring bean 容器的生命周期流程如下：</p>
+<ol>
+<li>Spring 容器根据配置中的 bean 定义中实例化 bean</li>
+<li>Spring 使用依赖注入填充所有属性，如 bean 中所定义的配置。</li>
+<li>如果 bean 实现 BeanNameAware 接口，则工厂通过传递 bean 的 ID 来调用 setBeanName()。</li>
+<li>如果 bean 实现 BeanFactoryAware 接口，工厂通过传递自身的实例来调用 setBeanFactory()。</li>
+<li>如果存在与 bean 关联的任何 BeanPostProcessors，则调用 preProcessBeforeInitialization() 方法。</li>
+<li>如果为 bean 指定了 init 方法（ <bean>的 init-method 属性），那么将调用它。</li>
+<li>最后，如果存在与 bean 关联的任何 BeanPostProcessors，则将调用 postProcessAfterInitialization() 方法。</li>
+<li>如果 bean 实现 DisposableBean 接口，当 spring 容器关闭时，会调用 destory()。</li>
+<li>如果为 bean 指定了 destroy 方法（ <bean>的 destroy-method 属性），那么将调用它。</li>
+</ol>
+<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/Spring%20bean%20%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.png"></p>
+<h3 id="3-5-什么是-spring-的内部-bean？"><a href="#3-5-什么是-spring-的内部-bean？" class="headerlink" title="3.5 什么是 spring 的内部 bean？"></a>3.5 什么是 spring 的内部 bean？</h3><p>只有将 bean 用作另一个 bean 的属性时，才能将 bean 声明为内部 bean。为了定义 bean，Spring 的基于 XML 的配置元数据在<property>或<constructor-arg> 中提供了<bean>元素的使用。内部 bean 总是匿名的，它们总是作为原型。</p>
+<p>例如，假设我们有一个 Student 类，其中引用了 Person 类。这里我们将只创建一个 Person 类实例并在 Student 中使用它。</p>
+<p>Student.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Student</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Person person;</span><br><span class="line">    <span class="comment">//Setters and Getters</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String address;</span><br><span class="line">    <span class="comment">//Setters and Getters</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>bean.xml</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=“StudentBean<span class="string">&quot; class=&quot;</span>com.edureka.Student<span class="string">&quot;&gt;</span></span><br><span class="line"><span class="string">    &lt;property name=&quot;</span>person<span class="string">&quot;&gt;</span></span><br><span class="line"><span class="string">        &lt;!--This is inner bean --&gt;</span></span><br><span class="line"><span class="string">        &lt;bean class=&quot;</span>com.edureka.Person<span class="string">&quot;&gt;</span></span><br><span class="line">            &lt;property name=&quot;name&quot; value=“Scott&quot;&gt;&lt;/property&gt;</span><br><span class="line">            &lt;property name=<span class="string">&quot;address&quot;</span> value=“Bangalore<span class="string">&quot;&gt;&lt;/property&gt;</span></span><br><span class="line"><span class="string">        &lt;/bean&gt;</span></span><br><span class="line"><span class="string">    &lt;/property&gt;</span></span><br><span class="line"><span class="string">&lt;/bean&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-6-什么是-spring-装配？"><a href="#3-6-什么是-spring-装配？" class="headerlink" title="3.6 什么是 spring 装配？"></a>3.6 什么是 spring 装配？</h3><p>当 bean 在 Spring 容器中组合在一起时，它被称为装配或 bean 装配。Spring 容器需要知道需要什么 bean 以及容器应该如何使用依赖注入来将 bean 绑定在一起，同时装配 bean。</p>
+<h3 id="3-7-自动装配有哪些方式？"><a href="#3-7-自动装配有哪些方式？" class="headerlink" title="3.7 自动装配有哪些方式？"></a>3.7 自动装配有哪些方式？</h3><p>Spring 容器能够自动装配 bean。也就是说，可以通过检查 BeanFactory 的内容让 Spring 自动解析 bean 的协作者。</p>
+<p>自动装配的不同模式：</p>
+<ul>
+<li>no - 这是默认设置，表示没有自动装配。应使用显式 bean 引用进行装配。</li>
+<li>byName - 它根据 bean 的名称注入对象依赖项。它匹配并装配其属性与 XML 文件中由相同名称定义的 bean。</li>
+<li>byType - 它根据类型注入对象依赖项。如果属性的类型与 XML 文件中的一个 bean 名称匹配，则匹配并装配属性。</li>
+<li>构造函数 - 它通过调用类的构造函数来注入依赖项。它有大量的参数。</li>
+<li>autodetect - 首先容器尝试通过构造函数使用 autowire 装配，如果不能，则尝试通过 byType 自动装配。</li>
+</ul>
+<h3 id="3-8-自动装配有什么局限？"><a href="#3-8-自动装配有什么局限？" class="headerlink" title="3.8 自动装配有什么局限？"></a>3.8 自动装配有什么局限？</h3><ul>
+<li>覆盖的可能性 - 您始终可以使用<constructor-arg> 和 <property>设置指定依赖项，这将覆盖自动装配。</li>
+<li>基本元数据类型 - 简单属性（如原数据类型，字符串和类）无法自动装配。</li>
+<li>令人困惑的性质 - 总是喜欢使用明确的装配，因为自动装配不太精确。</li>
+</ul>
+<h2 id="4-注解"><a href="#4-注解" class="headerlink" title="4 注解"></a>4 注解</h2><h3 id="4-1-你用过哪些重要的-Spring-注解？"><a href="#4-1-你用过哪些重要的-Spring-注解？" class="headerlink" title="4.1 你用过哪些重要的 Spring 注解？"></a>4.1 你用过哪些重要的 Spring 注解？</h3><ul>
+<li>@Controller - 用于 Spring MVC 项目中的控制器类。</li>
+<li>@Service - 用于服务类。</li>
+<li>@RequestMapping - 用于在控制器处理程序方法中配置 URI 映射。</li>
+<li>@ResponseBody - 用于发送 Object 作为响应，通常用于发送 XML 或 JSON 数据作为响应。</li>
+<li>@PathVariable - 用于将动态值从 URI 映射到处理程序方法参数。</li>
+<li>@Autowired - 用于在 spring bean 中自动装配依赖项。</li>
+<li>@Qualifier - 使用 @Autowired 注解，以避免在存在多个 bean 类型实例时出现混淆。</li>
+<li>@Scope - 用于配置 spring bean 的范围。</li>
+<li>@Configuration，@ComponentScan 和 @Bean - 用于基于 java 的配置。</li>
+<li>@Aspect，@Before，@After，@Around，@Pointcut - 用于切面编程（AOP）。</li>
+</ul>
+<h3 id="4-2-如何在-spring-中启动注解装配？"><a href="#4-2-如何在-spring-中启动注解装配？" class="headerlink" title="4.2 如何在 spring 中启动注解装配？"></a>4.2 如何在 spring 中启动注解装配？</h3><p>默认情况下，Spring 容器中未打开注解装配。因此，要使用基于注解装配，我们必须通过配置&lt;context：annotation-config /&gt; 元素在 Spring 配置文件中启用它。</p>
+<h3 id="4-3-Component-Controller-Repository-Service-有何区别？"><a href="#4-3-Component-Controller-Repository-Service-有何区别？" class="headerlink" title="4.3 @Component, @Controller, @Repository, @Service 有何区别？"></a>4.3 @Component, @Controller, @Repository, @Service 有何区别？</h3><ul>
+<li>@Component：这将 java 类标记为 bean。它是任何 Spring 管理组件的通用构造型。spring 的组件扫描机制现在可以将其拾取并将其拉入应用程序环境中。</li>
+<li>@Controller：这将一个类标记为 Spring Web MVC 控制器。标有它的 Bean 会自动导入到 IoC 容器中。</li>
+<li>@Service：此注解是组件注解的特化。它不会对 @Component 注解提供任何其他行为。您可以在服务层类中使用 @Service 而不是 @Component，因为它以更好的方式指定了意图。</li>
+<li>@Repository：这个注解是具有类似用途和功能的 @Component 注解的特化。它为 DAO 提供了额外的好处。它将 DAO 导入 IoC 容器，并使未经检查的异常有资格转换为 Spring DataAccessException。</li>
+</ul>
+<h3 id="4-4-Required-注解有什么用？"><a href="#4-4-Required-注解有什么用？" class="headerlink" title="4.4 @Required 注解有什么用？"></a>4.4 @Required 注解有什么用？</h3><p>@Required 应用于 bean 属性 setter 方法。此注解仅指示必须在配置时使用 bean 定义中的显式属性值或使用自动装配填充受影响的 bean 属性。如果尚未填充受影响的 bean 属性，则容器将抛出 BeanInitializationException。</p>
+<p>示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Employee</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="meta">@Required</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name=name;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> string <span class="title">getName</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-5-Autowired-注解有什么用？"><a href="#4-5-Autowired-注解有什么用？" class="headerlink" title="4.5 @Autowired 注解有什么用？"></a>4.5 @Autowired 注解有什么用？</h3><p>@Autowired 可以更准确地控制应该在何处以及如何进行自动装配。此注解用于在 setter 方法，构造函数，具有任意名称或多个参数的属性或方法上自动装配 bean。默认情况下，它是类型驱动的注入。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Employee</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name=name;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> string <span class="title">getName</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-6-Qualifier-注解有什么用？"><a href="#4-6-Qualifier-注解有什么用？" class="headerlink" title="4.6 @Qualifier 注解有什么用？"></a>4.6 @Qualifier 注解有什么用？</h3><p>当您创建多个相同类型的 bean 并希望仅使用属性装配其中一个 bean 时，您可以使用@Qualifier 注解和 @Autowired 通过指定应该装配哪个确切的 bean 来消除歧义。</p>
+<p>例如，这里我们分别有两个类，Employee 和 EmpAccount。在 EmpAccount 中，使用@Qualifier 指定了必须装配 id 为 emp1 的 bean。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Employee</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name=name;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> string <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>EmpAccount.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EmpAccount</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Employee emp;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="meta">@Qualifier(emp1)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(“Employee name : ”+emp.getName);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-7-RequestMapping-注解有什么用？"><a href="#4-7-RequestMapping-注解有什么用？" class="headerlink" title="4.7 @RequestMapping 注解有什么用？"></a>4.7 @RequestMapping 注解有什么用？</h3><p>@RequestMapping 注解用于将特定 HTTP 请求方法映射到将处理相应请求的控制器中的特定类/方法。此注解可应用于两个级别：</p>
+<ul>
+<li>类级别：映射请求的 URL</li>
+<li>方法级别：映射 URL 以及 HTTP 请求方法</li>
+</ul>
+<h2 id="5-数据访问"><a href="#5-数据访问" class="headerlink" title="5 数据访问"></a>5 数据访问</h2><h3 id="5-1-spring-DAO-有什么用？"><a href="#5-1-spring-DAO-有什么用？" class="headerlink" title="5.1 spring DAO 有什么用？"></a>5.1 spring DAO 有什么用？</h3><p>Spring DAO 使得 JDBC，Hibernate 或 JDO 这样的数据访问技术更容易以一种统一的方式工作。这使得用户容易在持久性技术之间切换。它还允许您在编写代码时，无需考虑捕获每种技术不同的异常。</p>
+<h3 id="5-2-列举-Spring-DAO-抛出的异常"><a href="#5-2-列举-Spring-DAO-抛出的异常" class="headerlink" title="5.2 列举 Spring DAO 抛出的异常"></a>5.2 列举 Spring DAO 抛出的异常</h3><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/Spring%20DAO%20%E6%8A%9B%E5%87%BA%E7%9A%84%E5%BC%82%E5%B8%B8.png"></p>
+<h3 id="5-3-spring-JDBC-API-中存在哪些类？"><a href="#5-3-spring-JDBC-API-中存在哪些类？" class="headerlink" title="5.3 spring JDBC API 中存在哪些类？"></a>5.3 spring JDBC API 中存在哪些类？</h3><ul>
+<li>JdbcTemplate</li>
+<li>SimpleJdbcTemplate</li>
+<li>NamedParameterJdbcTemplate</li>
+<li>SimpleJdbcInsert</li>
+<li>SimpleJdbcCall</li>
+</ul>
+<h3 id="5-4-使用-Spring-访问-Hibernate-的方法有哪些？"><a href="#5-4-使用-Spring-访问-Hibernate-的方法有哪些？" class="headerlink" title="5.4 使用 Spring 访问 Hibernate 的方法有哪些？"></a>5.4 使用 Spring 访问 Hibernate 的方法有哪些？</h3><p>我们可以通过两种方式使用 Spring 访问 Hibernate：</p>
+<ol>
+<li>使用 Hibernate 模板和回调进行控制反转</li>
+<li>扩展 HibernateDAOSupport 并应用 AOP 拦截器节点</li>
+</ol>
+<h3 id="5-5-列举-spring-支持的事务管理类型"><a href="#5-5-列举-spring-支持的事务管理类型" class="headerlink" title="5.5 列举 spring 支持的事务管理类型"></a>5.5 列举 spring 支持的事务管理类型</h3><p>Spring 支持两种类型的事务管理：</p>
+<ol>
+<li>程序化事务管理：在此过程中，在编程的帮助下管理事务。它为您提供极大的灵活性，但维护起来非常困难。</li>
+<li>声明式事务管理：在此，事务管理与业务代码分离。仅使用注解或基于 XML 的配置来管理事务。</li>
+</ol>
+<h3 id="5-6-Spring-支持哪些-ORM-框架"><a href="#5-6-Spring-支持哪些-ORM-框架" class="headerlink" title="5.6 Spring 支持哪些 ORM 框架"></a>5.6 Spring 支持哪些 ORM 框架</h3><ul>
+<li>Hibernate</li>
+<li>iBatis</li>
+<li>JPA</li>
+<li>JDO</li>
+<li>OJB</li>
+</ul>
+<h2 id="6-AOP"><a href="#6-AOP" class="headerlink" title="6 AOP"></a>6 AOP</h2><h3 id="6-1-什么是-AOP？"><a href="#6-1-什么是-AOP？" class="headerlink" title="6.1 什么是 AOP？"></a>6.1 什么是 AOP？</h3><p>AOP(Aspect-Oriented Programming), 即 面向切面编程, 它与 OOP( Object-Oriented Programming, 面向对象编程) 相辅相成, 提供了与 OOP 不同的抽象软件结构的视角.</p>
+<p>在 OOP 中, 我们以类(class)作为我们的基本单元, 而 AOP 中的基本单元是 Aspect(切面)</p>
+<h3 id="6-2-AOP-中的-Aspect、Advice、Pointcut、JointPoint-和-Advice-参数分别是什么？"><a href="#6-2-AOP-中的-Aspect、Advice、Pointcut、JointPoint-和-Advice-参数分别是什么？" class="headerlink" title="6.2 AOP 中的 Aspect、Advice、Pointcut、JointPoint 和 Advice 参数分别是什么？"></a>6.2 AOP 中的 Aspect、Advice、Pointcut、JointPoint 和 Advice 参数分别是什么？</h3><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/AOP.png"></p>
+<ol>
+<li>Aspect - Aspect 是一个实现交叉问题的类，例如事务管理。方面可以是配置的普通类，然后在 Spring Bean 配置文件中配置，或者我们可以使用 Spring AspectJ 支持使用 @Aspect 注解将类声明为 Aspect。</li>
+<li>Advice - Advice 是针对特定 JoinPoint 采取的操作。在编程方面，它们是在应用程序中达到具有匹配切入点的特定 JoinPoint 时执行的方法。您可以将 Advice 视为 Spring 拦截器（Interceptor）或 Servlet 过滤器（filter）。</li>
+<li>Advice Arguments - 我们可以在 advice 方法中传递参数。我们可以在切入点中使用 args() 表达式来应用于与参数模式匹配的任何方法。如果我们使用它，那么我们需要在确定参数类型的 advice 方法中使用相同的名称。</li>
+<li>Pointcut - Pointcut 是与 JoinPoint 匹配的正则表达式，用于确定是否需要执行 Advice。Pointcut 使用与 JoinPoint 匹配的不同类型的表达式。Spring 框架使用 AspectJ Pointcut 表达式语言来确定将应用通知方法的 JoinPoint。</li>
+<li>JoinPoint - JoinPoint 是应用程序中的特定点，例如方法执行，异常处理，更改对象变量值等。在 Spring AOP 中，JoinPoint 始终是方法的执行器。</li>
+</ol>
+<h3 id="6-3-什么是通知（Advice）？"><a href="#6-3-什么是通知（Advice）？" class="headerlink" title="6.3 什么是通知（Advice）？"></a>6.3 什么是通知（Advice）？</h3><p>特定 JoinPoint 处的 Aspect 所采取的动作称为 Advice。Spring AOP 使用一个 Advice 作为拦截器，在 JoinPoint “周围”维护一系列的拦截器。</p>
+<h3 id="6-4-有哪些类型的通知（Advice）？"><a href="#6-4-有哪些类型的通知（Advice）？" class="headerlink" title="6.4 有哪些类型的通知（Advice）？"></a>6.4 有哪些类型的通知（Advice）？</h3><ul>
+<li>Before - 这些类型的 Advice 在 joinpoint 方法之前执行，并使用 @Before 注解标记进行配置。</li>
+<li>After Returning - 这些类型的 Advice 在连接点方法正常执行后执行，并使用@AfterReturning 注解标记进行配置。</li>
+<li>After Throwing - 这些类型的 Advice 仅在 joinpoint 方法通过抛出异常退出并使用 @AfterThrowing 注解标记配置时执行。</li>
+<li>After (finally) - 这些类型的 Advice 在连接点方法之后执行，无论方法退出是正常还是异常返回，并使用 @After 注解标记进行配置。</li>
+<li>Around - 这些类型的 Advice 在连接点之前和之后执行，并使用 @Around 注解标记进行配置。</li>
+</ul>
+<h3 id="6-5-指出在-spring-aop-中-concern-和-cross-cutting-concern-的不同之处"><a href="#6-5-指出在-spring-aop-中-concern-和-cross-cutting-concern-的不同之处" class="headerlink" title="6.5 指出在 spring aop 中 concern 和 cross-cutting concern 的不同之处"></a>6.5 指出在 spring aop 中 concern 和 cross-cutting concern 的不同之处</h3><p>concern 是我们想要在应用程序的特定模块中定义的行为。它可以定义为我们想要实现的功能。</p>
+<p>cross-cutting concern 是一个适用于整个应用的行为，这会影响整个应用程序。例如，日志记录，安全性和数据传输是应用程序几乎每个模块都需要关注的问题，因此它们是跨领域的问题。</p>
+<h3 id="6-6-AOP-有哪些实现方式？"><a href="#6-6-AOP-有哪些实现方式？" class="headerlink" title="6.6 AOP 有哪些实现方式？"></a>6.6 AOP 有哪些实现方式？</h3><p>实现 AOP 的技术，主要分为两大类：</p>
+<ul>
+<li>静态代理 - 指使用 AOP 框架提供的命令进行编译，从而在编译阶段就可生成 AOP 代理类，因此也称为编译时增强；</li>
+<li>编译时编织（特殊编译器实现）</li>
+<li>类加载时编织（特殊的类加载器实现）。</li>
+<li>动态代理 - 在运行时在内存中“临时”生成 AOP 动态代理类，因此也被称为运行时增强。</li>
+<li>JDK 动态代理</li>
+<li>CGLIB</li>
+</ul>
+<h3 id="6-7-Spring-AOP-and-AspectJ-AOP-有什么区别？"><a href="#6-7-Spring-AOP-and-AspectJ-AOP-有什么区别？" class="headerlink" title="6.7 Spring AOP and AspectJ AOP 有什么区别？"></a>6.7 Spring AOP and AspectJ AOP 有什么区别？</h3><p>Spring AOP 基于动态代理方式实现；AspectJ 基于静态代理方式实现。</p>
+<p>Spring AOP 仅支持方法级别的 PointCut；提供了完全的 AOP 支持，它还支持属性级别的 PointCut。</p>
+<h3 id="6-8-如何理解-Spring-中的代理？"><a href="#6-8-如何理解-Spring-中的代理？" class="headerlink" title="6.8 如何理解 Spring 中的代理？"></a>6.8 如何理解 Spring 中的代理？</h3><p>将 Advice 应用于目标对象后创建的对象称为代理。在客户端对象的情况下，目标对象和代理对象是相同的。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Advice + Target Object = Proxy</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-9-什么是编织（Weaving）？"><a href="#6-9-什么是编织（Weaving）？" class="headerlink" title="6.9 什么是编织（Weaving）？"></a>6.9 什么是编织（Weaving）？</h3><p>为了创建一个 advice 对象而链接一个 aspect 和其它应用类型或对象，称为编织（Weaving）。在 Spring AOP 中，编织在运行时执行。请参考下图：</p>
+<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/weaving.png"></p>
+<h2 id="7-MVC"><a href="#7-MVC" class="headerlink" title="7 MVC"></a>7 MVC</h2><h3 id="7-1-Spring-MVC-框架有什么用？"><a href="#7-1-Spring-MVC-框架有什么用？" class="headerlink" title="7.1 Spring MVC 框架有什么用？"></a>7.1 Spring MVC 框架有什么用？</h3><p>Spring Web MVC 框架提供 模型-视图-控制器 架构和随时可用的组件，用于开发灵活且松散耦合的 Web 应用程序。MVC 模式有助于分离应用程序的不同方面，如输入逻辑，业务逻辑和 UI 逻辑，同时在所有这些元素之间提供松散耦合。</p>
+<h3 id="7-2-描述一下-DispatcherServlet-的工作流程"><a href="#7-2-描述一下-DispatcherServlet-的工作流程" class="headerlink" title="7.2 描述一下 DispatcherServlet 的工作流程"></a>7.2 描述一下 DispatcherServlet 的工作流程</h3><p>DispatcherServlet 的工作流程可以用一幅图来说明：</p>
+<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/DispatcherServlet%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B.png"></p>
+<ol>
+<li>向服务器发送 HTTP 请求，请求被前端控制器 DispatcherServlet 捕获。</li>
+<li>DispatcherServlet 根据 -servlet.xml 中的配置对请求的 URL 进行解析，得到请求资源标识符（URI）。然后根据该 URI，调用 HandlerMapping 获得该 Handler 配置的所有相关的对象（包括 Handler 对象以及 Handler 对象对应的拦截器），最后以HandlerExecutionChain 对象的形式返回。</li>
+<li>DispatcherServlet 根据获得的Handler，选择一个合适的 HandlerAdapter。（附注：如果成功获得HandlerAdapter后，此时将开始执行拦截器的 preHandler(…)方法）。</li>
+<li>提取Request中的模型数据，填充Handler入参，开始执行Handler（Controller)。在填充Handler的入参过程中，根据你的配置，Spring 将帮你做一些额外的工作：</li>
+</ol>
+<ul>
+<li>HttpMessageConveter：将请求消息（如 Json、xml 等数据）转换成一个对象，将对象转换为指定的响应信息。</li>
+<li>数据转换：对请求消息进行数据转换。如<code>String</code>转换成<code>Integer</code>、<code>Double</code>等。</li>
+<li>数据根式化：对请求消息进行数据格式化。如将字符串转换成格式化数字或格式化日期等。</li>
+<li>数据验证：验证数据的有效性（长度、格式等），验证结果存储到<code>BindingResult</code>或<code>Error</code>中。</li>
+</ul>
+<ol start="5">
+<li><p>Handler(Controller)执行完成后，向 DispatcherServlet 返回一个 ModelAndView 对象；</p>
+</li>
+<li><p>根据返回的ModelAndView，选择一个适合的 ViewResolver（必须是已经注册到 Spring 容器中的ViewResolver)返回给DispatcherServlet。</p>
+</li>
+<li><p>ViewResolver 结合Model和View，来渲染视图。</p>
+</li>
+<li><p>视图负责将渲染结果返回给客户端。</p>
+</li>
+</ol>
+<h3 id="7-3-介绍一下-WebApplicationContext"><a href="#7-3-介绍一下-WebApplicationContext" class="headerlink" title="7.3 介绍一下 WebApplicationContext"></a>7.3 介绍一下 WebApplicationContext</h3><p>WebApplicationContext 是 ApplicationContext 的扩展。它具有 Web 应用程序所需的一些额外功能。它与普通的 ApplicationContext 在解析主题和决定与哪个 servlet 关联的能力方面有所不同。</p>
+<h2 id="8-参考资料"><a href="#8-参考资料" class="headerlink" title="8 参考资料"></a>8 参考资料</h2><ol>
+<li><p>作者 | 静默虚空 </p>
+<p>链接 | <a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903828567883789">https://juejin.cn/post/6844903828567883789</a></p>
+</li>
+</ol>
+<hr>
+<p>部分内容来源于网络，作为学习使用，如有侵权请联系我删除。请注明来意。</p>
+<p>邮箱：<a href="mailto:&#x77;&#x69;&#x73;&#x65;&#x64;&#117;&#x31;&#64;&#x67;&#109;&#97;&#105;&#x6c;&#46;&#x63;&#x6f;&#x6d;">&#x77;&#x69;&#x73;&#x65;&#x64;&#117;&#x31;&#64;&#x67;&#109;&#97;&#105;&#x6c;&#46;&#x63;&#x6f;&#x6d;</a></p>
+<p>微信：</p>
+<img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81.jpg" width="200px" />
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Spring/" rel="tag"><i class="fa fa-tag"></i> Spring</a>
+          
+        </div>
+      
+
+      
+      
+        <div class="post-widgets">
+        
+
+        
+
+        
+          
+          <div id="needsharebutton-postbottom">
+            <span class="btn">
+              <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </span>
+          </div>
+        
+        </div>
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/04/27/Spring%20MVC%20%E6%A1%86%E6%9E%B6%E6%80%BB%E7%BB%93/" rel="next" title="Spring MVC 框架总结">
+                <i class="fa fa-chevron-left"></i> Spring MVC 框架总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+<div id="music163player">
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=5254811&auto=1&height=66">
+</iframe>
+</div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-%E6%A1%86%E6%9E%B6%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">Spring 框架常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">1 基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E4%BB%80%E4%B9%88%E6%98%AF-Spring-Framewoks%EF%BC%9F"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1 什么是 Spring Framewoks？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-Spring-Framework-%E7%9A%84%E4%BC%98%E7%82%B9%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-number">1.1.2.</span> <span class="nav-text">1.2  Spring Framework 的优点有哪些？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-Spinrg-Framework-%E6%9C%89%E5%93%AA%E4%BA%9B%E4%B8%8D%E5%90%8C%E7%9A%84%E5%8A%9F%E8%83%BD%EF%BC%9F"><span class="nav-number">1.1.3.</span> <span class="nav-text">1.3 Spinrg Framework 有哪些不同的功能？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-Spring-Framework-%E4%B8%AD%E6%9C%89%E5%A4%9A%E5%B0%91%E4%B8%AA%E6%A8%A1%E5%9D%97%EF%BC%8C%E5%AE%83%E4%BB%AC%E5%88%86%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.1.4.</span> <span class="nav-text">1.4 Spring Framework 中有多少个模块，它们分别是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-5-%E4%BB%80%E4%B9%88%E6%98%AF-Spring-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%EF%BC%9F"><span class="nav-number">1.1.5.</span> <span class="nav-text">1.5 什么是 Spring 配置文件？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-6-Spring-%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E6%9C%89%E5%93%AA%E4%BA%9B%E4%B8%8D%E5%90%8C%E7%BB%84%E4%BB%B6%EF%BC%9F"><span class="nav-number">1.1.6.</span> <span class="nav-text">1.6 Spring 应用程序有哪些不同组件？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-7-%E4%BD%BF%E7%94%A8-Spring-%E6%9C%89%E5%93%AA%E4%BA%9B%E6%96%B9%E5%BC%8F%EF%BC%9F"><span class="nav-number">1.1.7.</span> <span class="nav-text">1.7 使用 Spring 有哪些方式？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%EF%BC%88Ioc%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">2 依赖注入（Ioc）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E4%BB%80%E4%B9%88%E6%98%AF-Spring-IOC-%E5%AE%B9%E5%99%A8%EF%BC%9F"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 什么是 Spring IOC 容器？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E4%BB%80%E4%B9%88%E6%98%AF%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%EF%BC%9F"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 什么是依赖注入？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E5%8F%AF%E4%BB%A5%E9%80%9A%E8%BF%87%E5%A4%9A%E5%B0%91%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%8C%E6%88%90%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%EF%BC%9F"><span class="nav-number">1.2.3.</span> <span class="nav-text">2.3 可以通过多少种方式完成依赖注入？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-%E5%8C%BA%E5%88%86%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E6%B3%A8%E5%85%A5%E5%92%8C-setter-%E6%B3%A8%E5%85%A5"><span class="nav-number">1.2.4.</span> <span class="nav-text">2.4 区分构造函数注入和 setter 注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-spring-%E4%B8%AD%E6%9C%89%E5%A4%9A%E5%B0%91%E7%A7%8D-IOC-%E5%AE%B9%E5%99%A8%EF%BC%9F"><span class="nav-number">1.2.5.</span> <span class="nav-text">2.5 spring 中有多少种 IOC 容器？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-%E5%8C%BA%E5%88%86-BeanFactory-%E5%92%8C-ApplicationContext"><span class="nav-number">1.2.6.</span> <span class="nav-text">2.6 区分 BeanFactory 和 ApplicationContext</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7-IoC-%E7%9A%84%E4%B8%80%E4%BA%9B%E5%A5%BD%E5%A4%84"><span class="nav-number">1.2.7.</span> <span class="nav-text">2.7 IoC 的一些好处</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-8-Spring-IoC-%E7%9A%84%E5%AE%9E%E7%8E%B0%E6%9C%BA%E5%88%B6"><span class="nav-number">1.2.8.</span> <span class="nav-text">2.8 Spring IoC 的实现机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Beans"><span class="nav-number">1.3.</span> <span class="nav-text">3 Beans</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E4%BB%80%E4%B9%88%E6%98%AF-spring-bean%EF%BC%9F"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1 什么是 spring bean？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-spring-%E6%8F%90%E4%BE%9B%E4%BA%86%E5%93%AA%E4%BA%9B%E9%85%8D%E7%BD%AE%E6%96%B9%E5%BC%8F%EF%BC%9F"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2 spring 提供了哪些配置方式？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-spring-%E6%94%AF%E6%8C%81%E9%9B%86%E4%B8%AD-bean-scope%EF%BC%9F"><span class="nav-number">1.3.3.</span> <span class="nav-text">3.3 spring 支持集中 bean scope？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-spring-bean-%E5%AE%B9%E5%99%A8%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-number">1.3.4.</span> <span class="nav-text">3.4 spring bean 容器的生命周期是什么样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-%E4%BB%80%E4%B9%88%E6%98%AF-spring-%E7%9A%84%E5%86%85%E9%83%A8-bean%EF%BC%9F"><span class="nav-number">1.3.5.</span> <span class="nav-text">3.5 什么是 spring 的内部 bean？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-%E4%BB%80%E4%B9%88%E6%98%AF-spring-%E8%A3%85%E9%85%8D%EF%BC%9F"><span class="nav-number">1.3.6.</span> <span class="nav-text">3.6 什么是 spring 装配？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-7-%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D%E6%9C%89%E5%93%AA%E4%BA%9B%E6%96%B9%E5%BC%8F%EF%BC%9F"><span class="nav-number">1.3.7.</span> <span class="nav-text">3.7 自动装配有哪些方式？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-8-%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D%E6%9C%89%E4%BB%80%E4%B9%88%E5%B1%80%E9%99%90%EF%BC%9F"><span class="nav-number">1.3.8.</span> <span class="nav-text">3.8 自动装配有什么局限？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%B3%A8%E8%A7%A3"><span class="nav-number">1.4.</span> <span class="nav-text">4 注解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E4%BD%A0%E7%94%A8%E8%BF%87%E5%93%AA%E4%BA%9B%E9%87%8D%E8%A6%81%E7%9A%84-Spring-%E6%B3%A8%E8%A7%A3%EF%BC%9F"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1 你用过哪些重要的 Spring 注解？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%A6%82%E4%BD%95%E5%9C%A8-spring-%E4%B8%AD%E5%90%AF%E5%8A%A8%E6%B3%A8%E8%A7%A3%E8%A3%85%E9%85%8D%EF%BC%9F"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2 如何在 spring 中启动注解装配？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-Component-Controller-Repository-Service-%E6%9C%89%E4%BD%95%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">1.4.3.</span> <span class="nav-text">4.3 @Component, @Controller, @Repository, @Service 有何区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-Required-%E6%B3%A8%E8%A7%A3%E6%9C%89%E4%BB%80%E4%B9%88%E7%94%A8%EF%BC%9F"><span class="nav-number">1.4.4.</span> <span class="nav-text">4.4 @Required 注解有什么用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-5-Autowired-%E6%B3%A8%E8%A7%A3%E6%9C%89%E4%BB%80%E4%B9%88%E7%94%A8%EF%BC%9F"><span class="nav-number">1.4.5.</span> <span class="nav-text">4.5 @Autowired 注解有什么用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-6-Qualifier-%E6%B3%A8%E8%A7%A3%E6%9C%89%E4%BB%80%E4%B9%88%E7%94%A8%EF%BC%9F"><span class="nav-number">1.4.6.</span> <span class="nav-text">4.6 @Qualifier 注解有什么用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-7-RequestMapping-%E6%B3%A8%E8%A7%A3%E6%9C%89%E4%BB%80%E4%B9%88%E7%94%A8%EF%BC%9F"><span class="nav-number">1.4.7.</span> <span class="nav-text">4.7 @RequestMapping 注解有什么用？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%95%B0%E6%8D%AE%E8%AE%BF%E9%97%AE"><span class="nav-number">1.5.</span> <span class="nav-text">5 数据访问</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-spring-DAO-%E6%9C%89%E4%BB%80%E4%B9%88%E7%94%A8%EF%BC%9F"><span class="nav-number">1.5.1.</span> <span class="nav-text">5.1 spring DAO 有什么用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E5%88%97%E4%B8%BE-Spring-DAO-%E6%8A%9B%E5%87%BA%E7%9A%84%E5%BC%82%E5%B8%B8"><span class="nav-number">1.5.2.</span> <span class="nav-text">5.2 列举 Spring DAO 抛出的异常</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-spring-JDBC-API-%E4%B8%AD%E5%AD%98%E5%9C%A8%E5%93%AA%E4%BA%9B%E7%B1%BB%EF%BC%9F"><span class="nav-number">1.5.3.</span> <span class="nav-text">5.3 spring JDBC API 中存在哪些类？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-%E4%BD%BF%E7%94%A8-Spring-%E8%AE%BF%E9%97%AE-Hibernate-%E7%9A%84%E6%96%B9%E6%B3%95%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-number">1.5.4.</span> <span class="nav-text">5.4 使用 Spring 访问 Hibernate 的方法有哪些？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-5-%E5%88%97%E4%B8%BE-spring-%E6%94%AF%E6%8C%81%E7%9A%84%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.5.5.</span> <span class="nav-text">5.5 列举 spring 支持的事务管理类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-6-Spring-%E6%94%AF%E6%8C%81%E5%93%AA%E4%BA%9B-ORM-%E6%A1%86%E6%9E%B6"><span class="nav-number">1.5.6.</span> <span class="nav-text">5.6 Spring 支持哪些 ORM 框架</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-AOP"><span class="nav-number">1.6.</span> <span class="nav-text">6 AOP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E4%BB%80%E4%B9%88%E6%98%AF-AOP%EF%BC%9F"><span class="nav-number">1.6.1.</span> <span class="nav-text">6.1 什么是 AOP？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-AOP-%E4%B8%AD%E7%9A%84-Aspect%E3%80%81Advice%E3%80%81Pointcut%E3%80%81JointPoint-%E5%92%8C-Advice-%E5%8F%82%E6%95%B0%E5%88%86%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.6.2.</span> <span class="nav-text">6.2 AOP 中的 Aspect、Advice、Pointcut、JointPoint 和 Advice 参数分别是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E4%BB%80%E4%B9%88%E6%98%AF%E9%80%9A%E7%9F%A5%EF%BC%88Advice%EF%BC%89%EF%BC%9F"><span class="nav-number">1.6.3.</span> <span class="nav-text">6.3 什么是通知（Advice）？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-%E6%9C%89%E5%93%AA%E4%BA%9B%E7%B1%BB%E5%9E%8B%E7%9A%84%E9%80%9A%E7%9F%A5%EF%BC%88Advice%EF%BC%89%EF%BC%9F"><span class="nav-number">1.6.4.</span> <span class="nav-text">6.4 有哪些类型的通知（Advice）？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-5-%E6%8C%87%E5%87%BA%E5%9C%A8-spring-aop-%E4%B8%AD-concern-%E5%92%8C-cross-cutting-concern-%E7%9A%84%E4%B8%8D%E5%90%8C%E4%B9%8B%E5%A4%84"><span class="nav-number">1.6.5.</span> <span class="nav-text">6.5 指出在 spring aop 中 concern 和 cross-cutting concern 的不同之处</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-6-AOP-%E6%9C%89%E5%93%AA%E4%BA%9B%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F%EF%BC%9F"><span class="nav-number">1.6.6.</span> <span class="nav-text">6.6 AOP 有哪些实现方式？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-7-Spring-AOP-and-AspectJ-AOP-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">1.6.7.</span> <span class="nav-text">6.7 Spring AOP and AspectJ AOP 有什么区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-8-%E5%A6%82%E4%BD%95%E7%90%86%E8%A7%A3-Spring-%E4%B8%AD%E7%9A%84%E4%BB%A3%E7%90%86%EF%BC%9F"><span class="nav-number">1.6.8.</span> <span class="nav-text">6.8 如何理解 Spring 中的代理？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-9-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BC%96%E7%BB%87%EF%BC%88Weaving%EF%BC%89%EF%BC%9F"><span class="nav-number">1.6.9.</span> <span class="nav-text">6.9 什么是编织（Weaving）？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-MVC"><span class="nav-number">1.7.</span> <span class="nav-text">7 MVC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-Spring-MVC-%E6%A1%86%E6%9E%B6%E6%9C%89%E4%BB%80%E4%B9%88%E7%94%A8%EF%BC%9F"><span class="nav-number">1.7.1.</span> <span class="nav-text">7.1 Spring MVC 框架有什么用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E6%8F%8F%E8%BF%B0%E4%B8%80%E4%B8%8B-DispatcherServlet-%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.7.2.</span> <span class="nav-text">7.2 描述一下 DispatcherServlet 的工作流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-%E4%BB%8B%E7%BB%8D%E4%B8%80%E4%B8%8B-WebApplicationContext"><span class="nav-number">1.7.3.</span> <span class="nav-text">7.3 介绍一下 WebApplicationContext</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">1.8.</span> <span class="nav-text">8 参考资料</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">wisedu1 宇神</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">6.8k</span>
+  
+</div>
+
+<!-- 
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+ -->
+
+<!-- 
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+ --!>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+      <div id="needsharebutton-float">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/needsharebutton/needsharebutton.css">
+
+  
+  
+  <script src="/lib/needsharebutton/needsharebutton.js"></script>
+
+  <script>
+    
+      pbOptions = {};
+      
+          pbOptions.iconStyle = "default";
+      
+          pbOptions.boxForm = "horizontal";
+      
+          pbOptions.position = "bottomCenter";
+      
+          pbOptions.networks = "Weibo,Wechat,Douban,QQZone,Twitter,Facebook";
+      
+      new needShareButton('#needsharebutton-postbottom', pbOptions);
+    
+    
+      flOptions = {};
+      
+          flOptions.iconStyle = "default";
+      
+          flOptions.boxForm = "vertical";
+      
+          flOptions.position = "topRight";
+      
+          flOptions.networks = "Weibo,Wechat,Douban,QQZone,Twitter,Facebook";
+      
+      new needShareButton('#needsharebutton-float', flOptions);
+    
+  </script>
+
+  
+
+  
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+</html>
