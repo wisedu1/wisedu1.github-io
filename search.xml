@@ -1,6 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Spring MVC 框架总结</title>
+    <url>/2021/04/27/Spring%20MVC%20%E6%A1%86%E6%9E%B6%E6%80%BB%E7%BB%93/</url>
+    <content><![CDATA[<p>[TOC]</p>
+<h1 id="Spring-MVC-框架总结"><a href="#Spring-MVC-框架总结" class="headerlink" title="Spring MVC 框架总结"></a>Spring MVC 框架总结</h1><h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>最近开始接触 Spring MVC，但是零零散散，没有在大脑里形成系统的知识结构体系，于是在此进行了梳理。</p>
+<h2 id="什么是-MVC"><a href="#什么是-MVC" class="headerlink" title="什么是 MVC"></a>什么是 MVC</h2><p>Spring MVC 是 Spring 框架的一个模块，Spring MVC 和 Spring 无需通过中间整合层进行整合。</p>
+<p>Spring MVC 是一个基于 MVC 的 web 框架。</p>
+<p><strong>MVC</strong> 模式是软件工程中的一种软件架构模式，把软件系统分为三个基本部分：</p>
+<ul>
+<li>控制器(<strong>C</strong>ontroller)——负责转发请求，对请求进行处理。</li>
+<li>视图 (<strong>V</strong>iew)——界面设计人员进行图形界面设计。</li>
+<li>模型 (<strong>M</strong>odel)——程序员编写程序应有的功能、数据库专家进行数据管理和数据库设计。</li>
+</ul>
+<p>所以，MVC 模式将程序划分了三个组件，<strong>模型 (Model)</strong> 用于封装与应用程序的业务逻辑相关的数据以及对数据的处理方法。<strong>视图 (View)</strong> 负责展示数据，<strong>控制器 (Contoller)</strong> 处理事件并作出响应（事件包括用户的行为，比如请求）和数据 Model 上的改变。</p>
+<ul>
+<li>用户发起 request 请求至控制器 (Controller)，控制器接收用户请求的数据，委托给模型进行处理</li>
+<li>控制器通过模型处理数据并得到处理结果，模型通常是指业务逻辑</li>
+<li>模型处理结果返回给控制器</li>
+<li>控制器将模型数据在视图中展示，web 中模型无法将数据直接在视图上显示，需要通过控制器完成</li>
+<li>控制器将视图 response 响应给用户，通过视图展示给用户要的数据或处理结果</li>
+</ul>
+<h2 id="Spring-MVC-核心架构"><a href="#Spring-MVC-核心架构" class="headerlink" title="Spring MVC 核心架构"></a>Spring MVC 核心架构</h2><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/SpringMVC%20%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg"></p>
+<ol>
+<li>用户发起请求到前端控制器 (DispatcherServlet)</li>
+<li>前端控制器请求处理器映射器 HandlerMapping 查找 Handler，可以根据 xml 配置、注解进行查找</li>
+<li>处理器映射器 HandlerMapping 向前端控制器返回 Handler</li>
+<li>前端控制器调用处理器适配器 HandlerAdapter 去执行 Handler</li>
+<li>处理器适配器去执行 Handler</li>
+<li>处理器适配器向前端控制器返回 ModelAndView，它是 Spirng MVC 框架的一个底层对象，包括 Model 和 View</li>
+<li>前端控制器请求视图解析器 ViewResolver 去进行视图解析，根据逻辑视图名解析成真正的视图</li>
+<li>视图解析器 向前端控制器返回 View</li>
+<li>前端控制器进行视图渲染，视图渲染将模型数据（在 ModelAndView 对象中）填充到 request 域</li>
+<li>前端控制器向用户响应结果</li>
+</ol>
+<p>通常，一个项目是由 Spring + SpringMVC + MyBatis 三大框架整合的 SSM 框架完成。</p>
+<h2 id="Spring-MVC-常用注解"><a href="#Spring-MVC-常用注解" class="headerlink" title="Spring MVC 常用注解"></a>Spring MVC 常用注解</h2><ol>
+<li><p>@Controller</p>
+<p>负责注册一个 bean 到 Spring Context中。</p>
+</li>
+<li><p>@RequstMapping</p>
+<p>注解为控制器指定可以处理那些 URL 请求。</p>
+</li>
+<li><p>@RequstBody</p>
+<p>该注解用于读取 <code>Request</code> 请求的 body 部分数据，使用系统默认配置的 <code>HttpMessageConverter</code> 进行解析，然后把响应的数据绑定到要返回的对象上，再把 <code>HttpMessageConverter</code> 返回的对象数据绑定到 controller 中方法的参数上。</p>
+</li>
+<li><p>@ResponseBody</p>
+<p>该注解用于将 controller 的方法返回的对象通过适当的 <code>HttpMessageConverter</code> 转换成为指定格式后，写入到 <code>Response</code> 对象的 body 数据区。</p>
+</li>
+<li><p>@ModelAttribute</p>
+<p>在方法定义上使用 @ModelAttribute 注解：Spring MVC 在调用目标处理方法前，会先逐个调用在方法级上标注了 @ModelAttribute 的方法。</p>
+<p>在方法的入参前使用 @ModelAttribute 注解：可以从隐含对象中获取隐含的模型数据中获取对象，再将请求参数绑定到对象中，再传入入参将方法入参对象添加到模型中。</p>
+</li>
+<li><p>@RequstParam</p>
+<p>在处理方法入参处使用 @RequestParam 可以把请求参数传递给请求方法。</p>
+</li>
+<li><p>@PathVariable</p>
+<p>绑定 URL 占位符到入参。</p>
+</li>
+<li><p>@ExceptionHandler</p>
+<p>注解到方法上，出现异常时会执行该方法。</p>
+</li>
+<li><p>@ControllerAdvice</p>
+<p>使一个 Controller 成为全局的异常处理类，类中使用 @ExceptionHandler 注解的方法可以处理所有 Controller 发生的异常。</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>框架</category>
+      </categories>
+      <tags>
+        <tag>Spring MVC</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Spring 框架常见问题</title>
     <url>/2021/04/28/Spring%20%E6%A1%86%E6%9E%B6%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/</url>
     <content><![CDATA[<p>[TOC]</p>
@@ -299,7 +372,7 @@
 </ol>
 <hr>
 <p>部分内容来源于网络，作为学习使用，如有侵权请联系我删除。请注明来意。</p>
-<p>邮箱：<a href="mailto:&#x77;&#x69;&#x73;&#x65;&#x64;&#117;&#x31;&#64;&#x67;&#109;&#97;&#105;&#x6c;&#46;&#x63;&#x6f;&#x6d;">&#x77;&#x69;&#x73;&#x65;&#x64;&#117;&#x31;&#64;&#x67;&#109;&#97;&#105;&#x6c;&#46;&#x63;&#x6f;&#x6d;</a></p>
+<p>邮箱：<a href="mailto:&#x77;&#x69;&#x73;&#101;&#100;&#x75;&#49;&#64;&#x67;&#109;&#x61;&#105;&#108;&#x2e;&#x63;&#x6f;&#109;">&#x77;&#x69;&#x73;&#101;&#100;&#x75;&#49;&#64;&#x67;&#109;&#x61;&#105;&#108;&#x2e;&#x63;&#x6f;&#109;</a></p>
 <p>微信：</p>
 <img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81.jpg" width="200px" />
 
@@ -312,75 +385,273 @@
       </tags>
   </entry>
   <entry>
-    <title>Spring MVC 框架总结</title>
-    <url>/2021/04/27/Spring%20MVC%20%E6%A1%86%E6%9E%B6%E6%80%BB%E7%BB%93/</url>
-    <content><![CDATA[<h1 id="Spring-MVC-框架总结"><a href="#Spring-MVC-框架总结" class="headerlink" title="Spring MVC 框架总结"></a>Spring MVC 框架总结</h1><h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>最近开始接触 Spring MVC，但是零零散散，没有在大脑里形成系统的知识结构体系，于是在此进行了梳理。</p>
-<h2 id="什么是-MVC"><a href="#什么是-MVC" class="headerlink" title="什么是 MVC"></a>什么是 MVC</h2><p>Spring MVC 是 Spring 框架的一个模块，Spring MVC 和 Spring 无需通过中间整合层进行整合。</p>
-<p>Spring MVC 是一个基于 MVC 的 web 框架。</p>
-<p><strong>MVC</strong> 模式是软件工程中的一种软件架构模式，把软件系统分为三个基本部分：</p>
+    <title>Java 常见难点</title>
+    <url>/2021/04/29/Java%20%E5%B8%B8%E8%A7%81%E9%9A%BE%E7%82%B9/</url>
+    <content><![CDATA[<p>[TOC]</p>
+<h1 id="Java-常见难点"><a href="#Java-常见难点" class="headerlink" title="Java 常见难点"></a>Java 常见难点</h1><h2 id="1-java-基础"><a href="#1-java-基础" class="headerlink" title="1 java 基础"></a>1 java 基础</h2><h3 id="1-1-容器"><a href="#1-1-容器" class="headerlink" title="1.1 容器"></a>1.1 容器</h3><h4 id="1-1-1-LinkedList-和-ArrayList"><a href="#1-1-1-LinkedList-和-ArrayList" class="headerlink" title="1.1.1 LinkedList 和 ArrayList"></a>1.1.1 LinkedList 和 ArrayList</h4><ol>
+<li><p>数据结构不同</p>
 <ul>
-<li>控制器(<strong>C</strong>ontroller)——负责转发请求，对请求进行处理。</li>
-<li>视图 (<strong>V</strong>iew)——界面设计人员进行图形界面设计。</li>
-<li>模型 (<strong>M</strong>odel)——程序员编写程序应有的功能、数据库专家进行数据管理和数据库设计。</li>
+<li>ArrayList <font color ="red">（好查找）</font>是数组的数据结构。</li>
+<li>LinkedList <font color="red">（好修改）</font>是链表的数据结构。</li>
 </ul>
-<p>所以，MVC 模式将程序划分了三个组件，<strong>模型 (Model)</strong> 用于封装与应用程序的业务逻辑相关的数据以及对数据的处理方法。<strong>视图 (View)</strong> 负责展示数据，<strong>控制器 (Contoller)</strong> 处理事件并作出响应（事件包括用户的行为，比如请求）和数据 Model 上的改变。</p>
-<ul>
-<li>用户发起 request 请求至控制器 (Controller)，控制器接收用户请求的数据，委托给模型进行处理</li>
-<li>控制器通过模型处理数据并得到处理结果，模型通常是指业务逻辑</li>
-<li>模型处理结果返回给控制器</li>
-<li>控制器将模型数据在视图中展示，web 中模型无法将数据直接在视图上显示，需要通过控制器完成</li>
-<li>控制器将视图 response 响应给用户，通过视图展示给用户要的数据或处理结果</li>
-</ul>
-<h2 id="Spring-MVC-核心架构"><a href="#Spring-MVC-核心架构" class="headerlink" title="Spring MVC 核心架构"></a>Spring MVC 核心架构</h2><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/SpringMVC%20%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg"></p>
-<ol>
-<li>用户发起请求到前端控制器 (DispatcherServlet)</li>
-<li>前端控制器请求处理器映射器 HandlerMapping 查找 Handler，可以根据 xml 配置、注解进行查找</li>
-<li>处理器映射器 HandlerMapping 向前端控制器返回 Handler</li>
-<li>前端控制器调用处理器适配器 HandlerAdapter 去执行 Handler</li>
-<li>处理器适配器去执行 Handler</li>
-<li>处理器适配器向前端控制器返回 ModelAndView，它是 Spirng MVC 框架的一个底层对象，包括 Model 和 View</li>
-<li>前端控制器请求视图解析器 ViewResolver 去进行视图解析，根据逻辑视图名解析成真正的视图</li>
-<li>视图解析器 向前端控制器返回 View</li>
-<li>前端控制器进行视图渲染，视图渲染将模型数据（在 ModelAndView 对象中）填充到 request 域</li>
-<li>前端控制器向用户响应结果</li>
+</li>
+<li><p>效率不同</p>
+<p>当随机访问 List（ get 和 set 操作）时，ArrayList 比 LinkedList 的效率更高，因为 LinkedList 是线性的数据存储方式，所以需要移动指针从前往后依次查找。</p>
+<p>当对数据进行增加和删除的操作( add 和 remove 操作)时，LinkedList 比 ArrayList  的效率更高，因为 ArrayList 是数组，所以在其中进行增删操作时，会对操作点之后所有数据的下标索引造成影响，需要进行数据的移动。</p>
+</li>
+<li><p>自由性不同</p>
+<p>ArrayList 自由性较低，因为它需要<strong>手动</strong>的设置固定大小的容量，但是它的使用比较方便，只需要创建，然后添加数据，通过调用下标进行使用；而 LinkedList 自由性较高，能够动态的随数据量的变化而变化，但是它不便于使用。</p>
+</li>
+<li><p>主要控件开销不同</p>
+<p>ArrayList 主要控件开销在于需要在给 ArrayList 列表预留一定空间；而 LinkedList 主要控件开销在于需要存储结点信息以及结点指针信息。</p>
+</li>
+<li><p>ArrayList 和 LinkedList 的线程安全问题</p>
+<p>都不安全，不然不然 JUC 不会实现 CopyOnWriteArrayList 和 ConcurrentLinkedQueue。</p>
+<blockquote>
+<p>JUC: java.util.concurrent</p>
+</blockquote>
+</li>
 </ol>
-<p>通常，一个项目是由 Spring + SpringMVC + MyBatis 三大框架整合的 SSM 框架完成。</p>
-<h2 id="Spring-MVC-常用注解"><a href="#Spring-MVC-常用注解" class="headerlink" title="Spring MVC 常用注解"></a>Spring MVC 常用注解</h2><ol>
-<li><p>@Controller</p>
-<p>负责注册一个 bean 到 Spring Context中。</p>
+<h4 id="1-1-2-HashMap"><a href="#1-1-2-HashMap" class="headerlink" title="1.1.2 HashMap"></a>1.1.2 HashMap</h4><ol>
+<li><p>HashMap 的数据结构</p>
+<p>哈希结构表：数组+链表</p>
+<ul>
+<li><p><font color="red">通过哈希表结构配合对象的 hashCode 和 equals 方法就可以保证键的唯一性</font></p>
+<blockquote>
+<p>建议今后存储自定义类型的时候，重写hashCode和equals方法。</p>
+</blockquote>
 </li>
-<li><p>@RequstMapping</p>
-<p>注解为控制器指定可以处理那些 URL 请求。</p>
+</ul>
 </li>
-<li><p>@RequstBody</p>
-<p>该注解用于读取 <code>Request</code> 请求的 body 部分数据，使用系统默认配置的 <code>HttpMessageConverter</code> 进行解析，然后把响应的数据绑定到要返回的对象上，再把 <code>HttpMessageConverter</code> 返回的对象数据绑定到 controller 中方法的参数上。</p>
+<li><p>HashMap 和 HashTable 以及 concurrentHashmap 的区别</p>
+<ul>
+<li><p>HashMap（不同步，<strong>线程不安全</strong>）允许存储null键和null值；</p>
 </li>
-<li><p>@ResponseBody</p>
-<p>该注解用于将 controller 的方法返回的对象通过适当的 <code>HttpMessageConverter</code> 转换成为指定格式后，写入到 <code>Response</code> 对象的 body 数据区。</p>
+<li><p>Hashtable 不允许存储 null 键和 null 值（同步，<strong>线程安全</strong>，<strong>效率低</strong>）。</p>
+<blockquote>
+<p>如果在多线程的场景下，也无需使用 Hashtable 集合，我们可以使用 <strong>ConcurrenntHashMap</strong> 集合，这是一个线程同步的。</p>
+</blockquote>
 </li>
-<li><p>@ModelAttribute</p>
-<p>在方法定义上使用 @ModelAttribute 注解：Spring MVC 在调用目标处理方法前，会先逐个调用在方法级上标注了 @ModelAttribute 的方法。</p>
-<p>在方法的入参前使用 @ModelAttribute 注解：可以从隐含对象中获取隐含的模型数据中获取对象，再将请求参数绑定到对象中，再传入入参将方法入参对象添加到模型中。</p>
+</ul>
 </li>
-<li><p>@RequstParam</p>
-<p>在处理方法入参处使用 @RequestParam 可以把请求参数传递给请求方法。</p>
+<li><p>HashMap resize()</p>
+<ul>
+<li><p>两个重要参数：</p>
+<ul>
+<li><p><strong>初始容量</strong></p>
+<p>默认 16</p>
+<p>哈希表中桶的数量</p>
 </li>
-<li><p>@PathVariable</p>
-<p>绑定 URL 占位符到入参。</p>
+<li><p><strong>负载因子</strong></p>
+<p>默认 0.75</p>
+<p>哈希表扩容的阈值</p>
 </li>
-<li><p>@ExceptionHandler</p>
-<p>注解到方法上，出现异常时会执行该方法。</p>
+</ul>
 </li>
-<li><p>@ControllerAdvice</p>
-<p>使一个 Controller 成为全局的异常处理类，类中使用 @ExceptionHandler 注解的方法可以处理所有 Controller 发生的异常。</p>
+<li><p>HashMap 的扩容</p>
+<ul>
+<li>当达到阈值时，自动扩容。</li>
+<li>扩容后的数组为原数组的<strong>两倍</strong>，并且数组的大小是 <strong>2 的次幂</strong>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Collection 与 Collections 的根本区别</p>
+<ul>
+<li>Collection 是一个<strong>集合接口</strong>。它提供了对集合对象进行基本操作的通用接口方法。Collection 接口在 Java 类库中有很多具体的实现。Collection 接口的意义是为各种具体的集合提供了最大化的统一操作方式。</li>
+<li>Collections 是一个<strong>包装类</strong>。它包含有各种有关集合操作的<strong>静态多态</strong>方法。此类<strong>不能实例化</strong>，就像一个工具类，服务于Java的 Collection 框架。</li>
+</ul>
+</li>
+</ol>
+<h4 id="1-1-3-HashCode-和-equals"><a href="#1-1-3-HashCode-和-equals" class="headerlink" title="1.1.3 HashCode() 和 equals()"></a>1.1.3 HashCode() 和 equals()</h4><ol>
+<li>它们都是 Object 类中的方法<ul>
+<li>如果类不重写这两个方法：<ul>
+<li>hashCode():属于是本地方法，返回的是对象的地址值。</li>
+<li>equals():用来比较两个对象的地址值是否相等。</li>
+</ul>
+</li>
+<li>如果重写这两个方法：<ul>
+<li>hashCode(): 返回的是根据对象的成员变量，计算出的一个整数。</li>
+<li>equals(): 比较的是两个对象中成员信息是否相等。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>类中重写 hashCode() 和 equals() 比较两个对象是否相等<ul>
+<li>两个对象通过 equals() 比较是相等的，那 hashCode() 肯定是相等，也就是 equals() 是绝对可靠的。</li>
+<li>两个对象通过 hashCode 比较相等，但是equals去做比较不一定相等，也就是 hashCode 不是绝对可靠的。</li>
+</ul>
+</li>
+<li>通过 hashCode 和 equals 搭配使用提高判断相等效率<ul>
+<li>由于对于一个对象有大量的成员信息，用 equals 比较会降低效率，所以可以先通过 hashCode 进行比较，如果不相等则两个对象一定不同，如果相同再用 equals 比较，这样可以调高效率。</li>
+</ul>
+</li>
+</ol>
+<h4 id="1-1-4-HashSet"><a href="#1-1-4-HashSet" class="headerlink" title="1.1.4 HashSet"></a>1.1.4 HashSet</h4><ol>
+<li><p>HashSet 集合特点无序，元素唯一在 HashSet 集合中，通过  hashCode() 和 equals()，保证了元素的唯一性。</p>
+<p>这个判断的流程是：</p>
+<ul>
+<li>首先比较对象的哈希值是否相同，这个哈希值是根据对象的 hashCode() 计算出来的；</li>
+<li>如果哈希值不同，就直接添加到集合中；</li>
+<li>如果哈希值相同，继续执行 equals() 进行比较；</li>
+<li>返回的是 true，说明元素重复，不添加；</li>
+<li>返回的是 false，说明元素不重复，就添加。</li>
+</ul>
+</li>
+</ol>
+<h2 id="2-线程和锁"><a href="#2-线程和锁" class="headerlink" title="2 线程和锁"></a>2 线程和锁</h2><h3 id="2-1-线程的状态"><a href="#2-1-线程的状态" class="headerlink" title="2.1 线程的状态"></a>2.1 线程的状态</h3><table>
+<thead>
+<tr>
+<th align="center">状态名称</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">NEW</td>
+<td align="center">初始状态，线程被构建，但没调用 start() 方法</td>
+</tr>
+<tr>
+<td align="center">RUNNABLE</td>
+<td align="center">运行状态，Java 线程将操作系统中的就绪和运行两种状态笼统地称作“运行中”</td>
+</tr>
+<tr>
+<td align="center">BLOCKED</td>
+<td align="center">阻塞状态，表示线程阻塞于锁</td>
+</tr>
+<tr>
+<td align="center">WAITING</td>
+<td align="center">等待状态，表示线程进入等待状态，进入该状态表示当前线程需要等待其他线程做出一些特定动作（通知或中断）</td>
+</tr>
+<tr>
+<td align="center">TIME_WAITING</td>
+<td align="center">超时等待状态，该状态不同于 WAITING，它是可以在指定的时间自行返回的</td>
+</tr>
+<tr>
+<td align="center">TERMINATED</td>
+<td align="center">终止状态，表示当前线程已经执行完毕</td>
+</tr>
+</tbody></table>
+<hr>
+<p>部分内容来源于网络，作为学习使用，如有侵权请联系我删除。请注明来意。</p>
+<p>邮箱：<a href="mailto:&#x77;&#x69;&#x73;&#101;&#x64;&#117;&#x31;&#x40;&#x67;&#x6d;&#x61;&#x69;&#108;&#x2e;&#x63;&#x6f;&#x6d;">&#x77;&#x69;&#x73;&#101;&#x64;&#117;&#x31;&#x40;&#x67;&#x6d;&#x61;&#x69;&#108;&#x2e;&#x63;&#x6f;&#x6d;</a></p>
+<p>微信：</p>
+<img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81.jpg" width="200px" />]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java 常见难点</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java 基础</title>
+    <url>/2021/04/30/Java%20%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[<p>[TOC]</p>
+<h2 id="1-java-基础"><a href="#1-java-基础" class="headerlink" title="1 java 基础"></a>1 java 基础</h2><h3 id="1-1-容器"><a href="#1-1-容器" class="headerlink" title="1.1 容器"></a>1.1 容器</h3><h4 id="1-1-1-LinkedList-和-ArrayList"><a href="#1-1-1-LinkedList-和-ArrayList" class="headerlink" title="1.1.1 LinkedList 和 ArrayList"></a>1.1.1 LinkedList 和 ArrayList</h4><ol>
+<li><p>数据结构不同</p>
+<ul>
+<li>ArrayList <font color ="red">（好查找）</font>是数组的数据结构。</li>
+<li>LinkedList <font color="red">（好修改）</font>是链表的数据结构。</li>
+</ul>
+</li>
+<li><p>效率不同</p>
+<p>当随机访问 List（ get 和 set 操作）时，ArrayList 比 LinkedList 的效率更高，因为 LinkedList 是线性的数据存储方式，所以需要移动指针从前往后依次查找。</p>
+<p>当对数据进行增加和删除的操作( add 和 remove 操作)时，LinkedList 比 ArrayList  的效率更高，因为 ArrayList 是数组，所以在其中进行增删操作时，会对操作点之后所有数据的下标索引造成影响，需要进行数据的移动。</p>
+</li>
+<li><p>自由性不同</p>
+<p>ArrayList 自由性较低，因为它需要<strong>手动</strong>的设置固定大小的容量，但是它的使用比较方便，只需要创建，然后添加数据，通过调用下标进行使用；而 LinkedList 自由性较高，能够动态的随数据量的变化而变化，但是它不便于使用。</p>
+</li>
+<li><p>主要控件开销不同</p>
+<p>ArrayList 主要控件开销在于需要在给 ArrayList 列表预留一定空间；而 LinkedList 主要控件开销在于需要存储结点信息以及结点指针信息。</p>
+</li>
+<li><p>ArrayList 和 LinkedList 的线程安全问题</p>
+<p>都不安全，不然不然 JUC 不会实现 CopyOnWriteArrayList 和 ConcurrentLinkedQueue。</p>
+<blockquote>
+<p>JUC: java.util.concurrent</p>
+</blockquote>
+</li>
+</ol>
+<h4 id="1-1-2-HashMap"><a href="#1-1-2-HashMap" class="headerlink" title="1.1.2 HashMap"></a>1.1.2 HashMap</h4><ol>
+<li><p>HashMap 的数据结构</p>
+<p>哈希结构表：数组+链表</p>
+<ul>
+<li><p><font color="red">通过哈希表结构配合对象的 hashCode 和 equals 方法就可以保证键的唯一性</font></p>
+<blockquote>
+<p>建议今后存储自定义类型的时候，重写hashCode和equals方法。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>HashMap 和 HashTable 以及 concurrentHashmap 的区别</p>
+<ul>
+<li><p>HashMap（不同步，<strong>线程不安全</strong>）允许存储null键和null值；</p>
+</li>
+<li><p>Hashtable 不允许存储 null 键和 null 值（同步，<strong>线程安全</strong>，<strong>效率低</strong>）。</p>
+<blockquote>
+<p>如果在多线程的场景下，也无需使用 Hashtable 集合，我们可以使用 <strong>ConcurrenntHashMap</strong> 集合，这是一个线程同步的。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>HashMap resize()</p>
+<ul>
+<li><p>两个重要参数：</p>
+<ul>
+<li><p><strong>初始容量</strong></p>
+<p>默认 16</p>
+<p>哈希表中桶的数量</p>
+</li>
+<li><p><strong>负载因子</strong></p>
+<p>默认 0.75</p>
+<p>哈希表扩容的阈值</p>
+</li>
+</ul>
+</li>
+<li><p>HashMap 的扩容</p>
+<ul>
+<li>当达到阈值时，自动扩容。</li>
+<li>扩容后的数组为原数组的<strong>两倍</strong>，并且数组的大小是 <strong>2 的次幂</strong>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Collection 与 Collections 的根本区别</p>
+<ul>
+<li>Collection 是一个<strong>集合接口</strong>。它提供了对集合对象进行基本操作的通用接口方法。Collection 接口在 Java 类库中有很多具体的实现。Collection 接口的意义是为各种具体的集合提供了最大化的统一操作方式。</li>
+<li>Collections 是一个<strong>包装类</strong>。它包含有各种有关集合操作的<strong>静态多态</strong>方法。此类<strong>不能实例化</strong>，就像一个工具类，服务于Java的 Collection 框架。</li>
+</ul>
+</li>
+</ol>
+<h4 id="1-1-3-HashCode-和-equals"><a href="#1-1-3-HashCode-和-equals" class="headerlink" title="1.1.3 HashCode() 和 equals()"></a>1.1.3 HashCode() 和 equals()</h4><ol>
+<li>它们都是 Object 类中的方法<ul>
+<li>如果类不重写这两个方法：<ul>
+<li>hashCode():属于是本地方法，返回的是对象的地址值。</li>
+<li>equals():用来比较两个对象的地址值是否相等。</li>
+</ul>
+</li>
+<li>如果重写这两个方法：<ul>
+<li>hashCode(): 返回的是根据对象的成员变量，计算出的一个整数。</li>
+<li>equals(): 比较的是两个对象中成员信息是否相等。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>类中重写 hashCode() 和 equals() 比较两个对象是否相等<ul>
+<li>两个对象通过 equals() 比较是相等的，那 hashCode() 肯定是相等，也就是 equals() 是绝对可靠的。</li>
+<li>两个对象通过 hashCode 比较相等，但是equals去做比较不一定相等，也就是 hashCode 不是绝对可靠的。</li>
+</ul>
+</li>
+<li>通过 hashCode 和 equals 搭配使用提高判断相等效率<ul>
+<li>由于对于一个对象有大量的成员信息，用 equals 比较会降低效率，所以可以先通过 hashCode 进行比较，如果不相等则两个对象一定不同，如果相同再用 equals 比较，这样可以调高效率。</li>
+</ul>
 </li>
 </ol>
 ]]></content>
       <categories>
-        <category>框架</category>
+        <category>Java</category>
       </categories>
       <tags>
-        <tag>Spring MVC</tag>
+        <tag>Java 常见难点</tag>
       </tags>
   </entry>
 </search>
