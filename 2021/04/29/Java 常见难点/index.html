@@ -88,7 +88,7 @@
 <meta property="og:locale">
 <meta property="og:image" content="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%811.jpg">
 <meta property="article:published_time" content="2021-04-29T11:24:48.000Z">
-<meta property="article:modified_time" content="2021-05-10T08:28:48.780Z">
+<meta property="article:modified_time" content="2021-05-17T14:43:44.119Z">
 <meta property="article:author" content="wisedu1 宇神">
 <meta property="article:tag" content="Java 常见难点">
 <meta name="twitter:card" content="summary">
@@ -358,7 +358,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  4k
+                  5.5k
                 </span>
               
 
@@ -374,7 +374,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  14
+                  19
                 </span>
               
             </div>
@@ -644,16 +644,69 @@
 <p>（1）在多线程竞争下，加锁、释放锁会导致比较多的上下文切换和调度延时，引起性能问题。</p>
 <p>（2）一个线程持有锁会导致其它所有需要此锁的线程挂起。</p>
 <p>（3）如果一个优先级高的线程等待一个优先级低的线程释放锁会导致优先级倒置，引起性能风险。</p>
-<h3 id="2-12-wait-方法-和-sleep-方法（未完成）"><a href="#2-12-wait-方法-和-sleep-方法（未完成）" class="headerlink" title="2.12 wait 方法 和 sleep 方法（未完成）"></a>2.12 wait 方法 和 sleep 方法（未完成）</h3><ul>
+<h3 id="2-12-wait-方法-和-sleep-方法"><a href="#2-12-wait-方法-和-sleep-方法" class="headerlink" title="2.12 wait 方法 和 sleep 方法"></a>2.12 wait 方法 和 sleep 方法</h3><ul>
 <li>wait和sleep的基本使用：<ul>
 <li>wait：此方法来自Object类，必须由锁对象进行调用。</li>
 <li>sleep：此方法来之Thread类，是Thread类的静态方法，可以类名点调用。</li>
 </ul>
 </li>
+<li><font color="red">同步代码块中的wait，让线程停在了那里，为了防止线程锁死，会释放锁对象(加同步代码块synchronized)</font></li>
+<li><font color="red">sleep方法在休眠的过程中，不会释放锁对象</font></li>
 </ul>
+<h3 id="2-13-悲观锁和乐观锁"><a href="#2-13-悲观锁和乐观锁" class="headerlink" title="2.13 悲观锁和乐观锁"></a>2.13 悲观锁和乐观锁</h3><ul>
+<li><p>**悲观锁(Pessimistic Lock)**： 就是很悲观，每次去拿数据的时候都认为别人会修改。所以每次在拿数据的时候都会上锁。这样别人想拿数据就被挡住，直到悲观锁被释放，悲观锁中的共享资源每次只给一个线程使用，其它线程阻塞，用完后再把资源转让给其它线程</p>
+<p>但是在效率方面，处理加锁的机制会产生额外的开销，还有增加产生死锁的机会。另外还会降低并行性，如果已经锁定了一个线程A，其他线程就必须等待该线程A处理完才可以处理</p>
+<p>数据库中的行锁，表锁，读锁(共享锁)，写锁(排他锁)，以及syncronized实现的锁均为悲观锁</p>
+<p>悲观锁：很多数据库有多种锁机制，例如行锁，表锁等，读锁，写锁等。悲观锁就是利用数据库的这些锁机制，例如SQL语句中使用 <strong>for update。</strong></p>
+</li>
+<li><p>**乐观锁(Optimistic Lock)**： 就是很乐观，每次去拿数据的时候都认为别人不会修改。所以不会上锁，但是如果想要更新数据，则会在更新前检查在读取至更新这段时间别人有没有修改过这个数据。如果修改过，则重新读取，再次尝试更新，循环上述步骤直到更新成功(当然也允许更新失败的线程放弃操作),乐观锁适用于多读的应用类型，这样可以提高吞吐量。</p>
+<p>相对于悲观锁，在对数据库进行处理的时候，乐观锁并不会使用数据库提供的锁机制。一般的实现乐观锁的方式就是记录数据版本(version)或者是时间戳来实现，不过使用版本记录是最常用的。</p>
+</li>
+<li><p>悲观锁阻塞事务，乐观锁回滚重试，它们各有优缺点，不要认为一种一定好于另一种。像乐观锁适用于写比较少的情况下，即冲突真的很少发生的时候，这样可以省去锁的开销，加大了系统的整个吞吐量。</p>
+<p>但如果经常产生冲突，上层应用会不断的进行重试，这样反倒是降低了性能，所以这种情况下用悲观锁就比较合适。</p>
+<p><strong>注意点：</strong></p>
+<ol>
+<li>乐观锁并未真正加锁，所以效率高。一旦锁的粒度掌握不好，更新失败的概率就会比较高，容易发生业务失败。</li>
+<li>悲观锁依赖数据库锁，效率低。更新失败的概率比较低。</li>
+</ol>
+</li>
+</ul>
+<h3 id="2-14-死锁"><a href="#2-14-死锁" class="headerlink" title="2.14 死锁"></a>2.14 死锁</h3><p><strong>死锁</strong> 指两个事务或者多个事务在同一资源上相互占用，并请求对方所占用的资源，从而造成恶性循环的现象。<br><strong>出现死锁的原因：</strong></p>
+<ul>
+<li>系统资源不足</li>
+<li>进程运行推进的顺序不当</li>
+<li>资源分配不当</li>
+</ul>
+<p>如何避免线程死锁? </p>
+<p>为了避免死锁，我们只要破坏产⽣死锁的四个条件中的其中⼀个就可以了。现在我们来挨个分析⼀下：</p>
+<ol>
+<li><strong>破坏互斥条件</strong> ：这个条件我们<strong>没有办法破坏</strong>，因为我们⽤锁本来就是想让他们互斥的。</li>
+<li><strong>破坏请求与保持条件</strong> ：⼀次性申请所有的资源。 </li>
+<li><strong>破坏不剥夺条件</strong> ：占⽤部分资源的线程进⼀步申请其他资源时，如果申请不到，可以主动释放它占有的资源。 </li>
+<li><strong>破坏循环等待条件</strong> ：靠按序申请资源来预防。按某⼀顺序申请资源，释放资源则反序释放。 破坏循环等待条件。</li>
+</ol>
+<h3 id="2-15-锁的种类"><a href="#2-15-锁的种类" class="headerlink" title="2.15 锁的种类"></a>2.15 锁的种类</h3><p>Java中锁分为以下几种：</p>
+<ul>
+<li>乐观锁、悲观锁</li>
+<li>独享锁、共享锁</li>
+<li>公平锁、非公平锁</li>
+<li>互斥锁、读写锁</li>
+<li>可重入锁</li>
+<li>分段锁</li>
+<li>锁升级(无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁) JDK1.6</li>
+</ul>
+<h3 id="2-16-并发"><a href="#2-16-并发" class="headerlink" title="2.16 并发"></a>2.16 并发</h3><p>所谓并发就是：<strong>同时拥有两个或多个线程</strong>，如果程序在单核处理器上运行，多个线程将交替地换入或者换出内存，这些线程是同时「 存在 」的，每个线程都处于执行过程中的某个状态，如果运行在多核处理器上，此时，程序中每个线程都将分配到一个处理器核上，因此可以同时运行。也就是说，并发就是多个线程操作相同的物理机中的资源，保证其线程安全，合理的利用资源。有了并发就会有「 高并发 」，可能很多人认为这两个是一种意思。但是其实是有区别的。</p>
+<p> <strong>高并发（High Concurrency）：</strong></p>
+<p>是现在互联网设计系统中需要考虑的一个重要因素之一，通常来说，就是通过严谨的设计来保证系统能够<strong>同时并行处理</strong>很多的请求。</p>
+<h4 id="2-16-1-并发编程中的三个问题"><a href="#2-16-1-并发编程中的三个问题" class="headerlink" title="2.16.1 并发编程中的三个问题"></a>2.16.1 并发编程中的三个问题</h4><ul>
+<li><strong>可见性（Visibility）：</strong>是指一个线程对共享变量进行修改，另一个先立即得到修改后的最新值。</li>
+<li><strong>原子性（Atomicity）：</strong>在一次或多次操作中，要么所有的操作都执行并且不会受其他因素干扰而中断，要么所有的操作都不执行。</li>
+<li><strong>有序性（Ordering）：</strong>是指程序中代码的执行顺序，Java在编译时和运行时会对代码进行优化，会导致程序最终的执行顺序不一定就是我们编写代码时的顺序（重排）。</li>
+</ul>
+<p>java内存模型是一套在多线程读写共享数据时，对共享数据的可见性、有序性、和原子性的规则和保障。 </p>
 <hr>
 <p>部分内容来源于网络，作为学习使用，如有侵权请联系我删除。请注明来意。</p>
-<p>邮箱：<a href="mailto:&#x77;&#x69;&#x73;&#101;&#100;&#x75;&#49;&#64;&#103;&#109;&#x61;&#105;&#x6c;&#46;&#x63;&#111;&#109;">&#x77;&#x69;&#x73;&#101;&#100;&#x75;&#49;&#64;&#103;&#109;&#x61;&#105;&#x6c;&#46;&#x63;&#111;&#109;</a></p>
+<p>邮箱：<a href="mailto:&#119;&#105;&#x73;&#101;&#100;&#117;&#49;&#x40;&#x67;&#x6d;&#x61;&#105;&#x6c;&#x2e;&#x63;&#111;&#x6d;">&#119;&#105;&#x73;&#101;&#100;&#117;&#49;&#x40;&#x67;&#x6d;&#x61;&#105;&#x6c;&#x2e;&#x63;&#111;&#x6d;</a></p>
 <p>微信：</p>
 <img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%811.jpg" width="200px" />
 
@@ -796,7 +849,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -807,7 +860,7 @@
               
               <div class="site-state-item site-state-categories">
                 
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">分类</span>
                 
               </div>
@@ -818,7 +871,7 @@
               
               <div class="site-state-item site-state-tags">
                 
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">标签</span>
                 
               </div>
@@ -851,7 +904,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-%E5%B8%B8%E8%A7%81%E9%9A%BE%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">Java 常见难点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-java-%E5%9F%BA%E7%A1%80"><span class="nav-number">1.1.</span> <span class="nav-text">1 java 基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E5%AE%B9%E5%99%A8"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1 容器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-1-LinkedList-%E5%92%8C-ArrayList"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">1.1.1 LinkedList 和 ArrayList</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-2-HashMap"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">1.1.2 HashMap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-3-HashCode-%E5%92%8C-equals"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">1.1.3 HashCode() 和 equals()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-4-HashSet"><span class="nav-number">1.1.1.4.</span> <span class="nav-text">1.1.4 HashSet</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%BA%BF%E7%A8%8B%E5%92%8C%E9%94%81"><span class="nav-number">1.2.</span> <span class="nav-text">2 线程和锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E7%BA%BF%E7%A8%8B%E7%9A%84%E7%8A%B6%E6%80%81"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 线程的状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 创建线程的方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-1-%E7%BB%A7%E6%89%BF-Thread-%E7%B1%BB"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">2.2.1 继承 Thread 类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-2-%E5%AE%9E%E7%8E%B0-Runnable-%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">2.2.2 实现 Runnable 接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-3-%E5%AE%9E%E7%8E%B0-callable-%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.2.2.3.</span> <span class="nav-text">2.2.3 实现 callable 接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-4-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.2.4.</span> <span class="nav-text">2.3.4 线程池方式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-run-%E5%92%8C-start-%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.3.</span> <span class="nav-text">2.3 run() 和 start() 方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-ThreadLocal"><span class="nav-number">1.2.4.</span> <span class="nav-text">2.4 ThreadLocal</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-1-Threadlocal-key-%E7%9A%84%E5%BC%B1%E5%BC%95%E7%94%A8"><span class="nav-number">1.2.4.1.</span> <span class="nav-text">2.4.1 Threadlocal key 的弱引用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E5%BC%BA%E3%80%81%E8%BD%AF%E3%80%81%E5%BC%B1%E3%80%81%E5%BC%95%E7%94%A8"><span class="nav-number">1.2.5.</span> <span class="nav-text">2.5 强、软、弱、引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-synchronized-%E5%9B%9B%E7%A7%8D%E9%94%81%E7%8A%B6%E6%80%81%E7%9A%84%E5%8D%87%E7%BA%A7"><span class="nav-number">1.2.6.</span> <span class="nav-text">2.6 synchronized 四种锁状态的升级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7-Lock-%E5%92%8C-synchronized-%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%8F%8A%E6%AF%94%E8%BE%83"><span class="nav-number">1.2.7.</span> <span class="nav-text">2.7 Lock 和 synchronized 底层原理及比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-8-Lock%E6%8E%A5%E5%8F%A3%E4%B8%8Esynchronized%E7%9A%84%E6%AF%94%E8%BE%83"><span class="nav-number">1.2.8.</span> <span class="nav-text">2.8  Lock接口与synchronized的比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-9-Lock%E6%8E%A5%E5%8F%A3%E6%AF%94synchronized%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">1.2.9.</span> <span class="nav-text">2.9 Lock接口比synchronized的优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-10-Java-%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.2.10.</span> <span class="nav-text">2.10 Java 内存模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-11-CAS-%EF%BC%88%E8%A7%A3%E5%86%B3%E5%8E%9F%E5%AD%90%E6%80%A7%EF%BC%89-%E6%9C%AA%E5%AE%8C%E6%88%90"><span class="nav-number">1.2.11.</span> <span class="nav-text">2.11 CAS （解决原子性）(未完成)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-12-wait-%E6%96%B9%E6%B3%95-%E5%92%8C-sleep-%E6%96%B9%E6%B3%95%EF%BC%88%E6%9C%AA%E5%AE%8C%E6%88%90%EF%BC%89"><span class="nav-number">1.2.12.</span> <span class="nav-text">2.12 wait 方法 和 sleep 方法（未完成）</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-%E5%B8%B8%E8%A7%81%E9%9A%BE%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">Java 常见难点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-java-%E5%9F%BA%E7%A1%80"><span class="nav-number">1.1.</span> <span class="nav-text">1 java 基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E5%AE%B9%E5%99%A8"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1 容器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-1-LinkedList-%E5%92%8C-ArrayList"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">1.1.1 LinkedList 和 ArrayList</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-2-HashMap"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">1.1.2 HashMap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-3-HashCode-%E5%92%8C-equals"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">1.1.3 HashCode() 和 equals()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-4-HashSet"><span class="nav-number">1.1.1.4.</span> <span class="nav-text">1.1.4 HashSet</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%BA%BF%E7%A8%8B%E5%92%8C%E9%94%81"><span class="nav-number">1.2.</span> <span class="nav-text">2 线程和锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E7%BA%BF%E7%A8%8B%E7%9A%84%E7%8A%B6%E6%80%81"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 线程的状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 创建线程的方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-1-%E7%BB%A7%E6%89%BF-Thread-%E7%B1%BB"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">2.2.1 继承 Thread 类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-2-%E5%AE%9E%E7%8E%B0-Runnable-%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">2.2.2 实现 Runnable 接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-3-%E5%AE%9E%E7%8E%B0-callable-%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.2.2.3.</span> <span class="nav-text">2.2.3 实现 callable 接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-4-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.2.4.</span> <span class="nav-text">2.3.4 线程池方式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-run-%E5%92%8C-start-%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.3.</span> <span class="nav-text">2.3 run() 和 start() 方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-ThreadLocal"><span class="nav-number">1.2.4.</span> <span class="nav-text">2.4 ThreadLocal</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-1-Threadlocal-key-%E7%9A%84%E5%BC%B1%E5%BC%95%E7%94%A8"><span class="nav-number">1.2.4.1.</span> <span class="nav-text">2.4.1 Threadlocal key 的弱引用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E5%BC%BA%E3%80%81%E8%BD%AF%E3%80%81%E5%BC%B1%E3%80%81%E5%BC%95%E7%94%A8"><span class="nav-number">1.2.5.</span> <span class="nav-text">2.5 强、软、弱、引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-synchronized-%E5%9B%9B%E7%A7%8D%E9%94%81%E7%8A%B6%E6%80%81%E7%9A%84%E5%8D%87%E7%BA%A7"><span class="nav-number">1.2.6.</span> <span class="nav-text">2.6 synchronized 四种锁状态的升级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7-Lock-%E5%92%8C-synchronized-%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%8F%8A%E6%AF%94%E8%BE%83"><span class="nav-number">1.2.7.</span> <span class="nav-text">2.7 Lock 和 synchronized 底层原理及比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-8-Lock%E6%8E%A5%E5%8F%A3%E4%B8%8Esynchronized%E7%9A%84%E6%AF%94%E8%BE%83"><span class="nav-number">1.2.8.</span> <span class="nav-text">2.8  Lock接口与synchronized的比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-9-Lock%E6%8E%A5%E5%8F%A3%E6%AF%94synchronized%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">1.2.9.</span> <span class="nav-text">2.9 Lock接口比synchronized的优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-10-Java-%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.2.10.</span> <span class="nav-text">2.10 Java 内存模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-11-CAS-%EF%BC%88%E8%A7%A3%E5%86%B3%E5%8E%9F%E5%AD%90%E6%80%A7%EF%BC%89-%E6%9C%AA%E5%AE%8C%E6%88%90"><span class="nav-number">1.2.11.</span> <span class="nav-text">2.11 CAS （解决原子性）(未完成)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-12-wait-%E6%96%B9%E6%B3%95-%E5%92%8C-sleep-%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.12.</span> <span class="nav-text">2.12 wait 方法 和 sleep 方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-13-%E6%82%B2%E8%A7%82%E9%94%81%E5%92%8C%E4%B9%90%E8%A7%82%E9%94%81"><span class="nav-number">1.2.13.</span> <span class="nav-text">2.13 悲观锁和乐观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-14-%E6%AD%BB%E9%94%81"><span class="nav-number">1.2.14.</span> <span class="nav-text">2.14 死锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-15-%E9%94%81%E7%9A%84%E7%A7%8D%E7%B1%BB"><span class="nav-number">1.2.15.</span> <span class="nav-text">2.15 锁的种类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-16-%E5%B9%B6%E5%8F%91"><span class="nav-number">1.2.16.</span> <span class="nav-text">2.16 并发</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-16-1-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%89%E4%B8%AA%E9%97%AE%E9%A2%98"><span class="nav-number">1.2.16.1.</span> <span class="nav-text">2.16.1 并发编程中的三个问题</span></a></li></ol></li></ol></li></ol></li></ol></div>
             
 
           </div>
@@ -885,7 +938,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">11.8k</span>
+    <span title="Site words total count">13.7k</span>
   
 </div>
 

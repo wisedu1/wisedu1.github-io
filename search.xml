@@ -1,6 +1,332 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Java 常见难点</title>
+    <url>/2021/04/29/Java%20%E5%B8%B8%E8%A7%81%E9%9A%BE%E7%82%B9/</url>
+    <content><![CDATA[<p>[TOC]</p>
+<h1 id="Java-常见难点"><a href="#Java-常见难点" class="headerlink" title="Java 常见难点"></a>Java 常见难点</h1><h2 id="1-java-基础"><a href="#1-java-基础" class="headerlink" title="1 java 基础"></a>1 java 基础</h2><h3 id="1-1-容器"><a href="#1-1-容器" class="headerlink" title="1.1 容器"></a>1.1 容器</h3><h4 id="1-1-1-LinkedList-和-ArrayList"><a href="#1-1-1-LinkedList-和-ArrayList" class="headerlink" title="1.1.1 LinkedList 和 ArrayList"></a>1.1.1 LinkedList 和 ArrayList</h4><ol>
+<li><p>数据结构不同</p>
+<ul>
+<li>ArrayList <font color ="red">（好查找）</font>是数组的数据结构。</li>
+<li>LinkedList <font color="red">（好修改）</font>是链表的数据结构。</li>
+</ul>
+</li>
+<li><p>效率不同</p>
+<p>当随机访问 List（ get 和 set 操作）时，ArrayList 比 LinkedList 的效率更高，因为 LinkedList 是线性的数据存储方式，所以需要移动指针从前往后依次查找。</p>
+<p>当对数据进行增加和删除的操作( add 和 remove 操作)时，LinkedList 比 ArrayList  的效率更高，因为 ArrayList 是数组，所以在其中进行增删操作时，会对操作点之后所有数据的下标索引造成影响，需要进行数据的移动。</p>
+</li>
+<li><p>自由性不同</p>
+<p>ArrayList 自由性较低，因为它需要<strong>手动</strong>的设置固定大小的容量，但是它的使用比较方便，只需要创建，然后添加数据，通过调用下标进行使用；而 LinkedList 自由性较高，能够动态的随数据量的变化而变化，但是它不便于使用。</p>
+</li>
+<li><p>主要控件开销不同</p>
+<p>ArrayList 主要控件开销在于需要在给 ArrayList 列表预留一定空间；而 LinkedList 主要控件开销在于需要存储结点信息以及结点指针信息。</p>
+</li>
+<li><p>ArrayList 和 LinkedList 的线程安全问题</p>
+<p>都不安全，不然不然 JUC 不会实现 CopyOnWriteArrayList 和 ConcurrentLinkedQueue。</p>
+<blockquote>
+<p>JUC: java.util.concurrent</p>
+</blockquote>
+</li>
+</ol>
+<h4 id="1-1-2-HashMap"><a href="#1-1-2-HashMap" class="headerlink" title="1.1.2 HashMap"></a>1.1.2 HashMap</h4><ol>
+<li><p>HashMap 的数据结构</p>
+<p>哈希结构表：数组+链表</p>
+<ul>
+<li><p><font color="red">通过哈希表结构配合对象的 hashCode 和 equals 方法就可以保证键的唯一性</font></p>
+<blockquote>
+<p>建议今后存储自定义类型的时候，重写hashCode和equals方法。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>HashMap 和 HashTable 以及 concurrentHashmap 的区别</p>
+<ul>
+<li><p>HashMap（不同步，<strong>线程不安全</strong>）允许存储null键和null值；</p>
+</li>
+<li><p>Hashtable 不允许存储 null 键和 null 值（同步，<strong>线程安全</strong>，<strong>效率低</strong>）。</p>
+<blockquote>
+<p>如果在多线程的场景下，也无需使用 Hashtable 集合，我们可以使用 <strong>ConcurrenntHashMap</strong> 集合，这是一个线程同步的。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>HashMap resize()</p>
+<ul>
+<li><p>两个重要参数：</p>
+<ul>
+<li><p><strong>初始容量</strong></p>
+<p>默认 16</p>
+<p>哈希表中桶的数量</p>
+</li>
+<li><p><strong>负载因子</strong></p>
+<p>默认 0.75</p>
+<p>哈希表扩容的阈值</p>
+</li>
+</ul>
+</li>
+<li><p>HashMap 的扩容</p>
+<ul>
+<li>当达到阈值时，自动扩容。</li>
+<li>扩容后的数组为原数组的<strong>两倍</strong>，并且数组的大小是 <strong>2 的次幂</strong>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Collection 与 Collections 的根本区别</p>
+<ul>
+<li>Collection 是一个<strong>集合接口</strong>。它提供了对集合对象进行基本操作的通用接口方法。Collection 接口在 Java 类库中有很多具体的实现。Collection 接口的意义是为各种具体的集合提供了最大化的统一操作方式。</li>
+<li>Collections 是一个<strong>包装类</strong>。它包含有各种有关集合操作的<strong>静态多态</strong>方法。此类<strong>不能实例化</strong>，就像一个工具类，服务于Java的 Collection 框架。</li>
+</ul>
+</li>
+</ol>
+<h4 id="1-1-3-HashCode-和-equals"><a href="#1-1-3-HashCode-和-equals" class="headerlink" title="1.1.3 HashCode() 和 equals()"></a>1.1.3 HashCode() 和 equals()</h4><ol>
+<li>它们都是 Object 类中的方法<ul>
+<li>如果类不重写这两个方法：<ul>
+<li>hashCode():属于是本地方法，返回的是对象的地址值。</li>
+<li>equals():用来比较两个对象的地址值是否相等。</li>
+</ul>
+</li>
+<li>如果重写这两个方法：<ul>
+<li>hashCode(): 返回的是根据对象的成员变量，计算出的一个整数。</li>
+<li>equals(): 比较的是两个对象中成员信息是否相等。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>类中重写 hashCode() 和 equals() 比较两个对象是否相等<ul>
+<li>两个对象通过 equals() 比较是相等的，那 hashCode() 肯定是相等，也就是 equals() 是绝对可靠的。</li>
+<li>两个对象通过 hashCode 比较相等，但是equals去做比较不一定相等，也就是 hashCode 不是绝对可靠的。</li>
+</ul>
+</li>
+<li>通过 hashCode 和 equals 搭配使用提高判断相等效率<ul>
+<li>由于对于一个对象有大量的成员信息，用 equals 比较会降低效率，所以可以先通过 hashCode 进行比较，如果不相等则两个对象一定不同，如果相同再用 equals 比较，这样可以调高效率。</li>
+</ul>
+</li>
+</ol>
+<h4 id="1-1-4-HashSet"><a href="#1-1-4-HashSet" class="headerlink" title="1.1.4 HashSet"></a>1.1.4 HashSet</h4><ol>
+<li><p>HashSet 集合特点无序，元素唯一在 HashSet 集合中，通过  hashCode() 和 equals()，保证了元素的唯一性。</p>
+<p>这个判断的流程是：</p>
+<ul>
+<li>首先比较对象的哈希值是否相同，这个哈希值是根据对象的 hashCode() 计算出来的；</li>
+<li>如果哈希值不同，就直接添加到集合中；</li>
+<li>如果哈希值相同，继续执行 equals() 进行比较；</li>
+<li>返回的是 true，说明元素重复，不添加；</li>
+<li>返回的是 false，说明元素不重复，就添加。</li>
+</ul>
+</li>
+</ol>
+<h2 id="2-线程和锁"><a href="#2-线程和锁" class="headerlink" title="2 线程和锁"></a>2 线程和锁</h2><h3 id="2-1-线程的状态"><a href="#2-1-线程的状态" class="headerlink" title="2.1 线程的状态"></a>2.1 线程的状态</h3><table>
+<thead>
+<tr>
+<th align="center">状态名称</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">NEW</td>
+<td align="center">初始状态，线程被构建，但没调用 start() 方法</td>
+</tr>
+<tr>
+<td align="center">RUNNABLE</td>
+<td align="center">运行状态，Java 线程将操作系统中的就绪和运行两种状态笼统地称作“运行中”</td>
+</tr>
+<tr>
+<td align="center">BLOCKED</td>
+<td align="center">阻塞状态，表示线程阻塞于锁</td>
+</tr>
+<tr>
+<td align="center">WAITING</td>
+<td align="center">等待状态，表示线程进入等待状态，进入该状态表示当前线程需要等待其他线程做出一些特定动作（通知或中断）</td>
+</tr>
+<tr>
+<td align="center">TIME_WAITING</td>
+<td align="center">超时等待状态，该状态不同于 WAITING，它是可以在指定的时间自行返回的</td>
+</tr>
+<tr>
+<td align="center">TERMINATED</td>
+<td align="center">终止状态，表示当前线程已经执行完毕</td>
+</tr>
+</tbody></table>
+<h3 id="2-2-创建线程的方式"><a href="#2-2-创建线程的方式" class="headerlink" title="2.2 创建线程的方式"></a>2.2 创建线程的方式</h3><h4 id="2-2-1-继承-Thread-类"><a href="#2-2-1-继承-Thread-类" class="headerlink" title="2.2.1 继承 Thread 类"></a>2.2.1 继承 Thread 类</h4><p>​    Thread类本质上是实现了Runnable接口的一个实例，代表一个线程的实例。启动线程的唯一方法就是通过Thread类的start()实例方法。start()方法是一个native方法，它将启动一个新线程，并执行run()方法。这种方式实现多线程很简单，通过自己创建的类型直接extend Thread，并复写run()方法，就可以启动新线程并执行自己定义的run()方法。</p>
+<p><strong>优点：</strong>代码简单</p>
+<p><strong>缺点：</strong>该类无法继承别的类</p>
+<h4 id="2-2-2-实现-Runnable-接口"><a href="#2-2-2-实现-Runnable-接口" class="headerlink" title="2.2.2 实现 Runnable 接口"></a>2.2.2 实现 Runnable 接口</h4><p>java中的类属于单继承（防止菱形继承），如果自己的类以及extends另一个类，就无法直接extends Thread， 但是一个类继承一个类同时，是可以实现多个接口的。</p>
+<p><strong>优点：</strong>继承其他类。统一实现该接口的实例可以共享资源。</p>
+<p><strong>缺点：</strong>代码复杂</p>
+<h4 id="2-2-3-实现-callable-接口"><a href="#2-2-3-实现-callable-接口" class="headerlink" title="2.2.3 实现 callable 接口"></a>2.2.3 实现 callable 接口</h4><p>实现Runnable和实现Callable接口的方式基本相同，不过<strong>Callable接口中的call()方法有返回值，Runnable接口中的run()方法无返回值</strong></p>
+<h4 id="2-3-4-线程池方式"><a href="#2-3-4-线程池方式" class="headerlink" title="2.3.4 线程池方式"></a>2.3.4 线程池方式</h4><ul>
+<li><p><strong>corePoolSize（核心线程数）</strong></p>
+<p>（1）核心线程会一直存在，即使没有任务执行； </p>
+<p>（2）当线程数小于核心线程数的时候，即使有空闲线程，也会一直创建线程直到达到核心线程数；</p>
+<p>（3）设置allowCoreThreadTimeout=true（默认false）时，核心线程会超时关闭。</p>
+</li>
+<li><p><strong>queueCapacity（任务队列容量）</strong></p>
+<p>也叫阻塞队列，当核心线程都在运行，此时再有任务进来，会进入任务队列，排队等待线程执行。</p>
+</li>
+<li><p><strong>maxPoolSize（最大线程数）</strong></p>
+<p>(1）线程池里允许存在的最大线程数量；<br>(2）当任务队列已满，且线程数量大于等于核心线程数时，会创建新的线程执行任务；<br>(3）线程池里允许存在的最大线程数量。当任务队列已满，且线程数量大于等于核心线程数时，会创建新的线程执行任务。</p>
+</li>
+<li><p><strong>keepAliveTime（线程空闲时间）</strong></p>
+<p>(1）当线程空闲时间达到keepAliveTime时，线程会退出（关闭），直到线程数等于核心线程数；<br>(2）如果设置了allowCoreThreadTimeout=true，则线程会退出直到线程数等于零。</p>
+</li>
+<li><p><strong>allowCoreThreadTimeout（允许核心线程超时）</strong></p>
+</li>
+<li><p><strong>rejectedExecutionHandler（任务拒绝处理器）</strong></p>
+<p>(1）当线程数量达到最大线程数，且任务队列已满时，会拒绝任务；<br>(2）调用线程池shutdown()方法后，会等待执行完线程池的任务之后，再shutdown()。如果在调用了shutdown()方法和线程池真正shutdown()之间提交任务，会拒绝新任务。</p>
+</li>
+<li><p><strong>线程池：</strong>本质上就是一个容纳多个线程的容器，其中的线程可以重复使用，省去了频繁创建线程对象的操作，因为反复创建线程是非常消耗资源的。</p>
+</li>
+</ul>
+<h3 id="2-3-run-和-start-方法"><a href="#2-3-run-和-start-方法" class="headerlink" title="2.3 run() 和 start() 方法"></a>2.3 run() 和 start() 方法</h3><ul>
+<li><p>start：</p>
+<p>用start方法来<strong>启动线程</strong>，真正实现了多线程运行，这时无需等待run方法体代码执行完毕而直接继续执行下面的代码。通过调用Thread类的 start()方法来启动一个线程，这时此线程处于就绪（可运行）状态，并没有运行，一旦得到cpu时间片，就开始执行run()方法，这里方法 run()称为<strong>线程体</strong>，它包含了要执行的这个线程的内容，run方法运行结束，此线程随即终止。</p>
+</li>
+<li><p>run：</p>
+<p>run()方法只是类的一个<strong>普通方法</strong>而已，如果直接调用run方法，程序中依然只有主线程这一个线程，其程序执行路径还是只有一条，还是要顺序执行，还是要等待run<strong>方法体</strong>执行完毕后才可继续执行下面的代码，这样就没有达到写线程的目的。</p>
+</li>
+</ul>
+<h3 id="2-4-ThreadLocal"><a href="#2-4-ThreadLocal" class="headerlink" title="2.4 ThreadLocal"></a>2.4 ThreadLocal</h3><p>通常情况下，我们创建的变量是可以被任何⼀个线程访问并修改的。<strong>如果想实现每⼀个线程都有 ⾃⼰的专属本地变量该如何解决呢？</strong> JDK 中提供的 ThreadLocal 类正是为了解决这样的问题。 <strong>ThreadLocal 类主要解决的就是让每个线程绑定⾃⼰的值，可以将 ThreadLocal 类形象的⽐喻成存放数据的盒⼦，盒⼦中可以存储每个线程的私有数据。</strong></p>
+<p><strong>如果你创建了⼀个 ThreadLocal 变量，那么访问这个变量的每个线程都会有这个变量的本地副本，这也是 ThreadLocal 变量名的由来。他们可以使⽤ get 和 set ⽅法来获取默认值或将其值更改为当前线程所存的副本的值，从⽽避免了线程安全问题。</strong></p>
+<h4 id="2-4-1-Threadlocal-key-的弱引用"><a href="#2-4-1-Threadlocal-key-的弱引用" class="headerlink" title="2.4.1 Threadlocal key 的弱引用"></a>2.4.1 Threadlocal key 的弱引用</h4><p>方便垃圾回收。</p>
+<h3 id="2-5-强、软、弱、引用"><a href="#2-5-强、软、弱、引用" class="headerlink" title="2.5 强、软、弱、引用"></a>2.5 强、软、弱、引用</h3><ul>
+<li><p>强引用：</p>
+<p>直接 <code>new</code></p>
+</li>
+<li><p>软引用：</p>
+<p>通过<code>SoftReference</code>创建，在内存空间不足的时候直接销毁，即它可能最后的销毁地点是在老年区</p>
+</li>
+<li><p>弱引用：</p>
+<p>通过<code>WeakReference</code>创建，在<code>GC</code>的时候直接销毁。即其销毁地点必定为伊甸区</p>
+</li>
+<li><p>虚引用：</p>
+<p>通过<code>PhantomReference </code>创建，它和不存也一样，<strong>「非常虚，只能通过引用队列在进行一些操作，主要用于堆外内存回收」</strong></p>
+</li>
+</ul>
+<h3 id="2-6-synchronized-四种锁状态的升级"><a href="#2-6-synchronized-四种锁状态的升级" class="headerlink" title="2.6 synchronized 四种锁状态的升级"></a>2.6 synchronized 四种锁状态的升级</h3><p>在 Java 语言中，使用 Synchronized 是能够实现线程同步的，即<strong>加锁</strong>。并且实现的是<strong>悲观锁</strong>，在操作同步资源的时候直接先加锁。</p>
+<p>加锁可以使一段代码在同一时间只有一个线程可以访问，在增加安全性的同时，牺牲掉的是程序的执行性能，所以为了在一定程度上减少获得锁和释放锁带来的性能消耗，在 jdk6 之后便引入了“偏向锁”和“轻量级锁”，所以总共有4种锁状态，级别由低到高依次为：<strong>无锁状态</strong>、<strong>偏向锁状态</strong>、<strong>轻量级锁状态</strong>、<strong>重量级锁状态</strong>。这几个状态会随着竞争情况逐渐升级。</p>
+<p><strong>注意：锁可以升级但不能降级。</strong></p>
+<ul>
+<li><p><strong>无锁</strong></p>
+<p>无锁是指没有对资源进行锁定，所有的线程都能访问并修改同一个资源，但同时只有一个线程能修改成功。</p>
+</li>
+<li><p><strong>偏向锁</strong></p>
+<p>偏向锁是指当一段同步代码一直被同一个线程所访问时，即不存在多个线程的竞争时，那么该线程在后续访问时便会自动获得锁，从而降低获取锁带来的消耗，即提高性能。</p>
+</li>
+<li><p><strong>轻量级锁</strong></p>
+<p>轻量级锁是指当锁是偏向锁的时候，却被另外的线程所访问，此时偏向锁就会升级为轻量级锁，其他线程会通过自旋的形式尝试获取锁，线程不会阻塞，从而提高性能。</p>
+</li>
+<li><p><strong>重量级锁</strong></p>
+<p>重量级锁是指当有一个线程获取锁之后，其余所有等待获取该锁的线程都会处于阻塞状态。</p>
+</li>
+</ul>
+<p><strong>自旋：</strong></p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">引入自旋这一规则的原因其实也很简单，因为阻塞或唤醒一个 Java 线程需要操作系统切换 CPU 状态来完成，这种状态转换需要耗费处理器时间。如果同步代码块中的内容过于简单，状态转换消耗的时间有可能比用户代码执行的时间还要长。并且在许多场景中，同步资源的锁定时间很短，为了这一小段时间去切换线程，这部分操作的开销其实是得不偿失的。</span><br><span class="line"></span><br><span class="line">自旋锁本身是有缺点的，它不能代替阻塞。自旋等待虽然避免了线程切换的开销，但它要占用处理器时间。如果锁被占用的时间很短，自旋等待的效果就会非常好。反之，如果锁被占用的时间很长，那么自旋的线程只会白浪费处理器资源。</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-7-Lock-和-synchronized-底层原理及比较"><a href="#2-7-Lock-和-synchronized-底层原理及比较" class="headerlink" title="2.7 Lock 和 synchronized 底层原理及比较"></a>2.7 Lock 和 synchronized 底层原理及比较</h3><p><strong>两者完全不一样</strong>，<strong>synchronize基于JVM的锁，lock基于JDK</strong>。</p>
+<ul>
+<li><p><strong>synchronized</strong></p>
+<p>synchronized 锁住的是普通对象或类对象</p>
+</li>
+<li><p><strong>lock</strong></p>
+<p> lock 锁住的是 <strong>Lock 对象</strong></p>
+</li>
+</ul>
+<h3 id="2-8-Lock接口与synchronized的比较"><a href="#2-8-Lock接口与synchronized的比较" class="headerlink" title="2.8  Lock接口与synchronized的比较"></a>2.8  Lock接口与synchronized的比较</h3><ol>
+<li>synchronized是关键字，而Lock是一个接口。</li>
+<li>synchronized会自动释放锁，而Lock必须手动释放锁。</li>
+<li>synchronized是不可中断的，Lock可以中断也可以不中断。 </li>
+<li>通过Lock可以知道线程有没有拿到锁，而synchronized不能。</li>
+<li>synchronized能锁住方法和代码块，而Lock只能锁住代码块。</li>
+<li>Lock可以使用读锁提高多线程读效率。 </li>
+<li>synchronized是非公平锁，ReentrantLock可以控制是否是公平锁。</li>
+</ol>
+<h3 id="2-9-Lock接口比synchronized的优势"><a href="#2-9-Lock接口比synchronized的优势" class="headerlink" title="2.9 Lock接口比synchronized的优势"></a>2.9 Lock接口比synchronized的优势</h3><ol>
+<li>能够显示地获取和释放锁，锁地运用更灵活</li>
+<li>可以方便地实现公平锁</li>
+</ol>
+<p>但是，在大部分情况下，<strong>非公平锁是可提高效率的。</strong></p>
+<h3 id="2-10-Java-内存模型"><a href="#2-10-Java-内存模型" class="headerlink" title="2.10 Java 内存模型"></a>2.10 Java 内存模型</h3><p>JMM定义了Java 虚拟机(JVM)在计算机内存(RAM)中的工作方式。JVM是整个计算机虚拟模型，所以JMM是隶属于JVM的。从抽象的角度来看，JMM定义了<strong>线程</strong>和<strong>主内存</strong>之间的抽象关系：线程之间的共享变量存储在主内存（Main Memory）中，每个线程都有一个私有的本地内存（Local Memory），本地内存中存储了该线程以读/写共享变量的副本。本地内存是JMM的一个抽象概念，并不真实存在。它涵盖了缓存、写缓冲区、寄存器以及其他的硬件和编译器优化。</p>
+<h3 id="2-11-CAS-（解决原子性）-未完成"><a href="#2-11-CAS-（解决原子性）-未完成" class="headerlink" title="2.11 CAS （解决原子性）(未完成)"></a>2.11 CAS （解决原子性）(未完成)</h3><p>CAS,compare and swap的缩写，中文翻译成比较并交换。</p>
+<p>在JDK 5之前Java语言是靠synchronized关键字保证<strong>同步</strong>的，这会导致有锁。</p>
+<p>锁机制存在以下问题：</p>
+<p>（1）在多线程竞争下，加锁、释放锁会导致比较多的上下文切换和调度延时，引起性能问题。</p>
+<p>（2）一个线程持有锁会导致其它所有需要此锁的线程挂起。</p>
+<p>（3）如果一个优先级高的线程等待一个优先级低的线程释放锁会导致优先级倒置，引起性能风险。</p>
+<h3 id="2-12-wait-方法-和-sleep-方法"><a href="#2-12-wait-方法-和-sleep-方法" class="headerlink" title="2.12 wait 方法 和 sleep 方法"></a>2.12 wait 方法 和 sleep 方法</h3><ul>
+<li>wait和sleep的基本使用：<ul>
+<li>wait：此方法来自Object类，必须由锁对象进行调用。</li>
+<li>sleep：此方法来之Thread类，是Thread类的静态方法，可以类名点调用。</li>
+</ul>
+</li>
+<li><font color="red">同步代码块中的wait，让线程停在了那里，为了防止线程锁死，会释放锁对象(加同步代码块synchronized)</font></li>
+<li><font color="red">sleep方法在休眠的过程中，不会释放锁对象</font></li>
+</ul>
+<h3 id="2-13-悲观锁和乐观锁"><a href="#2-13-悲观锁和乐观锁" class="headerlink" title="2.13 悲观锁和乐观锁"></a>2.13 悲观锁和乐观锁</h3><ul>
+<li><p>**悲观锁(Pessimistic Lock)**： 就是很悲观，每次去拿数据的时候都认为别人会修改。所以每次在拿数据的时候都会上锁。这样别人想拿数据就被挡住，直到悲观锁被释放，悲观锁中的共享资源每次只给一个线程使用，其它线程阻塞，用完后再把资源转让给其它线程</p>
+<p>但是在效率方面，处理加锁的机制会产生额外的开销，还有增加产生死锁的机会。另外还会降低并行性，如果已经锁定了一个线程A，其他线程就必须等待该线程A处理完才可以处理</p>
+<p>数据库中的行锁，表锁，读锁(共享锁)，写锁(排他锁)，以及syncronized实现的锁均为悲观锁</p>
+<p>悲观锁：很多数据库有多种锁机制，例如行锁，表锁等，读锁，写锁等。悲观锁就是利用数据库的这些锁机制，例如SQL语句中使用 <strong>for update。</strong></p>
+</li>
+<li><p>**乐观锁(Optimistic Lock)**： 就是很乐观，每次去拿数据的时候都认为别人不会修改。所以不会上锁，但是如果想要更新数据，则会在更新前检查在读取至更新这段时间别人有没有修改过这个数据。如果修改过，则重新读取，再次尝试更新，循环上述步骤直到更新成功(当然也允许更新失败的线程放弃操作),乐观锁适用于多读的应用类型，这样可以提高吞吐量。</p>
+<p>相对于悲观锁，在对数据库进行处理的时候，乐观锁并不会使用数据库提供的锁机制。一般的实现乐观锁的方式就是记录数据版本(version)或者是时间戳来实现，不过使用版本记录是最常用的。</p>
+</li>
+<li><p>悲观锁阻塞事务，乐观锁回滚重试，它们各有优缺点，不要认为一种一定好于另一种。像乐观锁适用于写比较少的情况下，即冲突真的很少发生的时候，这样可以省去锁的开销，加大了系统的整个吞吐量。</p>
+<p>但如果经常产生冲突，上层应用会不断的进行重试，这样反倒是降低了性能，所以这种情况下用悲观锁就比较合适。</p>
+<p><strong>注意点：</strong></p>
+<ol>
+<li>乐观锁并未真正加锁，所以效率高。一旦锁的粒度掌握不好，更新失败的概率就会比较高，容易发生业务失败。</li>
+<li>悲观锁依赖数据库锁，效率低。更新失败的概率比较低。</li>
+</ol>
+</li>
+</ul>
+<h3 id="2-14-死锁"><a href="#2-14-死锁" class="headerlink" title="2.14 死锁"></a>2.14 死锁</h3><p><strong>死锁</strong> 指两个事务或者多个事务在同一资源上相互占用，并请求对方所占用的资源，从而造成恶性循环的现象。<br><strong>出现死锁的原因：</strong></p>
+<ul>
+<li>系统资源不足</li>
+<li>进程运行推进的顺序不当</li>
+<li>资源分配不当</li>
+</ul>
+<p>如何避免线程死锁? </p>
+<p>为了避免死锁，我们只要破坏产⽣死锁的四个条件中的其中⼀个就可以了。现在我们来挨个分析⼀下：</p>
+<ol>
+<li><strong>破坏互斥条件</strong> ：这个条件我们<strong>没有办法破坏</strong>，因为我们⽤锁本来就是想让他们互斥的。</li>
+<li><strong>破坏请求与保持条件</strong> ：⼀次性申请所有的资源。 </li>
+<li><strong>破坏不剥夺条件</strong> ：占⽤部分资源的线程进⼀步申请其他资源时，如果申请不到，可以主动释放它占有的资源。 </li>
+<li><strong>破坏循环等待条件</strong> ：靠按序申请资源来预防。按某⼀顺序申请资源，释放资源则反序释放。 破坏循环等待条件。</li>
+</ol>
+<h3 id="2-15-锁的种类"><a href="#2-15-锁的种类" class="headerlink" title="2.15 锁的种类"></a>2.15 锁的种类</h3><p>Java中锁分为以下几种：</p>
+<ul>
+<li>乐观锁、悲观锁</li>
+<li>独享锁、共享锁</li>
+<li>公平锁、非公平锁</li>
+<li>互斥锁、读写锁</li>
+<li>可重入锁</li>
+<li>分段锁</li>
+<li>锁升级(无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁) JDK1.6</li>
+</ul>
+<h3 id="2-16-并发"><a href="#2-16-并发" class="headerlink" title="2.16 并发"></a>2.16 并发</h3><p>所谓并发就是：<strong>同时拥有两个或多个线程</strong>，如果程序在单核处理器上运行，多个线程将交替地换入或者换出内存，这些线程是同时「 存在 」的，每个线程都处于执行过程中的某个状态，如果运行在多核处理器上，此时，程序中每个线程都将分配到一个处理器核上，因此可以同时运行。也就是说，并发就是多个线程操作相同的物理机中的资源，保证其线程安全，合理的利用资源。有了并发就会有「 高并发 」，可能很多人认为这两个是一种意思。但是其实是有区别的。</p>
+<p> <strong>高并发（High Concurrency）：</strong></p>
+<p>是现在互联网设计系统中需要考虑的一个重要因素之一，通常来说，就是通过严谨的设计来保证系统能够<strong>同时并行处理</strong>很多的请求。</p>
+<h4 id="2-16-1-并发编程中的三个问题"><a href="#2-16-1-并发编程中的三个问题" class="headerlink" title="2.16.1 并发编程中的三个问题"></a>2.16.1 并发编程中的三个问题</h4><ul>
+<li><strong>可见性（Visibility）：</strong>是指一个线程对共享变量进行修改，另一个先立即得到修改后的最新值。</li>
+<li><strong>原子性（Atomicity）：</strong>在一次或多次操作中，要么所有的操作都执行并且不会受其他因素干扰而中断，要么所有的操作都不执行。</li>
+<li><strong>有序性（Ordering）：</strong>是指程序中代码的执行顺序，Java在编译时和运行时会对代码进行优化，会导致程序最终的执行顺序不一定就是我们编写代码时的顺序（重排）。</li>
+</ul>
+<p>java内存模型是一套在多线程读写共享数据时，对共享数据的可见性、有序性、和原子性的规则和保障。 </p>
+<hr>
+<p>部分内容来源于网络，作为学习使用，如有侵权请联系我删除。请注明来意。</p>
+<p>邮箱：<a href="mailto:&#119;&#105;&#x73;&#101;&#100;&#117;&#49;&#x40;&#x67;&#x6d;&#x61;&#105;&#x6c;&#x2e;&#x63;&#111;&#x6d;">&#119;&#105;&#x73;&#101;&#100;&#117;&#49;&#x40;&#x67;&#x6d;&#x61;&#105;&#x6c;&#x2e;&#x63;&#111;&#x6d;</a></p>
+<p>微信：</p>
+<img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%811.jpg" width="200px" />
+
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java 常见难点</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Java 基础</title>
     <url>/2021/04/30/Java%20%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<p>[TOC]</p>
@@ -109,79 +435,6 @@
       </categories>
       <tags>
         <tag>Java 常见难点</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Spring MVC 框架总结</title>
-    <url>/2021/04/27/Spring%20MVC%20%E6%A1%86%E6%9E%B6%E6%80%BB%E7%BB%93/</url>
-    <content><![CDATA[<p>[TOC]</p>
-<h1 id="Spring-MVC-框架总结"><a href="#Spring-MVC-框架总结" class="headerlink" title="Spring MVC 框架总结"></a>Spring MVC 框架总结</h1><h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>最近开始接触 Spring MVC，但是零零散散，没有在大脑里形成系统的知识结构体系，于是在此进行了梳理。</p>
-<h2 id="什么是-MVC"><a href="#什么是-MVC" class="headerlink" title="什么是 MVC"></a>什么是 MVC</h2><p>Spring MVC 是 Spring 框架的一个模块，Spring MVC 和 Spring 无需通过中间整合层进行整合。</p>
-<p>Spring MVC 是一个基于 MVC 的 web 框架。</p>
-<p><strong>MVC</strong> 模式是软件工程中的一种软件架构模式，把软件系统分为三个基本部分：</p>
-<ul>
-<li>控制器(<strong>C</strong>ontroller)——负责转发请求，对请求进行处理。</li>
-<li>视图 (<strong>V</strong>iew)——界面设计人员进行图形界面设计。</li>
-<li>模型 (<strong>M</strong>odel)——程序员编写程序应有的功能、数据库专家进行数据管理和数据库设计。</li>
-</ul>
-<p>所以，MVC 模式将程序划分了三个组件，<strong>模型 (Model)</strong> 用于封装与应用程序的业务逻辑相关的数据以及对数据的处理方法。<strong>视图 (View)</strong> 负责展示数据，<strong>控制器 (Contoller)</strong> 处理事件并作出响应（事件包括用户的行为，比如请求）和数据 Model 上的改变。</p>
-<ul>
-<li>用户发起 request 请求至控制器 (Controller)，控制器接收用户请求的数据，委托给模型进行处理</li>
-<li>控制器通过模型处理数据并得到处理结果，模型通常是指业务逻辑</li>
-<li>模型处理结果返回给控制器</li>
-<li>控制器将模型数据在视图中展示，web 中模型无法将数据直接在视图上显示，需要通过控制器完成</li>
-<li>控制器将视图 response 响应给用户，通过视图展示给用户要的数据或处理结果</li>
-</ul>
-<h2 id="Spring-MVC-核心架构"><a href="#Spring-MVC-核心架构" class="headerlink" title="Spring MVC 核心架构"></a>Spring MVC 核心架构</h2><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/SpringMVC%20%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg"></p>
-<ol>
-<li>用户发起请求到前端控制器 (DispatcherServlet)</li>
-<li>前端控制器请求处理器映射器 HandlerMapping 查找 Handler，可以根据 xml 配置、注解进行查找</li>
-<li>处理器映射器 HandlerMapping 向前端控制器返回 Handler</li>
-<li>前端控制器调用处理器适配器 HandlerAdapter 去执行 Handler</li>
-<li>处理器适配器去执行 Handler</li>
-<li>处理器适配器向前端控制器返回 ModelAndView，它是 Spirng MVC 框架的一个底层对象，包括 Model 和 View</li>
-<li>前端控制器请求视图解析器 ViewResolver 去进行视图解析，根据逻辑视图名解析成真正的视图</li>
-<li>视图解析器 向前端控制器返回 View</li>
-<li>前端控制器进行视图渲染，视图渲染将模型数据（在 ModelAndView 对象中）填充到 request 域</li>
-<li>前端控制器向用户响应结果</li>
-</ol>
-<p>通常，一个项目是由 Spring + SpringMVC + MyBatis 三大框架整合的 SSM 框架完成。</p>
-<h2 id="Spring-MVC-常用注解"><a href="#Spring-MVC-常用注解" class="headerlink" title="Spring MVC 常用注解"></a>Spring MVC 常用注解</h2><ol>
-<li><p>@Controller</p>
-<p>负责注册一个 bean 到 Spring Context中。</p>
-</li>
-<li><p>@RequstMapping</p>
-<p>注解为控制器指定可以处理那些 URL 请求。</p>
-</li>
-<li><p>@RequstBody</p>
-<p>该注解用于读取 <code>Request</code> 请求的 body 部分数据，使用系统默认配置的 <code>HttpMessageConverter</code> 进行解析，然后把响应的数据绑定到要返回的对象上，再把 <code>HttpMessageConverter</code> 返回的对象数据绑定到 controller 中方法的参数上。</p>
-</li>
-<li><p>@ResponseBody</p>
-<p>该注解用于将 controller 的方法返回的对象通过适当的 <code>HttpMessageConverter</code> 转换成为指定格式后，写入到 <code>Response</code> 对象的 body 数据区。</p>
-</li>
-<li><p>@ModelAttribute</p>
-<p>在方法定义上使用 @ModelAttribute 注解：Spring MVC 在调用目标处理方法前，会先逐个调用在方法级上标注了 @ModelAttribute 的方法。</p>
-<p>在方法的入参前使用 @ModelAttribute 注解：可以从隐含对象中获取隐含的模型数据中获取对象，再将请求参数绑定到对象中，再传入入参将方法入参对象添加到模型中。</p>
-</li>
-<li><p>@RequstParam</p>
-<p>在处理方法入参处使用 @RequestParam 可以把请求参数传递给请求方法。</p>
-</li>
-<li><p>@PathVariable</p>
-<p>绑定 URL 占位符到入参。</p>
-</li>
-<li><p>@ExceptionHandler</p>
-<p>注解到方法上，出现异常时会执行该方法。</p>
-</li>
-<li><p>@ControllerAdvice</p>
-<p>使一个 Controller 成为全局的异常处理类，类中使用 @ExceptionHandler 注解的方法可以处理所有 Controller 发生的异常。</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>框架</category>
-      </categories>
-      <tags>
-        <tag>Spring MVC</tag>
       </tags>
   </entry>
   <entry>
@@ -483,7 +736,7 @@
 </ol>
 <hr>
 <p>部分内容来源于网络，作为学习使用，如有侵权请联系我删除。请注明来意。</p>
-<p>邮箱：<a href="mailto:&#x77;&#x69;&#x73;&#101;&#100;&#x75;&#49;&#64;&#x67;&#109;&#x61;&#105;&#108;&#x2e;&#x63;&#x6f;&#109;">&#x77;&#x69;&#x73;&#101;&#100;&#x75;&#49;&#64;&#x67;&#109;&#x61;&#105;&#108;&#x2e;&#x63;&#x6f;&#109;</a></p>
+<p>邮箱：<a href="mailto:&#119;&#105;&#x73;&#101;&#x64;&#117;&#x31;&#x40;&#x67;&#x6d;&#x61;&#105;&#x6c;&#x2e;&#99;&#111;&#x6d;">&#119;&#105;&#x73;&#101;&#x64;&#117;&#x31;&#x40;&#x67;&#x6d;&#x61;&#105;&#x6c;&#x2e;&#99;&#111;&#x6d;</a></p>
 <p>微信：</p>
 <img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81.jpg" width="200px" />
 
@@ -496,276 +749,106 @@
       </tags>
   </entry>
   <entry>
-    <title>Java 常见难点</title>
-    <url>/2021/04/29/Java%20%E5%B8%B8%E8%A7%81%E9%9A%BE%E7%82%B9/</url>
+    <title>Spring MVC 框架总结</title>
+    <url>/2021/04/27/Spring%20MVC%20%E6%A1%86%E6%9E%B6%E6%80%BB%E7%BB%93/</url>
     <content><![CDATA[<p>[TOC]</p>
-<h1 id="Java-常见难点"><a href="#Java-常见难点" class="headerlink" title="Java 常见难点"></a>Java 常见难点</h1><h2 id="1-java-基础"><a href="#1-java-基础" class="headerlink" title="1 java 基础"></a>1 java 基础</h2><h3 id="1-1-容器"><a href="#1-1-容器" class="headerlink" title="1.1 容器"></a>1.1 容器</h3><h4 id="1-1-1-LinkedList-和-ArrayList"><a href="#1-1-1-LinkedList-和-ArrayList" class="headerlink" title="1.1.1 LinkedList 和 ArrayList"></a>1.1.1 LinkedList 和 ArrayList</h4><ol>
-<li><p>数据结构不同</p>
+<h1 id="Spring-MVC-框架总结"><a href="#Spring-MVC-框架总结" class="headerlink" title="Spring MVC 框架总结"></a>Spring MVC 框架总结</h1><h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>最近开始接触 Spring MVC，但是零零散散，没有在大脑里形成系统的知识结构体系，于是在此进行了梳理。</p>
+<h2 id="什么是-MVC"><a href="#什么是-MVC" class="headerlink" title="什么是 MVC"></a>什么是 MVC</h2><p>Spring MVC 是 Spring 框架的一个模块，Spring MVC 和 Spring 无需通过中间整合层进行整合。</p>
+<p>Spring MVC 是一个基于 MVC 的 web 框架。</p>
+<p><strong>MVC</strong> 模式是软件工程中的一种软件架构模式，把软件系统分为三个基本部分：</p>
 <ul>
-<li>ArrayList <font color ="red">（好查找）</font>是数组的数据结构。</li>
-<li>LinkedList <font color="red">（好修改）</font>是链表的数据结构。</li>
+<li>控制器(<strong>C</strong>ontroller)——负责转发请求，对请求进行处理。</li>
+<li>视图 (<strong>V</strong>iew)——界面设计人员进行图形界面设计。</li>
+<li>模型 (<strong>M</strong>odel)——程序员编写程序应有的功能、数据库专家进行数据管理和数据库设计。</li>
 </ul>
+<p>所以，MVC 模式将程序划分了三个组件，<strong>模型 (Model)</strong> 用于封装与应用程序的业务逻辑相关的数据以及对数据的处理方法。<strong>视图 (View)</strong> 负责展示数据，<strong>控制器 (Contoller)</strong> 处理事件并作出响应（事件包括用户的行为，比如请求）和数据 Model 上的改变。</p>
+<ul>
+<li>用户发起 request 请求至控制器 (Controller)，控制器接收用户请求的数据，委托给模型进行处理</li>
+<li>控制器通过模型处理数据并得到处理结果，模型通常是指业务逻辑</li>
+<li>模型处理结果返回给控制器</li>
+<li>控制器将模型数据在视图中展示，web 中模型无法将数据直接在视图上显示，需要通过控制器完成</li>
+<li>控制器将视图 response 响应给用户，通过视图展示给用户要的数据或处理结果</li>
+</ul>
+<h2 id="Spring-MVC-核心架构"><a href="#Spring-MVC-核心架构" class="headerlink" title="Spring MVC 核心架构"></a>Spring MVC 核心架构</h2><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/SpringMVC%20%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg"></p>
+<ol>
+<li>用户发起请求到前端控制器 (DispatcherServlet)</li>
+<li>前端控制器请求处理器映射器 HandlerMapping 查找 Handler，可以根据 xml 配置、注解进行查找</li>
+<li>处理器映射器 HandlerMapping 向前端控制器返回 Handler</li>
+<li>前端控制器调用处理器适配器 HandlerAdapter 去执行 Handler</li>
+<li>处理器适配器去执行 Handler</li>
+<li>处理器适配器向前端控制器返回 ModelAndView，它是 Spirng MVC 框架的一个底层对象，包括 Model 和 View</li>
+<li>前端控制器请求视图解析器 ViewResolver 去进行视图解析，根据逻辑视图名解析成真正的视图</li>
+<li>视图解析器 向前端控制器返回 View</li>
+<li>前端控制器进行视图渲染，视图渲染将模型数据（在 ModelAndView 对象中）填充到 request 域</li>
+<li>前端控制器向用户响应结果</li>
+</ol>
+<p>通常，一个项目是由 Spring + SpringMVC + MyBatis 三大框架整合的 SSM 框架完成。</p>
+<h2 id="Spring-MVC-常用注解"><a href="#Spring-MVC-常用注解" class="headerlink" title="Spring MVC 常用注解"></a>Spring MVC 常用注解</h2><ol>
+<li><p>@Controller</p>
+<p>负责注册一个 bean 到 Spring Context中。</p>
 </li>
-<li><p>效率不同</p>
-<p>当随机访问 List（ get 和 set 操作）时，ArrayList 比 LinkedList 的效率更高，因为 LinkedList 是线性的数据存储方式，所以需要移动指针从前往后依次查找。</p>
-<p>当对数据进行增加和删除的操作( add 和 remove 操作)时，LinkedList 比 ArrayList  的效率更高，因为 ArrayList 是数组，所以在其中进行增删操作时，会对操作点之后所有数据的下标索引造成影响，需要进行数据的移动。</p>
+<li><p>@RequstMapping</p>
+<p>注解为控制器指定可以处理那些 URL 请求。</p>
 </li>
-<li><p>自由性不同</p>
-<p>ArrayList 自由性较低，因为它需要<strong>手动</strong>的设置固定大小的容量，但是它的使用比较方便，只需要创建，然后添加数据，通过调用下标进行使用；而 LinkedList 自由性较高，能够动态的随数据量的变化而变化，但是它不便于使用。</p>
+<li><p>@RequstBody</p>
+<p>该注解用于读取 <code>Request</code> 请求的 body 部分数据，使用系统默认配置的 <code>HttpMessageConverter</code> 进行解析，然后把响应的数据绑定到要返回的对象上，再把 <code>HttpMessageConverter</code> 返回的对象数据绑定到 controller 中方法的参数上。</p>
 </li>
-<li><p>主要控件开销不同</p>
-<p>ArrayList 主要控件开销在于需要在给 ArrayList 列表预留一定空间；而 LinkedList 主要控件开销在于需要存储结点信息以及结点指针信息。</p>
+<li><p>@ResponseBody</p>
+<p>该注解用于将 controller 的方法返回的对象通过适当的 <code>HttpMessageConverter</code> 转换成为指定格式后，写入到 <code>Response</code> 对象的 body 数据区。</p>
 </li>
-<li><p>ArrayList 和 LinkedList 的线程安全问题</p>
-<p>都不安全，不然不然 JUC 不会实现 CopyOnWriteArrayList 和 ConcurrentLinkedQueue。</p>
-<blockquote>
-<p>JUC: java.util.concurrent</p>
-</blockquote>
+<li><p>@ModelAttribute</p>
+<p>在方法定义上使用 @ModelAttribute 注解：Spring MVC 在调用目标处理方法前，会先逐个调用在方法级上标注了 @ModelAttribute 的方法。</p>
+<p>在方法的入参前使用 @ModelAttribute 注解：可以从隐含对象中获取隐含的模型数据中获取对象，再将请求参数绑定到对象中，再传入入参将方法入参对象添加到模型中。</p>
+</li>
+<li><p>@RequstParam</p>
+<p>在处理方法入参处使用 @RequestParam 可以把请求参数传递给请求方法。</p>
+</li>
+<li><p>@PathVariable</p>
+<p>绑定 URL 占位符到入参。</p>
+</li>
+<li><p>@ExceptionHandler</p>
+<p>注解到方法上，出现异常时会执行该方法。</p>
+</li>
+<li><p>@ControllerAdvice</p>
+<p>使一个 Controller 成为全局的异常处理类，类中使用 @ExceptionHandler 注解的方法可以处理所有 Controller 发生的异常。</p>
 </li>
 </ol>
-<h4 id="1-1-2-HashMap"><a href="#1-1-2-HashMap" class="headerlink" title="1.1.2 HashMap"></a>1.1.2 HashMap</h4><ol>
-<li><p>HashMap 的数据结构</p>
-<p>哈希结构表：数组+链表</p>
-<ul>
-<li><p><font color="red">通过哈希表结构配合对象的 hashCode 和 equals 方法就可以保证键的唯一性</font></p>
-<blockquote>
-<p>建议今后存储自定义类型的时候，重写hashCode和equals方法。</p>
-</blockquote>
-</li>
-</ul>
-</li>
-<li><p>HashMap 和 HashTable 以及 concurrentHashmap 的区别</p>
-<ul>
-<li><p>HashMap（不同步，<strong>线程不安全</strong>）允许存储null键和null值；</p>
-</li>
-<li><p>Hashtable 不允许存储 null 键和 null 值（同步，<strong>线程安全</strong>，<strong>效率低</strong>）。</p>
-<blockquote>
-<p>如果在多线程的场景下，也无需使用 Hashtable 集合，我们可以使用 <strong>ConcurrenntHashMap</strong> 集合，这是一个线程同步的。</p>
-</blockquote>
-</li>
-</ul>
-</li>
-<li><p>HashMap resize()</p>
-<ul>
-<li><p>两个重要参数：</p>
-<ul>
-<li><p><strong>初始容量</strong></p>
-<p>默认 16</p>
-<p>哈希表中桶的数量</p>
-</li>
-<li><p><strong>负载因子</strong></p>
-<p>默认 0.75</p>
-<p>哈希表扩容的阈值</p>
-</li>
-</ul>
-</li>
-<li><p>HashMap 的扩容</p>
-<ul>
-<li>当达到阈值时，自动扩容。</li>
-<li>扩容后的数组为原数组的<strong>两倍</strong>，并且数组的大小是 <strong>2 的次幂</strong>。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>Collection 与 Collections 的根本区别</p>
-<ul>
-<li>Collection 是一个<strong>集合接口</strong>。它提供了对集合对象进行基本操作的通用接口方法。Collection 接口在 Java 类库中有很多具体的实现。Collection 接口的意义是为各种具体的集合提供了最大化的统一操作方式。</li>
-<li>Collections 是一个<strong>包装类</strong>。它包含有各种有关集合操作的<strong>静态多态</strong>方法。此类<strong>不能实例化</strong>，就像一个工具类，服务于Java的 Collection 框架。</li>
-</ul>
-</li>
-</ol>
-<h4 id="1-1-3-HashCode-和-equals"><a href="#1-1-3-HashCode-和-equals" class="headerlink" title="1.1.3 HashCode() 和 equals()"></a>1.1.3 HashCode() 和 equals()</h4><ol>
-<li>它们都是 Object 类中的方法<ul>
-<li>如果类不重写这两个方法：<ul>
-<li>hashCode():属于是本地方法，返回的是对象的地址值。</li>
-<li>equals():用来比较两个对象的地址值是否相等。</li>
-</ul>
-</li>
-<li>如果重写这两个方法：<ul>
-<li>hashCode(): 返回的是根据对象的成员变量，计算出的一个整数。</li>
-<li>equals(): 比较的是两个对象中成员信息是否相等。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>类中重写 hashCode() 和 equals() 比较两个对象是否相等<ul>
-<li>两个对象通过 equals() 比较是相等的，那 hashCode() 肯定是相等，也就是 equals() 是绝对可靠的。</li>
-<li>两个对象通过 hashCode 比较相等，但是equals去做比较不一定相等，也就是 hashCode 不是绝对可靠的。</li>
-</ul>
-</li>
-<li>通过 hashCode 和 equals 搭配使用提高判断相等效率<ul>
-<li>由于对于一个对象有大量的成员信息，用 equals 比较会降低效率，所以可以先通过 hashCode 进行比较，如果不相等则两个对象一定不同，如果相同再用 equals 比较，这样可以调高效率。</li>
-</ul>
-</li>
-</ol>
-<h4 id="1-1-4-HashSet"><a href="#1-1-4-HashSet" class="headerlink" title="1.1.4 HashSet"></a>1.1.4 HashSet</h4><ol>
-<li><p>HashSet 集合特点无序，元素唯一在 HashSet 集合中，通过  hashCode() 和 equals()，保证了元素的唯一性。</p>
-<p>这个判断的流程是：</p>
-<ul>
-<li>首先比较对象的哈希值是否相同，这个哈希值是根据对象的 hashCode() 计算出来的；</li>
-<li>如果哈希值不同，就直接添加到集合中；</li>
-<li>如果哈希值相同，继续执行 equals() 进行比较；</li>
-<li>返回的是 true，说明元素重复，不添加；</li>
-<li>返回的是 false，说明元素不重复，就添加。</li>
-</ul>
-</li>
-</ol>
-<h2 id="2-线程和锁"><a href="#2-线程和锁" class="headerlink" title="2 线程和锁"></a>2 线程和锁</h2><h3 id="2-1-线程的状态"><a href="#2-1-线程的状态" class="headerlink" title="2.1 线程的状态"></a>2.1 线程的状态</h3><table>
-<thead>
-<tr>
-<th align="center">状态名称</th>
-<th align="center">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">NEW</td>
-<td align="center">初始状态，线程被构建，但没调用 start() 方法</td>
-</tr>
-<tr>
-<td align="center">RUNNABLE</td>
-<td align="center">运行状态，Java 线程将操作系统中的就绪和运行两种状态笼统地称作“运行中”</td>
-</tr>
-<tr>
-<td align="center">BLOCKED</td>
-<td align="center">阻塞状态，表示线程阻塞于锁</td>
-</tr>
-<tr>
-<td align="center">WAITING</td>
-<td align="center">等待状态，表示线程进入等待状态，进入该状态表示当前线程需要等待其他线程做出一些特定动作（通知或中断）</td>
-</tr>
-<tr>
-<td align="center">TIME_WAITING</td>
-<td align="center">超时等待状态，该状态不同于 WAITING，它是可以在指定的时间自行返回的</td>
-</tr>
-<tr>
-<td align="center">TERMINATED</td>
-<td align="center">终止状态，表示当前线程已经执行完毕</td>
-</tr>
-</tbody></table>
-<h3 id="2-2-创建线程的方式"><a href="#2-2-创建线程的方式" class="headerlink" title="2.2 创建线程的方式"></a>2.2 创建线程的方式</h3><h4 id="2-2-1-继承-Thread-类"><a href="#2-2-1-继承-Thread-类" class="headerlink" title="2.2.1 继承 Thread 类"></a>2.2.1 继承 Thread 类</h4><p>​    Thread类本质上是实现了Runnable接口的一个实例，代表一个线程的实例。启动线程的唯一方法就是通过Thread类的start()实例方法。start()方法是一个native方法，它将启动一个新线程，并执行run()方法。这种方式实现多线程很简单，通过自己创建的类型直接extend Thread，并复写run()方法，就可以启动新线程并执行自己定义的run()方法。</p>
-<p><strong>优点：</strong>代码简单</p>
-<p><strong>缺点：</strong>该类无法继承别的类</p>
-<h4 id="2-2-2-实现-Runnable-接口"><a href="#2-2-2-实现-Runnable-接口" class="headerlink" title="2.2.2 实现 Runnable 接口"></a>2.2.2 实现 Runnable 接口</h4><p>java中的类属于单继承（防止菱形继承），如果自己的类以及extends另一个类，就无法直接extends Thread， 但是一个类继承一个类同时，是可以实现多个接口的。</p>
-<p><strong>优点：</strong>继承其他类。统一实现该接口的实例可以共享资源。</p>
-<p><strong>缺点：</strong>代码复杂</p>
-<h4 id="2-2-3-实现-callable-接口"><a href="#2-2-3-实现-callable-接口" class="headerlink" title="2.2.3 实现 callable 接口"></a>2.2.3 实现 callable 接口</h4><p>实现Runnable和实现Callable接口的方式基本相同，不过<strong>Callable接口中的call()方法有返回值，Runnable接口中的run()方法无返回值</strong></p>
-<h4 id="2-3-4-线程池方式"><a href="#2-3-4-线程池方式" class="headerlink" title="2.3.4 线程池方式"></a>2.3.4 线程池方式</h4><ul>
-<li><p><strong>corePoolSize（核心线程数）</strong></p>
-<p>（1）核心线程会一直存在，即使没有任务执行； </p>
-<p>（2）当线程数小于核心线程数的时候，即使有空闲线程，也会一直创建线程直到达到核心线程数；</p>
-<p>（3）设置allowCoreThreadTimeout=true（默认false）时，核心线程会超时关闭。</p>
-</li>
-<li><p><strong>queueCapacity（任务队列容量）</strong></p>
-<p>也叫阻塞队列，当核心线程都在运行，此时再有任务进来，会进入任务队列，排队等待线程执行。</p>
-</li>
-<li><p><strong>maxPoolSize（最大线程数）</strong></p>
-<p>(1）线程池里允许存在的最大线程数量；<br>(2）当任务队列已满，且线程数量大于等于核心线程数时，会创建新的线程执行任务；<br>(3）线程池里允许存在的最大线程数量。当任务队列已满，且线程数量大于等于核心线程数时，会创建新的线程执行任务。</p>
-</li>
-<li><p><strong>keepAliveTime（线程空闲时间）</strong></p>
-<p>(1）当线程空闲时间达到keepAliveTime时，线程会退出（关闭），直到线程数等于核心线程数；<br>(2）如果设置了allowCoreThreadTimeout=true，则线程会退出直到线程数等于零。</p>
-</li>
-<li><p><strong>allowCoreThreadTimeout（允许核心线程超时）</strong></p>
-</li>
-<li><p><strong>rejectedExecutionHandler（任务拒绝处理器）</strong></p>
-<p>(1）当线程数量达到最大线程数，且任务队列已满时，会拒绝任务；<br>(2）调用线程池shutdown()方法后，会等待执行完线程池的任务之后，再shutdown()。如果在调用了shutdown()方法和线程池真正shutdown()之间提交任务，会拒绝新任务。</p>
-</li>
-<li><p><strong>线程池：</strong>本质上就是一个容纳多个线程的容器，其中的线程可以重复使用，省去了频繁创建线程对象的操作，因为反复创建线程是非常消耗资源的。</p>
-</li>
-</ul>
-<h3 id="2-3-run-和-start-方法"><a href="#2-3-run-和-start-方法" class="headerlink" title="2.3 run() 和 start() 方法"></a>2.3 run() 和 start() 方法</h3><ul>
-<li><p>start：</p>
-<p>用start方法来<strong>启动线程</strong>，真正实现了多线程运行，这时无需等待run方法体代码执行完毕而直接继续执行下面的代码。通过调用Thread类的 start()方法来启动一个线程，这时此线程处于就绪（可运行）状态，并没有运行，一旦得到cpu时间片，就开始执行run()方法，这里方法 run()称为<strong>线程体</strong>，它包含了要执行的这个线程的内容，run方法运行结束，此线程随即终止。</p>
-</li>
-<li><p>run：</p>
-<p>run()方法只是类的一个<strong>普通方法</strong>而已，如果直接调用run方法，程序中依然只有主线程这一个线程，其程序执行路径还是只有一条，还是要顺序执行，还是要等待run<strong>方法体</strong>执行完毕后才可继续执行下面的代码，这样就没有达到写线程的目的。</p>
-</li>
-</ul>
-<h3 id="2-4-ThreadLocal"><a href="#2-4-ThreadLocal" class="headerlink" title="2.4 ThreadLocal"></a>2.4 ThreadLocal</h3><p>通常情况下，我们创建的变量是可以被任何⼀个线程访问并修改的。<strong>如果想实现每⼀个线程都有 ⾃⼰的专属本地变量该如何解决呢？</strong> JDK 中提供的 ThreadLocal 类正是为了解决这样的问题。 <strong>ThreadLocal 类主要解决的就是让每个线程绑定⾃⼰的值，可以将 ThreadLocal 类形象的⽐喻成存放数据的盒⼦，盒⼦中可以存储每个线程的私有数据。</strong></p>
-<p><strong>如果你创建了⼀个 ThreadLocal 变量，那么访问这个变量的每个线程都会有这个变量的本地副本，这也是 ThreadLocal 变量名的由来。他们可以使⽤ get 和 set ⽅法来获取默认值或将其值更改为当前线程所存的副本的值，从⽽避免了线程安全问题。</strong></p>
-<h4 id="2-4-1-Threadlocal-key-的弱引用"><a href="#2-4-1-Threadlocal-key-的弱引用" class="headerlink" title="2.4.1 Threadlocal key 的弱引用"></a>2.4.1 Threadlocal key 的弱引用</h4><p>方便垃圾回收。</p>
-<h3 id="2-5-强、软、弱、引用"><a href="#2-5-强、软、弱、引用" class="headerlink" title="2.5 强、软、弱、引用"></a>2.5 强、软、弱、引用</h3><ul>
-<li><p>强引用：</p>
-<p>直接 <code>new</code></p>
-</li>
-<li><p>软引用：</p>
-<p>通过<code>SoftReference</code>创建，在内存空间不足的时候直接销毁，即它可能最后的销毁地点是在老年区</p>
-</li>
-<li><p>弱引用：</p>
-<p>通过<code>WeakReference</code>创建，在<code>GC</code>的时候直接销毁。即其销毁地点必定为伊甸区</p>
-</li>
-<li><p>虚引用：</p>
-<p>通过<code>PhantomReference </code>创建，它和不存也一样，<strong>「非常虚，只能通过引用队列在进行一些操作，主要用于堆外内存回收」</strong></p>
-</li>
-</ul>
-<h3 id="2-6-synchronized-四种锁状态的升级"><a href="#2-6-synchronized-四种锁状态的升级" class="headerlink" title="2.6 synchronized 四种锁状态的升级"></a>2.6 synchronized 四种锁状态的升级</h3><p>在 Java 语言中，使用 Synchronized 是能够实现线程同步的，即<strong>加锁</strong>。并且实现的是<strong>悲观锁</strong>，在操作同步资源的时候直接先加锁。</p>
-<p>加锁可以使一段代码在同一时间只有一个线程可以访问，在增加安全性的同时，牺牲掉的是程序的执行性能，所以为了在一定程度上减少获得锁和释放锁带来的性能消耗，在 jdk6 之后便引入了“偏向锁”和“轻量级锁”，所以总共有4种锁状态，级别由低到高依次为：<strong>无锁状态</strong>、<strong>偏向锁状态</strong>、<strong>轻量级锁状态</strong>、<strong>重量级锁状态</strong>。这几个状态会随着竞争情况逐渐升级。</p>
-<p><strong>注意：锁可以升级但不能降级。</strong></p>
-<ul>
-<li><p><strong>无锁</strong></p>
-<p>无锁是指没有对资源进行锁定，所有的线程都能访问并修改同一个资源，但同时只有一个线程能修改成功。</p>
-</li>
-<li><p><strong>偏向锁</strong></p>
-<p>偏向锁是指当一段同步代码一直被同一个线程所访问时，即不存在多个线程的竞争时，那么该线程在后续访问时便会自动获得锁，从而降低获取锁带来的消耗，即提高性能。</p>
-</li>
-<li><p><strong>轻量级锁</strong></p>
-<p>轻量级锁是指当锁是偏向锁的时候，却被另外的线程所访问，此时偏向锁就会升级为轻量级锁，其他线程会通过自旋的形式尝试获取锁，线程不会阻塞，从而提高性能。</p>
-</li>
-<li><p><strong>重量级锁</strong></p>
-<p>重量级锁是指当有一个线程获取锁之后，其余所有等待获取该锁的线程都会处于阻塞状态。</p>
-</li>
-</ul>
-<p><strong>自旋：</strong></p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">引入自旋这一规则的原因其实也很简单，因为阻塞或唤醒一个 Java 线程需要操作系统切换 CPU 状态来完成，这种状态转换需要耗费处理器时间。如果同步代码块中的内容过于简单，状态转换消耗的时间有可能比用户代码执行的时间还要长。并且在许多场景中，同步资源的锁定时间很短，为了这一小段时间去切换线程，这部分操作的开销其实是得不偿失的。</span><br><span class="line"></span><br><span class="line">自旋锁本身是有缺点的，它不能代替阻塞。自旋等待虽然避免了线程切换的开销，但它要占用处理器时间。如果锁被占用的时间很短，自旋等待的效果就会非常好。反之，如果锁被占用的时间很长，那么自旋的线程只会白浪费处理器资源。</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>框架</category>
+      </categories>
+      <tags>
+        <tag>Spring MVC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Pytorch 和 Tensorflow 环境配置</title>
+    <url>/2021/05/17/Pytorch%20%E5%92%8C%20Tensorflow%20%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<p><strong>一、创建、删除、激活、退出虚拟环境</strong></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># conda  create -n 虚拟环境名 python==版本号</span></span><br><span class="line"><span class="comment"># 创建一个pytorch版本是3.7的Python环境，命名为pytorch-gpu</span></span><br><span class="line"><span class="comment"># 使用Anaconda Prompt </span></span><br><span class="line">conda create -n pytorch-gpu python==3.7</span><br><span class="line"><span class="comment"># 删除虚拟环境</span></span><br><span class="line">conda remove -n py37 --all</span><br><span class="line"><span class="comment"># 创建完成并进入虚拟环境</span></span><br><span class="line">conda activate pytorch-gpu</span><br><span class="line"><span class="comment"># 退出虚拟环境</span></span><br><span class="line">conda deactivate </span><br><span class="line"><span class="comment"># 查看所有虚拟环境</span></span><br><span class="line">conda-env list</span><br></pre></td></tr></table></figure>
 
-<h3 id="2-7-Lock-和-synchronized-底层原理及比较"><a href="#2-7-Lock-和-synchronized-底层原理及比较" class="headerlink" title="2.7 Lock 和 synchronized 底层原理及比较"></a>2.7 Lock 和 synchronized 底层原理及比较</h3><p><strong>两者完全不一样</strong>，<strong>synchronize基于JVM的锁，lock基于JDK</strong>。</p>
-<ul>
-<li><p><strong>synchronized</strong></p>
-<p>synchronized 锁住的是普通对象或类对象</p>
-</li>
-<li><p><strong>lock</strong></p>
-<p> lock 锁住的是 <strong>Lock 对象</strong></p>
-</li>
-</ul>
-<h3 id="2-8-Lock接口与synchronized的比较"><a href="#2-8-Lock接口与synchronized的比较" class="headerlink" title="2.8  Lock接口与synchronized的比较"></a>2.8  Lock接口与synchronized的比较</h3><ol>
-<li>synchronized是关键字，而Lock是一个接口。</li>
-<li>synchronized会自动释放锁，而Lock必须手动释放锁。</li>
-<li>synchronized是不可中断的，Lock可以中断也可以不中断。 </li>
-<li>通过Lock可以知道线程有没有拿到锁，而synchronized不能。</li>
-<li>synchronized能锁住方法和代码块，而Lock只能锁住代码块。</li>
-<li>Lock可以使用读锁提高多线程读效率。 </li>
-<li>synchronized是非公平锁，ReentrantLock可以控制是否是公平锁。</li>
-</ol>
-<h3 id="2-9-Lock接口比synchronized的优势"><a href="#2-9-Lock接口比synchronized的优势" class="headerlink" title="2.9 Lock接口比synchronized的优势"></a>2.9 Lock接口比synchronized的优势</h3><ol>
-<li>能够显示地获取和释放锁，锁地运用更灵活</li>
-<li>可以方便地实现公平锁</li>
-</ol>
-<p>但是，在大部分情况下，<strong>非公平锁是可提高效率的。</strong></p>
-<h3 id="2-10-Java-内存模型"><a href="#2-10-Java-内存模型" class="headerlink" title="2.10 Java 内存模型"></a>2.10 Java 内存模型</h3><p>JMM定义了Java 虚拟机(JVM)在计算机内存(RAM)中的工作方式。JVM是整个计算机虚拟模型，所以JMM是隶属于JVM的。从抽象的角度来看，JMM定义了<strong>线程</strong>和<strong>主内存</strong>之间的抽象关系：线程之间的共享变量存储在主内存（Main Memory）中，每个线程都有一个私有的本地内存（Local Memory），本地内存中存储了该线程以读/写共享变量的副本。本地内存是JMM的一个抽象概念，并不真实存在。它涵盖了缓存、写缓冲区、寄存器以及其他的硬件和编译器优化。</p>
-<h3 id="2-11-CAS-（解决原子性）-未完成"><a href="#2-11-CAS-（解决原子性）-未完成" class="headerlink" title="2.11 CAS （解决原子性）(未完成)"></a>2.11 CAS （解决原子性）(未完成)</h3><p>CAS,compare and swap的缩写，中文翻译成比较并交换。</p>
-<p>在JDK 5之前Java语言是靠synchronized关键字保证<strong>同步</strong>的，这会导致有锁。</p>
-<p>锁机制存在以下问题：</p>
-<p>（1）在多线程竞争下，加锁、释放锁会导致比较多的上下文切换和调度延时，引起性能问题。</p>
-<p>（2）一个线程持有锁会导致其它所有需要此锁的线程挂起。</p>
-<p>（3）如果一个优先级高的线程等待一个优先级低的线程释放锁会导致优先级倒置，引起性能风险。</p>
-<h3 id="2-12-wait-方法-和-sleep-方法（未完成）"><a href="#2-12-wait-方法-和-sleep-方法（未完成）" class="headerlink" title="2.12 wait 方法 和 sleep 方法（未完成）"></a>2.12 wait 方法 和 sleep 方法（未完成）</h3><ul>
-<li>wait和sleep的基本使用：<ul>
-<li>wait：此方法来自Object类，必须由锁对象进行调用。</li>
-<li>sleep：此方法来之Thread类，是Thread类的静态方法，可以类名点调用。</li>
-</ul>
-</li>
-</ul>
-<hr>
-<p>部分内容来源于网络，作为学习使用，如有侵权请联系我删除。请注明来意。</p>
-<p>邮箱：<a href="mailto:&#x77;&#x69;&#x73;&#101;&#100;&#x75;&#49;&#64;&#103;&#109;&#x61;&#105;&#x6c;&#46;&#x63;&#111;&#109;">&#x77;&#x69;&#x73;&#101;&#100;&#x75;&#49;&#64;&#103;&#109;&#x61;&#105;&#x6c;&#46;&#x63;&#111;&#109;</a></p>
-<p>微信：</p>
-<img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%811.jpg" width="200px" />
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 列出所有环境，查看环境是否安装成功</span></span><br><span class="line">conda info --envs</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看conda镜像配置</span></span><br><span class="line">conda config --show</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>二、添加镜像源</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">conda config --add channels http://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/</span><br><span class="line">conda config --add channels http://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/</span><br><span class="line">conda config --add channels http://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/</span><br><span class="line"></span><br><span class="line">conda config --add channels http://mirrors.ustc.edu.cn/anaconda/pkgs/main/</span><br><span class="line">conda config --add channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>三、安装gpu版本pytorch</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看cuda版本（本电脑cuda版本11.2,可以安装低版本）</span></span><br><span class="line">nvidia-smi</span><br><span class="line"><span class="meta">#</span><span class="bash"> pytorch官网下载对应版本</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> CUDA 10.0</span></span><br><span class="line">conda install pytorch==1.2.0 torchvision==0.4.0 cudatoolkit=10.0 -c pytorch</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 离线安装pytorch</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> cudatoolkit=10.0只能在线安装，其他包可以下载安装包</span></span><br><span class="line">下载地址：http://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/win-64</span><br><span class="line"><span class="meta">#</span><span class="bash"> 下载版本</span></span><br><span class="line">pytorch-1.2.0-py37_cuda100_cudnn7_1.tar.bz2</span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装离线包</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 离线包所在的路径（<span class="built_in">cd</span>:....）,然后再安装</span></span><br><span class="line">conda  install --offline pytorch-1.2.0-py37_cuda100_cudnn7_1.tar.bz2</span><br></pre></td></tr></table></figure>
+
+<p><strong>四、验证是否安装成功</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入Python</span></span><br><span class="line">Python</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;import torch</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>五、安装tensorflow-gpu</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 找到与cuda和python版本对应的tensorflow版本</span></span><br><span class="line">conda install tensorflow-gpu==版本号</span><br><span class="line"><span class="meta">#</span><span class="bash"> 我将pytorch和tensorflow安装在同一个文件里面（pytorch-gpu），对应的Python版本为3.7</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 如果不想放在同一个文件，可以新建一个虚拟环境，安装tensorflow</span></span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <categories>
-        <category>Java</category>
+        <category>环境搭建</category>
       </categories>
       <tags>
-        <tag>Java 常见难点</tag>
+        <tag>Pytorch Tensorflow</tag>
       </tags>
   </entry>
 </search>
