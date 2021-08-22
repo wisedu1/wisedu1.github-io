@@ -88,7 +88,7 @@
 <meta property="og:locale">
 <meta property="og:image" content="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%811.jpg">
 <meta property="article:published_time" content="2021-04-29T11:24:48.000Z">
-<meta property="article:modified_time" content="2021-05-17T14:43:44.119Z">
+<meta property="article:modified_time" content="2021-05-20T03:07:37.921Z">
 <meta property="article:author" content="wisedu1 宇神">
 <meta property="article:tag" content="Java 常见难点">
 <meta name="twitter:card" content="summary">
@@ -358,7 +358,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  5.5k
+                  6.7k
                 </span>
               
 
@@ -374,7 +374,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  19
+                  23
                 </span>
               
             </div>
@@ -704,9 +704,73 @@
 <li><strong>有序性（Ordering）：</strong>是指程序中代码的执行顺序，Java在编译时和运行时会对代码进行优化，会导致程序最终的执行顺序不一定就是我们编写代码时的顺序（重排）。</li>
 </ul>
 <p>java内存模型是一套在多线程读写共享数据时，对共享数据的可见性、有序性、和原子性的规则和保障。 </p>
+<h2 id="3-进程"><a href="#3-进程" class="headerlink" title="3 进程"></a>3 进程</h2><h3 id="3-1-进程状态"><a href="#3-1-进程状态" class="headerlink" title="3.1 进程状态"></a>3.1 进程状态</h3><ul>
+<li><p>创建状态</p>
+<p>进程在创建时需要申请一个空白PCB，向其中填写控制和管理进程的信息，完成资源分配。如果创建工作无法完成，比如资源无法满足，就无法被调度运行，把此时进程所处状态称为创建状态。</p>
+</li>
+<li><p>就绪状态</p>
+<p>进程已经准备好，已分配到所需资源，只要分配到CPU就能够立即运行<br>执。</p>
+</li>
+<li><p>执行状态</p>
+<p>进程处于就绪状态被调度后，进程进入执行状态。</p>
+</li>
+<li><p>阻塞状态</p>
+<p>正在执行的进程由于某些事件（I/O请求，申请缓存区失败）而暂时无法运行，进程受到阻塞。在满足请求时进入就绪状态等待系统调用。</p>
+</li>
+<li><p>终止状态</p>
+<p>进程结束，或出现错误，或被系统终止，进入终止状态。无法再执行。</p>
+</li>
+</ul>
+<h3 id="3-2-僵尸进程和孤儿进程"><a href="#3-2-僵尸进程和孤儿进程" class="headerlink" title="3.2 僵尸进程和孤儿进程"></a>3.2 僵尸进程和孤儿进程</h3><p><strong>僵尸进程</strong>：即子进程先于父进程退出后，子进程的PCB需要其父进程释放，但是父进程并没有释放子进程的PCB，这样的子进程就称为僵尸进程，僵尸进程实际上是一个已经死掉的进程。</p>
+<p><strong>孤儿进程</strong>：一个父进程退出，而它的一个或多个子进程还在运行，那么那些子进程将成为孤儿进程。孤儿进程将被<code>init</code>进程(进程号为<code>1</code>)所收养，并由init进程对它们完成状态收集工作。</p>
+<h3 id="3-3-进程间通讯的7种方式"><a href="#3-3-进程间通讯的7种方式" class="headerlink" title="3.3 进程间通讯的7种方式"></a>3.3 进程间通讯的7种方式</h3><ol>
+<li><p><strong>管道pipe</strong></p>
+<p><strong>管道是一种半双工的通信方式</strong>，数据只能单向流动，而且只能在具有亲缘关系的进程间使用。进程的亲缘关系通常是指父子进程关系。</p>
+</li>
+<li><p><strong>命名管道FIFO</strong></p>
+<p>命名管道也是半双工的通信方式，但是它允许无亲缘关系进程间的通信。</p>
+</li>
+<li><p><strong>消息队列MessageQueue</strong></p>
+<p>消息队列是由消息的链表，存放在内核中并由消息队列标识符标识。消息队列克服了信号传递信息少、管道只能承载无格式字节流以及缓冲区大小受限等缺点。</p>
+</li>
+<li><p><strong>共享存储SharedMemory</strong></p>
+<p>共享内存就是映射一段能被其他进程所访问的内存，这段共享内存由一个进程创建，但多个进程都可以访问。共享内存是最快的 IPC 方式，它是针对其他进程间通信方式运行效率低而专门设计的。它往往与其他通信机制，如信号量，配合使用，来实现进程间的同步和通信。</p>
+</li>
+<li><p><strong>信号量Semaphore</strong></p>
+<p>信号量是一个计数器，可以用来控制多个进程对共享资源的访问。它常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。</p>
+</li>
+<li><p><strong>套接字Socket</strong></p>
+<p>套接字也是一种进程间通信机制，与其他通信机制不同的是，它可用于不同进程间的进程通信。</p>
+</li>
+<li><p><strong>信号 Signal</strong></p>
+<p>信号是一种比较复杂的通信方式，用于通知接收进程某个事件已经发生。</p>
+</li>
+</ol>
+<h3 id="3-4-同一进程间的线程共享与独享的资源"><a href="#3-4-同一进程间的线程共享与独享的资源" class="headerlink" title="3.4 同一进程间的线程共享与独享的资源"></a>3.4 同一进程间的线程共享与独享的资源</h3><h4 id="3-4-1-共享"><a href="#3-4-1-共享" class="headerlink" title="3.4.1 共享"></a>3.4.1 共享</h4><ol>
+<li><p><strong>堆</strong></p>
+<p>由于堆是在进程空间中开辟出来的，所以它是理所当然地被共享的；因此new出来的都是共享的。（16位平台上分全局堆和局部堆，局部堆是独享的）</p>
+</li>
+<li><p><strong>全局变量</strong></p>
+<p>它是与具体某一函数无关的，所以也与特定线程无关；因此也是共享的。</p>
+</li>
+<li><p><strong>静态变量</strong></p>
+<p>虽然对于局部变量来说，它在代码中是“放”在某一函数中的，但是其存放位置和全局变量一样，存于堆中开辟的.bss和.data段，是共享的。</p>
+</li>
+<li><p><strong>文件等公用资源</strong></p>
+<p>这个是共享的，使用这些公共资源的线程必须同步。Win32 提供了几种同步资源的方式，包括信号、临界区、事件和互斥体。</p>
+</li>
+</ol>
+<h4 id="3-4-2-独享"><a href="#3-4-2-独享" class="headerlink" title="3.4.2 独享"></a>3.4.2 独享</h4><ol>
+<li><p><strong>栈</strong></p>
+</li>
+<li><p><strong>寄存器</strong></p>
+<p>这个可能会误解，因为电脑的寄存器是物理的，每个线程去取值难道不一样吗？其实线程里存放的是副本，包括程序计数器PC。</p>
+</li>
+</ol>
+<h3 id="3-5-进程同步和线程同步"><a href="#3-5-进程同步和线程同步" class="headerlink" title="3.5 进程同步和线程同步"></a>3.5 进程同步和线程同步</h3><p>进程同步也是4个方式：信号量、互斥量、管程和进程间通信；线程同步才是信号量、互斥量、临界区、事件。</p>
 <hr>
 <p>部分内容来源于网络，作为学习使用，如有侵权请联系我删除。请注明来意。</p>
-<p>邮箱：<a href="mailto:&#x77;&#105;&#115;&#x65;&#x64;&#x75;&#49;&#x40;&#x67;&#109;&#x61;&#105;&#108;&#x2e;&#99;&#111;&#x6d;">&#x77;&#105;&#115;&#x65;&#x64;&#x75;&#49;&#x40;&#x67;&#109;&#x61;&#105;&#108;&#x2e;&#99;&#111;&#x6d;</a></p>
+<p>邮箱：<a href="mailto:&#119;&#x69;&#115;&#101;&#100;&#117;&#x31;&#64;&#103;&#109;&#97;&#105;&#x6c;&#x2e;&#99;&#111;&#109;">&#119;&#x69;&#115;&#101;&#100;&#117;&#x31;&#64;&#103;&#109;&#97;&#105;&#x6c;&#x2e;&#99;&#111;&#109;</a></p>
 <p>微信：</p>
 <img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%811.jpg" width="200px" />
 
@@ -849,7 +913,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -860,7 +924,7 @@
               
               <div class="site-state-item site-state-categories">
                 
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">分类</span>
                 
               </div>
@@ -871,7 +935,7 @@
               
               <div class="site-state-item site-state-tags">
                 
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">标签</span>
                 
               </div>
@@ -904,7 +968,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-%E5%B8%B8%E8%A7%81%E9%9A%BE%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">Java 常见难点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-java-%E5%9F%BA%E7%A1%80"><span class="nav-number">1.1.</span> <span class="nav-text">1 java 基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E5%AE%B9%E5%99%A8"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1 容器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-1-LinkedList-%E5%92%8C-ArrayList"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">1.1.1 LinkedList 和 ArrayList</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-2-HashMap"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">1.1.2 HashMap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-3-HashCode-%E5%92%8C-equals"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">1.1.3 HashCode() 和 equals()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-4-HashSet"><span class="nav-number">1.1.1.4.</span> <span class="nav-text">1.1.4 HashSet</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%BA%BF%E7%A8%8B%E5%92%8C%E9%94%81"><span class="nav-number">1.2.</span> <span class="nav-text">2 线程和锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E7%BA%BF%E7%A8%8B%E7%9A%84%E7%8A%B6%E6%80%81"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 线程的状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 创建线程的方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-1-%E7%BB%A7%E6%89%BF-Thread-%E7%B1%BB"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">2.2.1 继承 Thread 类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-2-%E5%AE%9E%E7%8E%B0-Runnable-%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">2.2.2 实现 Runnable 接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-3-%E5%AE%9E%E7%8E%B0-callable-%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.2.2.3.</span> <span class="nav-text">2.2.3 实现 callable 接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-4-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.2.4.</span> <span class="nav-text">2.3.4 线程池方式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-run-%E5%92%8C-start-%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.3.</span> <span class="nav-text">2.3 run() 和 start() 方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-ThreadLocal"><span class="nav-number">1.2.4.</span> <span class="nav-text">2.4 ThreadLocal</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-1-Threadlocal-key-%E7%9A%84%E5%BC%B1%E5%BC%95%E7%94%A8"><span class="nav-number">1.2.4.1.</span> <span class="nav-text">2.4.1 Threadlocal key 的弱引用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E5%BC%BA%E3%80%81%E8%BD%AF%E3%80%81%E5%BC%B1%E3%80%81%E5%BC%95%E7%94%A8"><span class="nav-number">1.2.5.</span> <span class="nav-text">2.5 强、软、弱、引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-synchronized-%E5%9B%9B%E7%A7%8D%E9%94%81%E7%8A%B6%E6%80%81%E7%9A%84%E5%8D%87%E7%BA%A7"><span class="nav-number">1.2.6.</span> <span class="nav-text">2.6 synchronized 四种锁状态的升级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7-Lock-%E5%92%8C-synchronized-%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%8F%8A%E6%AF%94%E8%BE%83"><span class="nav-number">1.2.7.</span> <span class="nav-text">2.7 Lock 和 synchronized 底层原理及比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-8-Lock%E6%8E%A5%E5%8F%A3%E4%B8%8Esynchronized%E7%9A%84%E6%AF%94%E8%BE%83"><span class="nav-number">1.2.8.</span> <span class="nav-text">2.8  Lock接口与synchronized的比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-9-Lock%E6%8E%A5%E5%8F%A3%E6%AF%94synchronized%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">1.2.9.</span> <span class="nav-text">2.9 Lock接口比synchronized的优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-10-Java-%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.2.10.</span> <span class="nav-text">2.10 Java 内存模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-11-CAS-%EF%BC%88%E8%A7%A3%E5%86%B3%E5%8E%9F%E5%AD%90%E6%80%A7%EF%BC%89-%E6%9C%AA%E5%AE%8C%E6%88%90"><span class="nav-number">1.2.11.</span> <span class="nav-text">2.11 CAS （解决原子性）(未完成)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-12-wait-%E6%96%B9%E6%B3%95-%E5%92%8C-sleep-%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.12.</span> <span class="nav-text">2.12 wait 方法 和 sleep 方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-13-%E6%82%B2%E8%A7%82%E9%94%81%E5%92%8C%E4%B9%90%E8%A7%82%E9%94%81"><span class="nav-number">1.2.13.</span> <span class="nav-text">2.13 悲观锁和乐观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-14-%E6%AD%BB%E9%94%81"><span class="nav-number">1.2.14.</span> <span class="nav-text">2.14 死锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-15-%E9%94%81%E7%9A%84%E7%A7%8D%E7%B1%BB"><span class="nav-number">1.2.15.</span> <span class="nav-text">2.15 锁的种类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-16-%E5%B9%B6%E5%8F%91"><span class="nav-number">1.2.16.</span> <span class="nav-text">2.16 并发</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-16-1-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%89%E4%B8%AA%E9%97%AE%E9%A2%98"><span class="nav-number">1.2.16.1.</span> <span class="nav-text">2.16.1 并发编程中的三个问题</span></a></li></ol></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-%E5%B8%B8%E8%A7%81%E9%9A%BE%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">Java 常见难点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-java-%E5%9F%BA%E7%A1%80"><span class="nav-number">1.1.</span> <span class="nav-text">1 java 基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E5%AE%B9%E5%99%A8"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1 容器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-1-LinkedList-%E5%92%8C-ArrayList"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">1.1.1 LinkedList 和 ArrayList</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-2-HashMap"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">1.1.2 HashMap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-3-HashCode-%E5%92%8C-equals"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">1.1.3 HashCode() 和 equals()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-4-HashSet"><span class="nav-number">1.1.1.4.</span> <span class="nav-text">1.1.4 HashSet</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%BA%BF%E7%A8%8B%E5%92%8C%E9%94%81"><span class="nav-number">1.2.</span> <span class="nav-text">2 线程和锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E7%BA%BF%E7%A8%8B%E7%9A%84%E7%8A%B6%E6%80%81"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 线程的状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 创建线程的方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-1-%E7%BB%A7%E6%89%BF-Thread-%E7%B1%BB"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">2.2.1 继承 Thread 类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-2-%E5%AE%9E%E7%8E%B0-Runnable-%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">2.2.2 实现 Runnable 接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-3-%E5%AE%9E%E7%8E%B0-callable-%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.2.2.3.</span> <span class="nav-text">2.2.3 实现 callable 接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-4-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.2.4.</span> <span class="nav-text">2.3.4 线程池方式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-run-%E5%92%8C-start-%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.3.</span> <span class="nav-text">2.3 run() 和 start() 方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-ThreadLocal"><span class="nav-number">1.2.4.</span> <span class="nav-text">2.4 ThreadLocal</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-1-Threadlocal-key-%E7%9A%84%E5%BC%B1%E5%BC%95%E7%94%A8"><span class="nav-number">1.2.4.1.</span> <span class="nav-text">2.4.1 Threadlocal key 的弱引用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E5%BC%BA%E3%80%81%E8%BD%AF%E3%80%81%E5%BC%B1%E3%80%81%E5%BC%95%E7%94%A8"><span class="nav-number">1.2.5.</span> <span class="nav-text">2.5 强、软、弱、引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-synchronized-%E5%9B%9B%E7%A7%8D%E9%94%81%E7%8A%B6%E6%80%81%E7%9A%84%E5%8D%87%E7%BA%A7"><span class="nav-number">1.2.6.</span> <span class="nav-text">2.6 synchronized 四种锁状态的升级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7-Lock-%E5%92%8C-synchronized-%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%8F%8A%E6%AF%94%E8%BE%83"><span class="nav-number">1.2.7.</span> <span class="nav-text">2.7 Lock 和 synchronized 底层原理及比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-8-Lock%E6%8E%A5%E5%8F%A3%E4%B8%8Esynchronized%E7%9A%84%E6%AF%94%E8%BE%83"><span class="nav-number">1.2.8.</span> <span class="nav-text">2.8  Lock接口与synchronized的比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-9-Lock%E6%8E%A5%E5%8F%A3%E6%AF%94synchronized%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">1.2.9.</span> <span class="nav-text">2.9 Lock接口比synchronized的优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-10-Java-%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.2.10.</span> <span class="nav-text">2.10 Java 内存模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-11-CAS-%EF%BC%88%E8%A7%A3%E5%86%B3%E5%8E%9F%E5%AD%90%E6%80%A7%EF%BC%89-%E6%9C%AA%E5%AE%8C%E6%88%90"><span class="nav-number">1.2.11.</span> <span class="nav-text">2.11 CAS （解决原子性）(未完成)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-12-wait-%E6%96%B9%E6%B3%95-%E5%92%8C-sleep-%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.12.</span> <span class="nav-text">2.12 wait 方法 和 sleep 方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-13-%E6%82%B2%E8%A7%82%E9%94%81%E5%92%8C%E4%B9%90%E8%A7%82%E9%94%81"><span class="nav-number">1.2.13.</span> <span class="nav-text">2.13 悲观锁和乐观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-14-%E6%AD%BB%E9%94%81"><span class="nav-number">1.2.14.</span> <span class="nav-text">2.14 死锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-15-%E9%94%81%E7%9A%84%E7%A7%8D%E7%B1%BB"><span class="nav-number">1.2.15.</span> <span class="nav-text">2.15 锁的种类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-16-%E5%B9%B6%E5%8F%91"><span class="nav-number">1.2.16.</span> <span class="nav-text">2.16 并发</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-16-1-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%89%E4%B8%AA%E9%97%AE%E9%A2%98"><span class="nav-number">1.2.16.1.</span> <span class="nav-text">2.16.1 并发编程中的三个问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E8%BF%9B%E7%A8%8B"><span class="nav-number">1.3.</span> <span class="nav-text">3 进程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E8%BF%9B%E7%A8%8B%E7%8A%B6%E6%80%81"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1 进程状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%83%B5%E5%B0%B8%E8%BF%9B%E7%A8%8B%E5%92%8C%E5%AD%A4%E5%84%BF%E8%BF%9B%E7%A8%8B"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2 僵尸进程和孤儿进程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E8%AE%AF%E7%9A%847%E7%A7%8D%E6%96%B9%E5%BC%8F"><span class="nav-number">1.3.3.</span> <span class="nav-text">3.3 进程间通讯的7种方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E5%90%8C%E4%B8%80%E8%BF%9B%E7%A8%8B%E9%97%B4%E7%9A%84%E7%BA%BF%E7%A8%8B%E5%85%B1%E4%BA%AB%E4%B8%8E%E7%8B%AC%E4%BA%AB%E7%9A%84%E8%B5%84%E6%BA%90"><span class="nav-number">1.3.4.</span> <span class="nav-text">3.4 同一进程间的线程共享与独享的资源</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-1-%E5%85%B1%E4%BA%AB"><span class="nav-number">1.3.4.1.</span> <span class="nav-text">3.4.1 共享</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-2-%E7%8B%AC%E4%BA%AB"><span class="nav-number">1.3.4.2.</span> <span class="nav-text">3.4.2 独享</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5%E5%92%8C%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5"><span class="nav-number">1.3.5.</span> <span class="nav-text">3.5 进程同步和线程同步</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
@@ -938,7 +1002,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">13.7k</span>
+    <span title="Site words total count">22.9k</span>
   
 </div>
 
