@@ -1,280 +1,229 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>商城项目总结</title>
-    <url>/2021/08/22/%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE%E6%80%BB%E7%BB%93/</url>
+    <title>Java 基础</title>
+    <url>/2021/04/30/Java%20%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<p>[TOC]</p>
-<h2 id="1-商城介绍"><a href="#1-商城介绍" class="headerlink" title="1 商城介绍"></a>1 商城介绍</h2><h3 id="1-1-项目介绍"><a href="#1-1-项目介绍" class="headerlink" title="1.1 项目介绍"></a>1.1 项目介绍</h3><p>B2C模式的线上商城，支持用户在线浏览商品、在线搜索商品，并且可以将喜欢的商品加入购物车从而下单购买商品，同时支持线上支付，支付模式支持微信支付。用户还可以参与低价商品秒杀。</p>
-<p>畅购商城后端采用了微服务架构，微服务技术采用了 SpringCloud 技术栈，各个微服务站点基于 SpringBoot 构建，并采用 SpringCloud Gateway 将各个微服务的功能串联起来，形成一套套系统，同时在微服务网关 Gateway 中采用过滤和限流策略，实施对微服务进行保护和权限认定操作。项目采用了 SpringSecurity OAuth2.0 解决了各个微服务之间的单点登录和用户授权。采用了 Seata 来解决微服务与微服务之间的分布式事务。采用了 Elastisearch 解决了海量商品的实时检索。数据库存储采用了 MySQL，并结合 Canal 实现数据同步操作，并利用 Redis 做数据缓存操作。各个微服务之间采用 RabbitMQ 实现异步通信。采用OpenResty 集成的 Nginx 来控制微服务最外层的大量并发，利用 Keepalived + Nginx 来解决Nginx 单点故障问题。</p>
-<h3 id="1-2-项目架构"><a href="#1-2-项目架构" class="headerlink" title="1.2 项目架构"></a>1.2 项目架构</h3><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E9%A1%B9%E7%9B%AE%E6%9E%B6%E6%9E%84%E6%96%B0.png"></p>
-<h2 id="2-商城业务"><a href="#2-商城业务" class="headerlink" title="2 商城业务"></a>2 商城业务</h2><h3 id="2-1-购物车业务"><a href="#2-1-购物车业务" class="headerlink" title="2.1 购物车业务"></a>2.1 购物车业务</h3><p>购物车分为2种情况，一种是用户登录或者不登录均能使用购物车，另一种是用户只能登录后使用购物车。</p>
-<p>方案一：登录 / 不登录均能使用购物车</p>
-<p>如果用户不登录也能使用购物车，此时将会把购物车信息存入到 Cookie 中，如果用户浏览器禁用了 Cookie，我们可以将购物车数据存入到 localStorage 或者 WebSQL 中。</p>
-<p>用户登录后，购物车数据存入到 Redis 中。</p>
-<p>如果用户从未登陆切换到登陆状态，此时需要将用户 Cookie /WebSQL/localStorage 中的数据合并到 Redis 中。</p>
-<p>该购物车实现方式比较方便，用户不登录也能使用购物车，但也存在安全问题，例如：未登录将商品加入购物车，清空浏览器缓存后数据就没了。</p>
-<p>方案 ：用户必须登录才能使用购物车</p>
-<p>用户如果不登录就无法使用购物车，该方案会将用户数据存入到 Redis 中，使用该方案可以确保用户数据安全。</p>
-<p>用户将商品加入购物车后，会将购物车数据存入到 Redis 中，数据类型选中 Hash 类型，将用户的名字作为 namespace，把要加入购物车的商品作为 key，加入购物车的商品信息作为 value。</p>
-<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E8%B4%AD%E7%89%A9%E8%BD%A6%E7%99%BB%E5%BD%95.png"></p>
-<h3 id="2-2-订单业务"><a href="#2-2-订单业务" class="headerlink" title="2.2 订单业务"></a>2.2 订单业务</h3><p>订单流程：</p>
-<p>用户添加订单的时候，可以在购物车列表页选择将哪些商品添加到订单中并下单操作。点击结算的时候，会进入到下单页面，下单页面会显示用户选中的购物车商品信息，点击提交订单，会实现订单的添加操作。</p>
-<p>注意，添加订单后会将订单中的商品信息从购物车中移除，创建订单之前需要校验一下数据库中商品的价格，此时价格以数据库中的商品价格为准，下单后还需要调用商品微服务实现库存的递减操作，库存递减这里需要控制库存超卖问题，解决超卖问题可以使用数据库的行级锁（for update 悲观锁）实现。</p>
-<p>用如下 SQL 语句操作，基于 num &gt; #{num} 实现乐观锁：</p>
-<p>UPDATE tb_sku SET num=num-#{num} WHERE id=#{id} AND num&gt;=#{num}</p>
-<p>当返回缩减库存 &gt;= 剩余库存的时候，才表示减库存操作成功，否则抛出异常实现数据回滚。</p>
-<p>乐观锁效率高于悲观锁，因为没有线程阻塞，最多就是减库存失败。实现回滚。</p>
-<h3 id="2-3-支付业务"><a href="#2-3-支付业务" class="headerlink" title="2.3 支付业务"></a>2.3 支付业务</h3><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E6%94%AF%E4%BB%98%E4%B8%9A%E5%8A%A1.png"></p>
-<p>支付流程：</p>
-<ol>
-<li>用户在订单微服务中下单，下单后，会向 MQ 发送一个延时队列，延时 30 分钟，队列的信息主要是订单信息；</li>
-<li>下单成功后，前端调用支付系统，根据订单号创建支付二维码，支付二维码的支付地址由订单微服务调用微信服务获取支付地址；</li>
-<li>用户看到支付二维码后，开始扫码付款，并进行授权操作，此时如果授权成功，则用户扣款支付成功；</li>
-<li>用户支付成功后，微信服务器会将支付状态发送给支付微服务，支付微服务会将该信息发送给 RabbitMQ；</li>
-<li>在订单系统中会创建一个支付信息消息的监听，读到支付信息后，根据支付结果，如果支付成功，则修改订单状态，如果支付失败，也修改对应订单状态；</li>
-<li>防止用户长时间不支付，在订单系统中，还编写一个延时队列监听，半小时后，能监听到订单信息，并在数据库中检查订单是否已经支付，如果已经支付，则无需处理，如果未支付，则需要关闭微信支付，同时修改订单状态和商品状态。</li>
-</ol>
-<h3 id="2-4-秒杀业务"><a href="#2-4-秒杀业务" class="headerlink" title="2.4 秒杀业务"></a>2.4 秒杀业务</h3><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E7%A7%92%E6%9D%80.png"></p>
-<p>秒杀中的常见问题的解决：</p>
-<ol>
-<li><p>超卖问题</p>
-<ol>
-<li><p>Redis预减库存：有一个下单请求过来时预减库存，若减完后的redis库存小于0说明已经卖完，此时直接返回客户端已经卖完。后续使用内存标记，减少Redis访问。若预减库存成功，则异步下单，请求入队列，返回客户端排队中。</p>
+<h2 id="1-java-基础"><a href="#1-java-基础" class="headerlink" title="1 java 基础"></a>1 java 基础</h2><h3 id="1-1-容器"><a href="#1-1-容器" class="headerlink" title="1.1 容器"></a>1.1 容器</h3><h4 id="1-1-1-LinkedList-和-ArrayList"><a href="#1-1-1-LinkedList-和-ArrayList" class="headerlink" title="1.1.1 LinkedList 和 ArrayList"></a>1.1.1 LinkedList 和 ArrayList</h4><ol>
+<li><p>数据结构不同</p>
+<ul>
+<li>ArrayList <font color ="red">（好查找）</font>是数组的数据结构。</li>
+<li>LinkedList <font color="red">（好修改）</font>是链表的数据结构。</li>
+</ul>
 </li>
-<li><p>数据库层面防止超卖：Redis预减库存只是抢到了这个机会，真正是否购买成功还是要等到所有数据库操作的真正成功，即消息队列的消费端是否消费成功。</p>
-<p>数据库层面，秒杀的订单表设置唯一索引，防止重复下单。</p>
-<p>数据库层面，减库存的时候同时判断此时库存是否大于0。</p>
-<p>由于是订单模块和库存模块，涉及到分布式事务的问题，使用 seata 框架。</p>
+<li><p>效率不同</p>
+<p>当随机访问 List（ get 和 set 操作）时，ArrayList 比 LinkedList 的效率更高，因为 LinkedList 是线性的数据存储方式，所以需要移动指针从前往后依次查找。</p>
+<p>当对数据进行增加和删除的操作( add 和 remove 操作)时，LinkedList 比 ArrayList  的效率更高，因为 ArrayList 是数组，所以在其中进行增删操作时，会对操作点之后所有数据的下标索引造成影响，需要进行数据的移动。</p>
 </li>
-</ol>
+<li><p>自由性不同</p>
+<p>ArrayList 自由性较低，因为它需要<strong>手动</strong>的设置固定大小的容量，但是它的使用比较方便，只需要创建，然后添加数据，通过调用下标进行使用；而 LinkedList 自由性较高，能够动态的随数据量的变化而变化，但是它不便于使用。</p>
 </li>
-<li><p>如何保证 Redis 的库存与数据库库存的一致性</p>
-<ol>
-<li><p>在我们的项目中，Redis的库存并不是真正的库存，而是用于阻挡多余的下单请求，用于保证有多少秒杀商品库存就放多少个请求到消息队列，大大减少数据库访问。</p>
-<p>真正的下单和减库存操作还是操作数据库的。</p>
-<p>所以我们不需要保证Redis缓存与数据库的一致性。</p>
+<li><p>主要控件开销不同</p>
+<p>ArrayList 主要控件开销在于需要在给 ArrayList 列表预留一定空间；而 LinkedList 主要控件开销在于需要存储结点信息以及结点指针信息。</p>
 </li>
-</ol>
-</li>
-<li><p>如何保证 MQ 不丢失消息</p>
-<p>消息丢失的三种情况：</p>
-<ol>
-<li><p><strong>生产者丢失消息：</strong>生产者发送消息到MQ时因为网络问题丢失消息</p>
-<ol>
-<li><p> rabbitmq 提供事务支持，在生产者发送之前开启事务，然后发送消息，如果消息没有成功被rabbitmq接收到，那么生产者会受到异常报错，这时就可以回滚事物，然后尝试重新发送；如果收到了消息，那么就可以提交事物。但是这种方案会阻塞生产者，吞吐量下降。</p>
-</li>
-<li><p>可以将channel开启confirm机制。在生产者哪里设置开启了confirm模式之后，每次写的消息都会分配一个唯一的id，然后写入了rabbitmq之中；<strong>如果rabbitmq没能处理这个消息，会回调你一个nack接口，告诉你这个消息失败了，你可以进行重试。</strong>如果成功发送到mq，也会回调一个ack的接口方法，告诉你成功发送消息。</p>
-<p>这里使用方案二！这样吞吐量更高。</p>
-</li>
-</ol>
-</li>
-<li><p><strong>MQ丢失消息：</strong>没来得及持久化，就挂掉后消息丢失</p>
-<p>置持久化！持久化有两个步骤：</p>
-<ol>
-<li>创建queue时设置持久化，但是这时候持久化的是queue的元数据，不会持久化queue里面的数据。</li>
-<li>发送消息的时候将消息的deliveryMode设置为2，表示将消息持久化。</li>
-</ol>
-<p>而且可以将持久化与生产者的confirm机制结合，只有持久化成功后才回调ack方法。超时未持久化成功或持久化失败也会回调nack。</p>
-</li>
-<li><p><strong>消费端丢失消息：</strong>刚从MQ获取消息，没处理完消费者就挂掉了</p>
-<p>消费者端丢失数据都是因为开启了 rabbitmq 的 autoACK 功能，即消费者获取了数据之后就自动告诉MQ已经消费。</p>
-<p>解决方案：关闭 rabbitmq 的 autoAck，==在确保消息被消费成功之后才发送 ACK。消息没有成功消费的话 rabbitmq 会重发消息，这样能保证消息不会再消费者端丢失。</p>
-</li>
-</ol>
-</li>
-<li><p>MQ 如何保证不重复消费</p>
-<p>不保证。因为保证了消息不丢失就有可能读取重复的消息。这里保证接口的幂等性即可。</p>
-<p>在保证幂等性的基础上，因为写入 MQ 中的数据都有一个唯一编号，当 MQ 消费成功后立即往 Redis 中写入该编号。在消费端，读取 MQ  数据后先判断是否已经消费过。</p>
-</li>
-<li><p>如何保证分布式事务</p>
-<p>在项目中，MQ消费端需要保证下订单和减库存同时成功或失败，这就涉及到事务的问题。</p>
-<p>由于是分布式架构，每一个模块对应自己的数据库，跨库之间的事务就需要分布式事务解决方案。</p>
-<p>当然，还有一种简单的方案，秒杀模块单独建立自己的订单表、自己的秒杀商品库存表，==即在秒杀下单业务中没有调用其他模块的接口，此时也就简单了，没有分布式事务的存在，采用本地事务解决问题。</p>
-<p>在这里，暂且考虑分布式事务，学技术为主。尝试使用 SpringCloudAlibaba 提供的 Seata 组件去完成分布式事务，只需要加上@GlobalTransaction注解，通过TC、TM、RM三个组件完成：事务控制中心、事务发起方、事务的参与方。</p>
+<li><p>ArrayList 和 LinkedList 的线程安全问题</p>
+<p>都不安全，不然不然 JUC 不会实现 CopyOnWriteArrayList 和 ConcurrentLinkedQueue。</p>
 <blockquote>
-<p>TM：全局事务管理器，在标注开启 fescar 分布式事务的服务端开启，并将全局事务发送到TC事务控制端管理<br>TC：事务控制中心，控制全局事务的提交或者回滚。这个组件需要独立部署维护，目前只支持单机版本，后续迭代计划会有集群版本<br>RM：资源管理器，主要负责分支事务的上报，本地事务的管理</p>
+<p>JUC: java.util.concurrent</p>
 </blockquote>
-<p>Seata事务的执行流程（默认是使用二阶段提交）：</p>
-<p>TM开启分布式事务（TM向TC注册全局事务记录）<br>按业务场景，编排数据库、服务等事务内资源（RM向TC汇报资源准备状态）<br>TM结束分布式事务，事务一阶段结束（TM通知TC提交/回滚事务）<br>TC汇总事务信息，决定事务是提交还是回滚<br>TC通知所有的RM提交或回滚资源，事务的二阶段结束。</p>
-<h2 id="3-技术总结"><a href="#3-技术总结" class="headerlink" title="3 技术总结"></a>3 技术总结</h2><h4 id="3-1-FastDFS"><a href="#3-1-FastDFS" class="headerlink" title="3.1 FastDFS"></a>3.1 FastDFS</h4><h4 id="3-1-1-什么是FastDFS？"><a href="#3-1-1-什么是FastDFS？" class="headerlink" title="3.1.1 什么是FastDFS？"></a>3.1.1 什么是FastDFS？</h4><p>FastDFS是一套分布式文件管理系统，为互联网量身定制，充分考虑了冗余备份、负载均衡、线性扩容等机制，并注重高可用、高性能等指标，使用FastDFS很容易搭建一套高性能的文件服务器集群提供文件上传、下载等服务。</p>
-<ol>
-<li>Tracker:<br>负责任务调度，负载均衡管理以及Storage的注册中心功能</li>
-<li>Storage(操作文件):<br>负责文件上传和下载以及文件的删除等管理功能</li>
-</ol>
-<h4 id="3-1-2-FastDFS有什么缺点"><a href="#3-1-2-FastDFS有什么缺点" class="headerlink" title="3.1.2 FastDFS有什么缺点"></a>3.1.2 FastDFS有什么缺点</h4><ol>
-<li>不支持文件分片，FastDFS不适合大文件存储</li>
-<li>同步机制不支持文件正确性校验，降低了系统的可用性</li>
-</ol>
-<h4 id="3-2-3-FastDFS文件上传流程讲解"><a href="#3-2-3-FastDFS文件上传流程讲解" class="headerlink" title="3.2.3 FastDFS文件上传流程讲解"></a>3.2.3 FastDFS文件上传流程讲解</h4><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/FastDFS.png"></p>
 </li>
 </ol>
-<h3 id="3-2-Nginx"><a href="#3-2-Nginx" class="headerlink" title="3.2 Nginx"></a>3.2 Nginx</h3><p>Nginx介绍：</p>
-<p>Nginx是一款轻量级的Web 服务器/反向代理服务器及电子邮件（IMAP/POP3）代理服务器，在BSD-like 协议下发行。其特点是占有内存少，并发能力强，事实上nginx的并发能力确实在同类型的网页服务器中表现较好，中国大陆使用nginx网站用户有：百度、京东、新浪、网易、腾讯、淘宝等。</p>
-<h4 id="3-2-1-什么是-openResty？"><a href="#3-2-1-什么是-openResty？" class="headerlink" title="3.2.1 什么是 openResty？"></a>3.2.1 什么是 openResty？</h4><p>OpenResty 简单理解成 就相当于封装了nginx,并且集成了LUA脚本，==开发人员只需要简单提供了对应的Lua模块就可以实现相关的逻辑，而不再像之前，还需要在nginx中自己编写lua的脚本，再进行调用了。<br>OpenResty可以 快速构造出足以胜任 10K 以上并发连接响应的超高性能 Web 应用系统。</p>
-<h4 id="3-2-2-Nginx-负载均衡"><a href="#3-2-2-Nginx-负载均衡" class="headerlink" title="3.2.2 Nginx 负载均衡"></a>3.2.2 Nginx 负载均衡</h4><p>upstream: 负载均衡池，主要实现多个节点集群，并且能实现负载均衡策略配置</p>
-<p>载均衡策略:</p>
-<p>ip_hash: 哈希原则<br>weight: 权重<br>轮询：默认</p>
-<h4 id="3-2-3-Nginx-限流策略"><a href="#3-2-3-Nginx-限流策略" class="headerlink" title="3.2.3 Nginx 限流策略"></a>3.2.3 Nginx 限流策略</h4><p>nginx提供两种限流的方式：</p>
-<ol>
-<li>一是控制速率 控制速率的方式之一就是采用漏桶算法。</li>
-<li>二是控制并发连接数</li>
-</ol>
-<p>漏桶算法实现控制速率限流：</p>
-<p>漏桶(Leaky Bucket)算法思路很简单,水(请求)先进入到漏桶里, 漏桶以一定的速度出水(接口有响应速率), 当水流入速度过大会直接溢出(访问频率超过接口响应速率),然后就拒绝请求,可以看出漏桶算法能强行限制数据的传输速率.示意图如下：</p>
-<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/Nginx%E6%BC%8F%E6%A1%B6.png"></p>
-<h4 id="3-2-4-Nginx-动静分离"><a href="#3-2-4-Nginx-动静分离" class="headerlink" title="3.2.4 Nginx 动静分离"></a>3.2.4 Nginx 动静分离</h4><p>动静分离, 使用Nginx将动态请求和静态请求分离开来， 减少不必要的请求消耗, 同时能减少请求的延时。</p>
-<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/Nginx%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB.png"></p>
-<p>静态数据配置：</p>
-<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line">//所有图片|静态页|css|js等 请求使用 http://source.xxx.com</span><br><span class="line">//所有的请求将直接使用Nginx在 /usr/local/server/static下面去找对应的静态资源，而不需要经过Nginx</span><br><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">	<span class="attribute">listener</span> <span class="number">80</span>;</span><br><span class="line">	<span class="attribute">server_name</span> source.xxx.com;</span><br><span class="line">	<span class="attribute">location</span> / &#123;</span><br><span class="line">		<span class="attribute">root</span> /usr/local/server/static;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>动态请求配置：</p>
-<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line">//所有非静态资源请求 使用http://www.xxx.com</span><br><span class="line">//所有请求会直接路由给 http://127.0.0.1:8080的服务器处理</span><br><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">	<span class="attribute">listener</span> <span class="number">80</span>;</span><br><span class="line">	<span class="attribute">server_name</span> www.xxx.com</span><br><span class="line">	location / &#123;</span><br><span class="line">		<span class="attribute">proxy_pass</span> http:<span class="number">127.0.0.1:8080</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="3-3-Canal"><a href="#3-3-Canal" class="headerlink" title="3.3 Canal"></a>3.3 Canal</h3><h4 id="3-3-1-Canal-数据库监听工具的原理"><a href="#3-3-1-Canal-数据库监听工具的原理" class="headerlink" title="3.3.1 Canal 数据库监听工具的原理"></a>3.3.1 Canal 数据库监听工具的原理</h4><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/Canal%E5%8E%9F%E7%90%86.png"></p>
-<p>canal可以用来监控数据库数据的变化，从而获得新增数据，或者修改的数据。</p>
-<p>原理相对比较简单：</p>
-<p>canal模拟mysql slave的交互协议，伪装自己为mysql slave，向mysql master发送dump协议<br>mysql master收到dump请求，开始推送binary log给slave(也就是canal)<br>canal解析binary log对象(原始为byte流)</p>
-<h4 id="3-3-2-项目中的-Canal"><a href="#3-3-2-项目中的-Canal" class="headerlink" title="3.3.2 项目中的 Canal"></a>3.3.2 项目中的 Canal</h4><p>canal在项目中，主要用于做数据增量同步操作，可以将数据同步到Redis、其他MySQL、Elasticsearch等，在该项目中主要实现了广告缓存同步, 网站公告，商品数据，击穿缓存更新，商品缓存数据更新，Elasticsearch索引库数据增量更新。</p>
-<h3 id="3-4-微服务网关-Gateway"><a href="#3-4-微服务网关-Gateway" class="headerlink" title="3.4 微服务网关 Gateway"></a>3.4 微服务网关 Gateway</h3><h4 id="3-4-1-为什么要用微服务网关"><a href="#3-4-1-为什么要用微服务网关" class="headerlink" title="3.4.1 为什么要用微服务网关"></a>3.4.1 为什么要用微服务网关</h4><p>项目中，用户请求由Nginx进行拦截处理，再将请求路由给微服务网关，微服务网关再将请求路由给其他微服务，通过微服务网关可以整合相关功能，还可以实现限流、鉴权相关操作。</p>
-<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3Gateway.png"></p>
-<h4 id="3-4-2-微服务网关的优点"><a href="#3-4-2-微服务网关的优点" class="headerlink" title="3.4.2 微服务网关的优点"></a>3.4.2 微服务网关的优点</h4><p>优点如下：</p>
-<p><strong>安全</strong>。只有网关系统对外进行暴露，微服务可以隐藏在内网，通过防火墙保护。<br><strong>易于监控</strong>。可以在网关收集监控数据并将其推送到外部系统进行分析。<br><strong>易于认证</strong>。可以在网关上进行认证，然后再将请求转发到后端的微服务，而无须在每个微服务中进行认证。<br><strong>减少了客户端与各个微服务之间的交互次数，易于统一授权。</strong></p>
-<h4 id="3-4-3-微服务网关中如何实现限流"><a href="#3-4-3-微服务网关中如何实现限流" class="headerlink" title="3.4.3 微服务网关中如何实现限流"></a>3.4.3 微服务网关中如何实现限流</h4><p>在微服务网关中，我们使用<strong>令牌桶算法实现限流</strong>。</p>
-<p>令牌桶算法是比较常见的限流算法之一，大概描述如下：</p>
-<ol>
-<li>所有的请求在处理之前都需要拿到一个可用的令牌才会被处理；</li>
-<li>根据限流大小，设置按照一定的速率往桶里添加令牌；</li>
-<li>桶设置最大的放置令牌限制，当桶满时、新添加的令牌就被丢弃或者拒绝；</li>
-<li>请求达到后首先要获取令牌桶中的令牌，拿着令牌才可以进行其他的业务逻辑，处理完业务逻辑之后，将令牌直接删除；</li>
-<li>令牌桶有最低限额，当桶中的令牌达到最低限额的时候，请求处理完之后将不会删除令牌，以此保证足够的限流。</li>
-</ol>
-<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E4%BB%A4%E7%89%8C%E6%A1%B6%E7%AE%97%E6%B3%95png.png"></p>
-<h3 id="3-5-JWT-令牌"><a href="#3-5-JWT-令牌" class="headerlink" title="3.5 JWT 令牌"></a>3.5 JWT 令牌</h3><h4 id="3-5-1-什么是-JWT-令牌？主要作用是什么？"><a href="#3-5-1-什么是-JWT-令牌？主要作用是什么？" class="headerlink" title="3.5.1 什么是 JWT 令牌？主要作用是什么？"></a>3.5.1 什么是 JWT 令牌？主要作用是什么？</h4><p><strong>JSON Web Token（JWT）</strong>是一个非常轻巧的规范。这个规范允许我们使用<strong>JWT在用户和服务器之间传递安全可靠的信息</strong>。</p>
-<p>简单来说：JWT令牌是一段JSON字符串，主要用于封装用户身份相关信息，可在各个微服务之间进行传递，从而识别用户的身份信息，通过它可以解决微服务中单点登录问题。</p>
-<h4 id="3-5-2-JWT-令牌有哪些组成？"><a href="#3-5-2-JWT-令牌有哪些组成？" class="headerlink" title="3.5.2 JWT 令牌有哪些组成？"></a>3.5.2 JWT 令牌有哪些组成？</h4><p>一个JWT实际上就是一个字符串，它由三部分组成，<strong>头部</strong>、<strong>载荷</strong>与<strong>签名</strong>。</p>
-<p><strong>头部（Header）</strong></p>
-<p>==头部用于描述关于该JWT的最基本的信息，==例如其类型以及签名所用的算法等。这也可以被表示成一个JSON对象。</p>
-<p>{“typ”:“JWT”,“alg”:“HS256”}</p>
-<p><strong>载荷（playload）</strong></p>
-<p>载荷就是存放有效信息的地方。</p>
-<p><strong>签名（signature）</strong></p>
-<p>jwt的第三部分是一个签证信息，这个签名信息由三部分组成：</p>
-<p>header (base64后的)<br>payload (base64后的)<br>secret 秘钥</p>
-<p>这个部分需要<strong>base64加密后的header和base64加密后的payload使用.连接组成的字符串</strong>，<strong>然后通过header中声明的加密方式进行加盐secret组合加密</strong>，然后就构成了jwt的第三部分。</p>
-<h4 id="3-5-3-如何防止令牌被盗用？"><a href="#3-5-3-如何防止令牌被盗用？" class="headerlink" title="3.5.3 如何防止令牌被盗用？"></a>3.5.3 如何防止令牌被盗用？</h4><p>令牌：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJObzAwMDEiLCJpYXQiOjE1NjkxNTg4MDgsInN1YiI6IuS4u-mimCIsImlzcyI6Ind3dy5pdGhlaW1hLmNvbSIsImV4cCI6MTU2OTE1ODgyMywiYWRkcmVzcyI6IuS4reWbvSIsIm1vbmV5IjoxMDAsImFnZSI6MjV9.lkaOahBKcQ-c8sBPp1Op-siL2k6RiwcEiR17JsZDw98</span><br></pre></td></tr></table></figure>
-
-<p>如果令牌被盗，只要该令牌不过期，任何服务都可以使用该令牌，有可能引起不安全操作。我们可以在每次生成令牌的时候，将用户的客户端信息获取，同时获取用户的IP信息，然后将<strong>IP和客户端信息以MD5的方式进行加密，放到令牌中作为载荷的一部分</strong>，用户每次访问微服务的时候，要先经过<strong>微服务网关</strong>，此时我们<strong>也获取用户客户端信息，同时获取用户的IP，然后将IP和客户端信息拼接到一起再进行MD5加密</strong>，如果<strong>MD5值和载荷不一致</strong>，说明用户的IP发生了变化或者终端发生了变化，有被盗的嫌疑，此时不让访问即可。这种解决方案比较有效。</p>
-<p>当然，还有一些别的方法也能减少令牌被盗用的概率，例如设置令牌超时时间不要太长。</p>
-<h3 id="3-6-OAuth-2-0"><a href="#3-6-OAuth-2-0" class="headerlink" title="3.6 OAuth 2.0"></a>3.6 OAuth 2.0</h3><h4 id="3-6-1-什么是-OAuth-2-0"><a href="#3-6-1-什么是-OAuth-2-0" class="headerlink" title="3.6.1 什么是 OAuth 2.0"></a>3.6.1 什么是 OAuth 2.0</h4><p>3.6.1 什么是OAuth2.0<br><strong>OAuth（开放授权）是一个开放标准，允许用户授权第三方移动应用访问他们存储在另外的服务提供者上的信息</strong>，而不需要将用户名和密码提供给第三方移动应用或分享他们数据的所有内容，OAuth2.0是OAuth协议的延续版本。OAuth2.0提供了4种授权模式，分别为授权码模式授权、密码模式授权 、隐式模式授权、客户端模式授权，其中常用的是<strong>授权码模式授权</strong>和<strong>密码模式授权</strong>。</p>
-<h4 id="3-6-2-OAuth2-0授权码认证流程"><a href="#3-6-2-OAuth2-0授权码认证流程" class="headerlink" title="3.6.2 OAuth2.0授权码认证流程"></a>3.6.2 OAuth2.0授权码认证流程</h4><ol>
-<li><p>客户端请求第三方授权(微信：提供授权码，发放令牌)</p>
+<h4 id="1-1-2-HashMap"><a href="#1-1-2-HashMap" class="headerlink" title="1.1.2 HashMap"></a>1.1.2 HashMap</h4><ol>
+<li><p>HashMap 的数据结构</p>
+<p>哈希结构表：数组+链表</p>
+<ul>
+<li><p><font color="red">通过哈希表结构配合对象的 hashCode 和 equals 方法就可以保证键的唯一性</font></p>
+<blockquote>
+<p>建议今后存储自定义类型的时候，重写hashCode和equals方法。</p>
+</blockquote>
 </li>
-<li><p>用户(资源拥有者)同意给客户端授权</p>
+</ul>
 </li>
-<li><p>客户端获取到授权码，请求认证服务器申请令牌</p>
+<li><p>HashMap 和 HashTable 以及 concurrentHashmap 的区别</p>
+<ul>
+<li><p>HashMap（不同步，<strong>线程不安全</strong>）允许存储null键和null值；</p>
 </li>
-<li><p>认证服务器向客户端响应令牌</p>
+<li><p>Hashtable 不允许存储 null 键和 null 值（同步，<strong>线程安全</strong>，<strong>效率低</strong>）。</p>
+<blockquote>
+<p>如果在多线程的场景下，也无需使用 Hashtable 集合，我们可以使用 <strong>ConcurrenntHashMap</strong> 集合，这是一个线程同步的。</p>
+</blockquote>
 </li>
-<li><p>客户端请求资源服务器的资源，资源服务校验令牌合法性，完成授权</p>
+</ul>
 </li>
-<li><p>资源服务器返回受保护资源</p>
-<p>流程如下：</p>
-<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/OAuth2.0%E6%8E%88%E6%9D%83%E7%A0%81%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B.png"></p>
+<li><p>HashMap resize()</p>
+<ul>
+<li><p>两个重要参数：</p>
+<ul>
+<li><p><strong>初始容量</strong></p>
+<p>默认 16</p>
+<p>哈希表中桶的数量</p>
+</li>
+<li><p><strong>负载因子</strong></p>
+<p>默认 0.75</p>
+<p>哈希表扩容的阈值</p>
+</li>
+</ul>
+</li>
+<li><p>HashMap 的扩容</p>
+<ul>
+<li>当达到阈值时，自动扩容。</li>
+<li>扩容后的数组为原数组的<strong>两倍</strong>，并且数组的大小是 <strong>2 的次幂</strong>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Collection 与 Collections 的根本区别</p>
+<ul>
+<li>Collection 是一个<strong>集合接口</strong>。它提供了对集合对象进行基本操作的通用接口方法。Collection 接口在 Java 类库中有很多具体的实现。Collection 接口的意义是为各种具体的集合提供了最大化的统一操作方式。</li>
+<li>Collections 是一个<strong>包装类</strong>。它包含有各种有关集合操作的<strong>静态多态</strong>方法。此类<strong>不能实例化</strong>，就像一个工具类，服务于Java的 Collection 框架。</li>
+</ul>
 </li>
 </ol>
-<h4 id="3-6-3-各个微服务中如何实现用户身份识别？"><a href="#3-6-3-各个微服务中如何实现用户身份识别？" class="headerlink" title="3.6.3 各个微服务中如何实现用户身份识别？"></a>3.6.3 各个微服务中如何实现用户身份识别？</h4><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%94%A8%E6%88%B7%E8%BA%AB%E4%BB%BD%E8%AF%86%E5%88%AB.png"></p>
-<ol>
-<li>用户登录成功后，会将令牌信息存入到cookie中(一般建议存入到头文件中)</li>
-<li>用户携带Cookie(或者Header)中的令牌访问微服务网关</li>
-<li>微服务网关先获取头文件中的令牌信息，如果Header中没有Authorization令牌信息，则去参数中找，参数中如果没有，则去Cookie中找Authorization，最后将令牌信息封装到Header中，并调用其他微服务</li>
-<li>其他微服务会获取头文件中的Authorization令牌信息，然后匹配令牌数据是否能使用公钥解密，如果解密成功说明用户已登录，解密失败，说明用户未登录</li>
+<h4 id="1-1-3-HashCode-和-equals"><a href="#1-1-3-HashCode-和-equals" class="headerlink" title="1.1.3 HashCode() 和 equals()"></a>1.1.3 HashCode() 和 equals()</h4><ol>
+<li>它们都是 Object 类中的方法<ul>
+<li>如果类不重写这两个方法：<ul>
+<li>hashCode():属于是本地方法，返回的是对象的地址值。</li>
+<li>equals():用来比较两个对象的地址值是否相等。</li>
+</ul>
+</li>
+<li>如果重写这两个方法：<ul>
+<li>hashCode(): 返回的是根据对象的成员变量，计算出的一个整数。</li>
+<li>equals(): 比较的是两个对象中成员信息是否相等。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>类中重写 hashCode() 和 equals() 比较两个对象是否相等<ul>
+<li>两个对象通过 equals() 比较是相等的，那 hashCode() 肯定是相等，也就是 equals() 是绝对可靠的。</li>
+<li>两个对象通过 hashCode 比较相等，但是equals去做比较不一定相等，也就是 hashCode 不是绝对可靠的。</li>
+</ul>
+</li>
+<li>通过 hashCode 和 equals 搭配使用提高判断相等效率<ul>
+<li>由于对于一个对象有大量的成员信息，用 equals 比较会降低效率，所以可以先通过 hashCode 进行比较，如果不相等则两个对象一定不同，如果相同再用 equals 比较，这样可以调高效率。</li>
+</ul>
+</li>
 </ol>
-<h4 id="3-6-4-微服务与微服务之间如何实现认证"><a href="#3-6-4-微服务与微服务之间如何实现认证" class="headerlink" title="3.6.4 微服务与微服务之间如何实现认证"></a>3.6.4 微服务与微服务之间如何实现认证</h4><p>微服务与微服务之间实现认证，只需要<strong>将用户传递的令牌Authorization传递给其他微服务即可</strong>。如果微服务之间相互调用采用的是Feign模式，可以创建一个拦截器(实现接口：RequestInterceptor )，每次执行请求之间，将令牌添加到头文件中即可传递给其他微服务。</p>
-<h4 id="3-6-5-微服务之间如果开启了熔断限流，令牌能否传递过去？如何解决？"><a href="#3-6-5-微服务之间如果开启了熔断限流，令牌能否传递过去？如何解决？" class="headerlink" title="3.6.5 微服务之间如果开启了熔断限流，令牌能否传递过去？如何解决？"></a>3.6.5 微服务之间如果开启了熔断限流，令牌能否传递过去？如何解决？</h4><p>微服务之间相互调用，如果使用Feign调用，如果开启feign熔断，默认采用的是线程，feign调用和请求的线程不属于同一个线程，无法获取请求的线程数据,会造成空指针异常。</p>
-<p><strong>解决方案：hystrix隔离策略换为SEMAPHORE(信号量隔离)</strong></p>
-<p>隔离区别：</p>
-<table>
-<thead>
-<tr>
-<th align="center">比较项</th>
-<th align="center">线程池隔离</th>
-<th align="center">信号量隔离</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">线程</td>
-<td align="center">与调用线程非相同线程</td>
-<td align="center">与调用线程相同（jetty线程）</td>
-</tr>
-<tr>
-<td align="center">开销</td>
-<td align="center">调度、上下文开销等</td>
-<td align="center">无线程切换，开销低</td>
-</tr>
-<tr>
-<td align="center">异步</td>
-<td align="center">支持</td>
-<td align="center">不支持</td>
-</tr>
-<tr>
-<td align="center">并发支持</td>
-<td align="center">支持（最大线程池大小）</td>
-<td align="center">支持（最大信号量上限）</td>
-</tr>
-</tbody></table>
-<h3 id="3-7-分布式事务"><a href="#3-7-分布式事务" class="headerlink" title="3.7 分布式事务"></a>3.7 分布式事务</h3><p>分布式事务的作用：<strong>为了保证各个事务、各个微服务之间的事务的数据一致性。</strong></p>
-<h4 id="3-7-1-说说你对2段提交的理解"><a href="#3-7-1-说说你对2段提交的理解" class="headerlink" title="3.7.1 说说你对2段提交的理解"></a>3.7.1 说说你对2段提交的理解</h4><p>两阶段提交协议(Two Phase Commitment Protocol)中，涉及到两种角色</p>
-<p>一个事务协调者（coordinator）：负责协调多个参与者进行事务投票及提交(回滚)<br>多个事务参与者（participants）：即本地事务执行者</p>
-<p>总共处理步骤有两个：</p>
-<p>（1）投票阶段（voting phase）：<br>协调者将通知事务参与者准备提交或取消事务，然后进入表决过程。<br>参与者将告知协调者自己的决策：同意（事务参与者本地事务执行成功，但未提交）或取消（本地事务执行故障）；<br>（2）提交阶段（commit phase）：<br>收到参与者的通知后，协调者再向参与者发出通知，<br>根据反馈情况决定各参与者是否要提交还是回滚；</p>
-<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A12%E6%AE%B5%E6%8F%90%E4%BA%A4.png"></p>
-<h4 id="3-7-2-补偿事务（TCC）"><a href="#3-7-2-补偿事务（TCC）" class="headerlink" title="3.7.2 补偿事务（TCC）"></a>3.7.2 补偿事务（TCC）</h4><p>TCC 将事务提交分为== Try - Confirm - Cancel 3个操作==。其和两阶段提交有点类似，Try为第一阶段，Confirm - Cancel为第二阶段，是一种应用层面侵入业务的两阶段提交。</p>
-<p>操作方法 含义</p>
-<p>Try 预留业务资源/数据效验<br>Confirm 确认执行业务操作，实际提交数据，不做任何业务检查，try成功，confirm必定成功，需保证幂等<br>Cancel 取消执行业务操作，实际回滚数据，需保证幂等<br>其核心在于将业务分为两个操作步骤完成。不依赖 RM 对分布式事务的支持，而是通过对业务逻辑的分解来实现分布式事务。</p>
-<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E8%A1%A5%E5%81%BF%E4%BA%8B%E5%8A%A1.png"></p>
-<h4 id="3-7-3-Seata的AT模式"><a href="#3-7-3-Seata的AT模式" class="headerlink" title="3.7.3 Seata的AT模式"></a>3.7.3 Seata的AT模式</h4><p>seata中有两种分布式事务实现方案，AT及TCC</p>
-<p><strong>AT模式主要关注多 DB 访问的数据一致性，当然也包括多服务下的多 DB 数据访问一致性问题</strong><br>TCC 模式主要关注业务拆分，在按照业务横向扩展资源时，解决微服务间调用的一致性问题</p>
-<p>Seata AT模式是<strong>基于XA事务演进而来的一个分布式事务中间件</strong>，XA是一个基于数据库实现的分布式事务协议，本质上和两阶段提交一样，需要数据库支持，Mysql5.6以上版本支持XA协议，其他数据库如Oracle，DB2也实现了XA接口</p>
-<p><strong>第一阶段:</strong><br>Seata 的 JDBC 数据源代理通过对业务 SQL 的解析，把业务数据在更新前后的数据镜像组织成回滚日志，利用 本地事务 的 ACID 特性，将业务数据的更新和回滚日志的写入在同一个 本地事务 中提交。<br>这样，可以保证：<strong>任何提交的业务数据的更新一定有相应的回滚日志存在</strong></p>
-<p>基于这样的机制，分支的本地事务便可以在全局事务的第一阶段提交，并马上释放本地事务锁定的资源</p>
-<p>这也是Seata和XA事务的不同之处，两阶段提交往往对资源的锁定需要持续到第二阶段实际的提交或者回滚操作，而有了回滚日志之后，可以在第一阶段释放对资源的锁定，降低了锁范围，提高效率，即使第二阶段发生异常需要回滚，<strong>只需找对undolog中对应数据并反解析成sql来达到回滚目的</strong></p>
-<p>同时Seata通过代理数据源将业务sql的执行解析成undolog来与业务数据的更新同时入库，达到了对业务无侵入的效果。</p>
-<p><strong>第二阶段:</strong><br><strong>如果决议是全局提交</strong>，此时分支事务此时已经完成提交，不需要同步协调处理（只需要异步清理回滚日志），Phase2 可以非常快速地完成.</p>
-<p><strong>如果决议是全局回滚，RM 收到协调器发来的回滚请求，通过 XID 和 Branch ID 找到相应的回滚日志记录，通过回滚记录生成反向的更新 SQL 并执行，以完成分支的回滚</strong></p>
-<h3 id="3-8-MQ"><a href="#3-8-MQ" class="headerlink" title="3.8 MQ"></a>3.8 MQ</h3><h4 id="4-8-1-MQ主要解决了什么问题？"><a href="#4-8-1-MQ主要解决了什么问题？" class="headerlink" title="4.8.1 MQ主要解决了什么问题？"></a>4.8.1 MQ主要解决了什么问题？</h4><p>使用MQ主要可以</p>
-<p>解决分布式应用之间的异步通信，</p>
-<p>同时还降低了分布式应用之间的耦合。</p>
-<h4 id="3-8-2-RabbitMQ有几种队列模式？"><a href="#3-8-2-RabbitMQ有几种队列模式？" class="headerlink" title="3.8.2 RabbitMQ有几种队列模式？"></a>3.8.2 RabbitMQ有几种队列模式？</h4><p>7种：</p>
-<ol>
-<li>简单模式</li>
-<li>工作者模式</li>
-<li>广播模式</li>
-<li>路由模式</li>
-<li>通配符模式</li>
-<li>RPC</li>
-<li>消息确认模式</li>
-</ol>
-<p><strong>1.生产者弄丢了数据</strong><br>生产者将数据发送到rabbitmq的时候，可能数据就在半路给搞丢了,例如网络问题。</p>
-<p><strong>解决方案：</strong>RabbitMQ提供transaction和confirm模式来确保生产者不丢消息。</p>
-<p><strong>transaction机制</strong>就是说，发送消息前开启事物(channel.txSelect())，然后发送消息，如果发送过程中出现什么异常，<br>事物就会回滚(channel.txRollback())，如果发送成功则提交事物(channel.txCommit())。然而缺点就是吞吐量下降了。<br>因此，生产上用<strong>confirm模式</strong>的居多。一旦channel进入confirm模式，所有在该信道上面发布的消息都将会被指派一个唯一的ID(从1开始)，一旦消息被投递到所有匹配的队列之后，rabbitMQ就会发送一个Ack给生产者(包含消息的唯一ID)，这就使得生产者知道消息已经正确到达目的队列了.如果rabiitMQ没能处理该消息，则会发送一个Nack消息给你，你可以进行重试操作。</p>
-<p><strong>2.rabbitmq弄丢了数据</strong><br>就是rabbitmq自己弄丢了数据，这个你必须开启rabbitmq的持久化，就是消息写入之后会持久化到磁盘，哪怕是rabbitmq自己挂了，恢复之后会自动读取之前存储的数据，一般数据不会丢。除非极其罕见的是，rabbitmq还没持久化，自己就挂了，可能导致少量数据会丢失的，但是这个概率较小。</p>
-<p><strong>解决方案：</strong><br>处理消息队列丢数据的情况，一般是开启持久化磁盘的配置。这个持久化配置可以和confirm机制配合使用，你可以在消息持久化磁盘后，再给生产者发送一个Ack信号。这样，如果消息持久化磁盘之前，rabbitMQ阵亡了，那么生产者收不到Ack信号，生产者会自动重发。</p>
-<p><strong>3.消费端弄丢了数据</strong><br>消费端如果丢失了数据，主要是因为你消费的时候，刚消费到，还没处理，结果进程挂了，比如重启了，那么就尴尬了，rabbitmq认为你都消费了，这数据就丢了。</p>
-<p>解决方案：启用<strong>手动确认模式</strong>可以解决这个问题（重试机制）手动确认模式，如果消费者来不及处理就死掉时，没有响应ack时会重复发送一条信息给其他消费者；如果监听程序处理异常了，且未对异常进行捕获，会一直重复接收消息，然后一直抛异常；如果对异常进行了捕获，但是没有在finally里ack，也会一直重复发送消息(重试机制)。</p>
-<h4 id="3-8-4-RabbitMQ如何实现延时队列？"><a href="#3-8-4-RabbitMQ如何实现延时队列？" class="headerlink" title="3.8.4 RabbitMQ如何实现延时队列？"></a>3.8.4 RabbitMQ如何实现延时队列？</h4><p>Rabbitmq实现延时队列一般而言有两种形式：</p>
-<p>==第一种方式：==利用两个特性： Time To Live(TTL)、Dead Letter Exchanges（DLX）[A队列过期-&gt;转发给B队列]</p>
-<p>第二种方式：利用rabbitmq中的插件x-delay-message</p>
-<p>RabbitMQ可以针对队列设置x-expires(则队列中所有的消息都有相同的过期时间)或者针对Message设置x-message-ttl(对消息进行单独设置，每条消息TTL可以不同)，来控制消息的生存时间，如果超时(两者同时设置以最先到期的时间为准)，则消息变为dead letter(死信)</p>
-<p>Dead Letter Exchanges（DLX）<br>RabbitMQ的Queue可以配置x-dead-letter-exchange和x-dead-letter-routing-key（可选）两个参数，如果队列内出现了dead letter，则按照这两个参数重新路由转发到指定的队列。</p>
-<p>x-dead-letter-exchange：出现dead letter之后将dead letter重新发送到指定exchange</p>
-<p>x-dead-letter-routing-key：出现dead letter之后将dead letter重新按照指定的routing-key发送</p>
-]]></content>
+<hr>
+<p>部分内容来源于网络，作为学习使用，如有侵权请联系我删除。请注明来意。</p>
+<p>邮箱：<a href="mailto:&#119;&#105;&#115;&#101;&#x64;&#x75;&#49;&#64;&#x67;&#109;&#97;&#105;&#108;&#x2e;&#99;&#111;&#109;">&#119;&#105;&#115;&#101;&#x64;&#x75;&#49;&#64;&#x67;&#109;&#97;&#105;&#108;&#x2e;&#99;&#111;&#109;</a></p>
+<p>微信：</p>
+<img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%811.jpg" width="200px" />]]></content>
       <categories>
-        <category>项目</category>
+        <category>Java</category>
       </categories>
       <tags>
-        <tag>Java 微服务项目</tag>
+        <tag>Java 常见难点</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Pytorch 和 Tensorflow 环境配置</title>
+    <url>/2021/05/17/Pytorch%20%E5%92%8C%20Tensorflow%20%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<p><strong>一、创建、删除、激活、退出虚拟环境</strong></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># conda  create -n 虚拟环境名 python==版本号</span></span><br><span class="line"><span class="comment"># 创建一个pytorch版本是3.7的Python环境，命名为pytorch-gpu</span></span><br><span class="line"><span class="comment"># 使用Anaconda Prompt </span></span><br><span class="line">conda create -n pytorch-gpu python==3.7</span><br><span class="line"><span class="comment"># 删除虚拟环境</span></span><br><span class="line">conda remove -n py37 --all</span><br><span class="line"><span class="comment"># 创建完成并进入虚拟环境</span></span><br><span class="line">conda activate pytorch-gpu</span><br><span class="line"><span class="comment"># 退出虚拟环境</span></span><br><span class="line">conda deactivate </span><br><span class="line"><span class="comment"># 查看所有虚拟环境</span></span><br><span class="line">conda-env list</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 列出所有环境，查看环境是否安装成功</span></span><br><span class="line">conda info --envs</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看conda镜像配置</span></span><br><span class="line">conda config --show</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>二、添加镜像源</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">conda config --add channels http://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/</span><br><span class="line">conda config --add channels http://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/</span><br><span class="line">conda config --add channels http://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/</span><br><span class="line"></span><br><span class="line">conda config --add channels http://mirrors.ustc.edu.cn/anaconda/pkgs/main/</span><br><span class="line">conda config --add channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>三、安装gpu版本pytorch</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看cuda版本（本电脑cuda版本11.2,可以安装低版本）</span></span><br><span class="line">nvidia-smi</span><br><span class="line"><span class="meta">#</span><span class="bash"> pytorch官网下载对应版本</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> CUDA 10.0</span></span><br><span class="line">conda install pytorch==1.2.0 torchvision==0.4.0 cudatoolkit=10.0 -c pytorch</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 离线安装pytorch</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> cudatoolkit=10.0只能在线安装，其他包可以下载安装包</span></span><br><span class="line">下载地址：http://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/win-64</span><br><span class="line"><span class="meta">#</span><span class="bash"> 下载版本</span></span><br><span class="line">pytorch-1.2.0-py37_cuda100_cudnn7_1.tar.bz2</span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装离线包</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 离线包所在的路径（<span class="built_in">cd</span>:....）,然后再安装</span></span><br><span class="line">conda  install --offline pytorch-1.2.0-py37_cuda100_cudnn7_1.tar.bz2</span><br></pre></td></tr></table></figure>
+
+<p><strong>四、验证是否安装成功</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入Python</span></span><br><span class="line">Python</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;import torch</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>五、安装tensorflow-gpu</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 找到与cuda和python版本对应的tensorflow版本</span></span><br><span class="line">conda install tensorflow-gpu==版本号</span><br><span class="line"><span class="meta">#</span><span class="bash"> 我将pytorch和tensorflow安装在同一个文件里面（pytorch-gpu），对应的Python版本为3.7</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 如果不想放在同一个文件，可以新建一个虚拟环境，安装tensorflow</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>部分内容来源于网络，作为学习使用，如有侵权请联系我删除。请注明来意。</p>
+<p>邮箱：<a href="mailto:&#119;&#x69;&#115;&#101;&#100;&#117;&#49;&#x40;&#x67;&#x6d;&#97;&#105;&#x6c;&#46;&#99;&#x6f;&#x6d;">&#119;&#x69;&#115;&#101;&#100;&#117;&#49;&#x40;&#x67;&#x6d;&#97;&#105;&#x6c;&#46;&#99;&#x6f;&#x6d;</a></p>
+<p>微信：</p>
+<img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%811.jpg" width="200px" />]]></content>
+      <categories>
+        <category>环境搭建</category>
+      </categories>
+      <tags>
+        <tag>Pytorch Tensorflow</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spring MVC 框架总结</title>
+    <url>/2021/04/27/Spring%20MVC%20%E6%A1%86%E6%9E%B6%E6%80%BB%E7%BB%93/</url>
+    <content><![CDATA[<p>[TOC]</p>
+<h1 id="Spring-MVC-框架总结"><a href="#Spring-MVC-框架总结" class="headerlink" title="Spring MVC 框架总结"></a>Spring MVC 框架总结</h1><h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>最近开始接触 Spring MVC，但是零零散散，没有在大脑里形成系统的知识结构体系，于是在此进行了梳理。</p>
+<h2 id="什么是-MVC"><a href="#什么是-MVC" class="headerlink" title="什么是 MVC"></a>什么是 MVC</h2><p>Spring MVC 是 Spring 框架的一个模块，Spring MVC 和 Spring 无需通过中间整合层进行整合。</p>
+<p>Spring MVC 是一个基于 MVC 的 web 框架。</p>
+<p><strong>MVC</strong> 模式是软件工程中的一种软件架构模式，把软件系统分为三个基本部分：</p>
+<ul>
+<li>控制器(<strong>C</strong>ontroller)——负责转发请求，对请求进行处理。</li>
+<li>视图 (<strong>V</strong>iew)——界面设计人员进行图形界面设计。</li>
+<li>模型 (<strong>M</strong>odel)——程序员编写程序应有的功能、数据库专家进行数据管理和数据库设计。</li>
+</ul>
+<p>所以，MVC 模式将程序划分了三个组件，<strong>模型 (Model)</strong> 用于封装与应用程序的业务逻辑相关的数据以及对数据的处理方法。<strong>视图 (View)</strong> 负责展示数据，<strong>控制器 (Contoller)</strong> 处理事件并作出响应（事件包括用户的行为，比如请求）和数据 Model 上的改变。</p>
+<ul>
+<li>用户发起 request 请求至控制器 (Controller)，控制器接收用户请求的数据，委托给模型进行处理</li>
+<li>控制器通过模型处理数据并得到处理结果，模型通常是指业务逻辑</li>
+<li>模型处理结果返回给控制器</li>
+<li>控制器将模型数据在视图中展示，web 中模型无法将数据直接在视图上显示，需要通过控制器完成</li>
+<li>控制器将视图 response 响应给用户，通过视图展示给用户要的数据或处理结果</li>
+</ul>
+<h2 id="Spring-MVC-核心架构"><a href="#Spring-MVC-核心架构" class="headerlink" title="Spring MVC 核心架构"></a>Spring MVC 核心架构</h2><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/SpringMVC%20%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg"></p>
+<ol>
+<li>用户发起请求到前端控制器 (DispatcherServlet)</li>
+<li>前端控制器请求处理器映射器 HandlerMapping 查找 Handler，可以根据 xml 配置、注解进行查找</li>
+<li>处理器映射器 HandlerMapping 向前端控制器返回 Handler</li>
+<li>前端控制器调用处理器适配器 HandlerAdapter 去执行 Handler</li>
+<li>处理器适配器去执行 Handler</li>
+<li>处理器适配器向前端控制器返回 ModelAndView，它是 Spirng MVC 框架的一个底层对象，包括 Model 和 View</li>
+<li>前端控制器请求视图解析器 ViewResolver 去进行视图解析，根据逻辑视图名解析成真正的视图</li>
+<li>视图解析器 向前端控制器返回 View</li>
+<li>前端控制器进行视图渲染，视图渲染将模型数据（在 ModelAndView 对象中）填充到 request 域</li>
+<li>前端控制器向用户响应结果</li>
+</ol>
+<p>通常，一个项目是由 Spring + SpringMVC + MyBatis 三大框架整合的 SSM 框架完成。</p>
+<h2 id="Spring-MVC-常用注解"><a href="#Spring-MVC-常用注解" class="headerlink" title="Spring MVC 常用注解"></a>Spring MVC 常用注解</h2><ol>
+<li><p>@Controller</p>
+<p>负责注册一个 bean 到 Spring Context中。</p>
+</li>
+<li><p>@RequstMapping</p>
+<p>注解为控制器指定可以处理那些 URL 请求。</p>
+</li>
+<li><p>@RequstBody</p>
+<p>该注解用于读取 <code>Request</code> 请求的 body 部分数据，使用系统默认配置的 <code>HttpMessageConverter</code> 进行解析，然后把响应的数据绑定到要返回的对象上，再把 <code>HttpMessageConverter</code> 返回的对象数据绑定到 controller 中方法的参数上。</p>
+</li>
+<li><p>@ResponseBody</p>
+<p>该注解用于将 controller 的方法返回的对象通过适当的 <code>HttpMessageConverter</code> 转换成为指定格式后，写入到 <code>Response</code> 对象的 body 数据区。</p>
+</li>
+<li><p>@ModelAttribute</p>
+<p>在方法定义上使用 @ModelAttribute 注解：Spring MVC 在调用目标处理方法前，会先逐个调用在方法级上标注了 @ModelAttribute 的方法。</p>
+<p>在方法的入参前使用 @ModelAttribute 注解：可以从隐含对象中获取隐含的模型数据中获取对象，再将请求参数绑定到对象中，再传入入参将方法入参对象添加到模型中。</p>
+</li>
+<li><p>@RequstParam</p>
+<p>在处理方法入参处使用 @RequestParam 可以把请求参数传递给请求方法。</p>
+</li>
+<li><p>@PathVariable</p>
+<p>绑定 URL 占位符到入参。</p>
+</li>
+<li><p>@ExceptionHandler</p>
+<p>注解到方法上，出现异常时会执行该方法。</p>
+</li>
+<li><p>@ControllerAdvice</p>
+<p>使一个 Controller 成为全局的异常处理类，类中使用 @ExceptionHandler 注解的方法可以处理所有 Controller 发生的异常。</p>
+</li>
+</ol>
+<hr>
+<p>部分内容来源于网络，作为学习使用，如有侵权请联系我删除。请注明来意。</p>
+<p>邮箱：<a href="mailto:&#x77;&#x69;&#115;&#x65;&#100;&#117;&#49;&#64;&#103;&#x6d;&#97;&#105;&#108;&#x2e;&#99;&#111;&#109;">&#x77;&#x69;&#115;&#x65;&#100;&#117;&#49;&#64;&#103;&#x6d;&#97;&#105;&#108;&#x2e;&#99;&#111;&#109;</a></p>
+<p>微信：</p>
+<img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%811.jpg" width="200px" />]]></content>
+      <categories>
+        <category>框架</category>
+      </categories>
+      <tags>
+        <tag>Spring MVC</tag>
       </tags>
   </entry>
   <entry>
@@ -668,121 +617,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Java 基础</title>
-    <url>/2021/04/30/Java%20%E5%9F%BA%E7%A1%80/</url>
-    <content><![CDATA[<p>[TOC]</p>
-<h2 id="1-java-基础"><a href="#1-java-基础" class="headerlink" title="1 java 基础"></a>1 java 基础</h2><h3 id="1-1-容器"><a href="#1-1-容器" class="headerlink" title="1.1 容器"></a>1.1 容器</h3><h4 id="1-1-1-LinkedList-和-ArrayList"><a href="#1-1-1-LinkedList-和-ArrayList" class="headerlink" title="1.1.1 LinkedList 和 ArrayList"></a>1.1.1 LinkedList 和 ArrayList</h4><ol>
-<li><p>数据结构不同</p>
-<ul>
-<li>ArrayList <font color ="red">（好查找）</font>是数组的数据结构。</li>
-<li>LinkedList <font color="red">（好修改）</font>是链表的数据结构。</li>
-</ul>
-</li>
-<li><p>效率不同</p>
-<p>当随机访问 List（ get 和 set 操作）时，ArrayList 比 LinkedList 的效率更高，因为 LinkedList 是线性的数据存储方式，所以需要移动指针从前往后依次查找。</p>
-<p>当对数据进行增加和删除的操作( add 和 remove 操作)时，LinkedList 比 ArrayList  的效率更高，因为 ArrayList 是数组，所以在其中进行增删操作时，会对操作点之后所有数据的下标索引造成影响，需要进行数据的移动。</p>
-</li>
-<li><p>自由性不同</p>
-<p>ArrayList 自由性较低，因为它需要<strong>手动</strong>的设置固定大小的容量，但是它的使用比较方便，只需要创建，然后添加数据，通过调用下标进行使用；而 LinkedList 自由性较高，能够动态的随数据量的变化而变化，但是它不便于使用。</p>
-</li>
-<li><p>主要控件开销不同</p>
-<p>ArrayList 主要控件开销在于需要在给 ArrayList 列表预留一定空间；而 LinkedList 主要控件开销在于需要存储结点信息以及结点指针信息。</p>
-</li>
-<li><p>ArrayList 和 LinkedList 的线程安全问题</p>
-<p>都不安全，不然不然 JUC 不会实现 CopyOnWriteArrayList 和 ConcurrentLinkedQueue。</p>
-<blockquote>
-<p>JUC: java.util.concurrent</p>
-</blockquote>
-</li>
-</ol>
-<h4 id="1-1-2-HashMap"><a href="#1-1-2-HashMap" class="headerlink" title="1.1.2 HashMap"></a>1.1.2 HashMap</h4><ol>
-<li><p>HashMap 的数据结构</p>
-<p>哈希结构表：数组+链表</p>
-<ul>
-<li><p><font color="red">通过哈希表结构配合对象的 hashCode 和 equals 方法就可以保证键的唯一性</font></p>
-<blockquote>
-<p>建议今后存储自定义类型的时候，重写hashCode和equals方法。</p>
-</blockquote>
-</li>
-</ul>
-</li>
-<li><p>HashMap 和 HashTable 以及 concurrentHashmap 的区别</p>
-<ul>
-<li><p>HashMap（不同步，<strong>线程不安全</strong>）允许存储null键和null值；</p>
-</li>
-<li><p>Hashtable 不允许存储 null 键和 null 值（同步，<strong>线程安全</strong>，<strong>效率低</strong>）。</p>
-<blockquote>
-<p>如果在多线程的场景下，也无需使用 Hashtable 集合，我们可以使用 <strong>ConcurrenntHashMap</strong> 集合，这是一个线程同步的。</p>
-</blockquote>
-</li>
-</ul>
-</li>
-<li><p>HashMap resize()</p>
-<ul>
-<li><p>两个重要参数：</p>
-<ul>
-<li><p><strong>初始容量</strong></p>
-<p>默认 16</p>
-<p>哈希表中桶的数量</p>
-</li>
-<li><p><strong>负载因子</strong></p>
-<p>默认 0.75</p>
-<p>哈希表扩容的阈值</p>
-</li>
-</ul>
-</li>
-<li><p>HashMap 的扩容</p>
-<ul>
-<li>当达到阈值时，自动扩容。</li>
-<li>扩容后的数组为原数组的<strong>两倍</strong>，并且数组的大小是 <strong>2 的次幂</strong>。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>Collection 与 Collections 的根本区别</p>
-<ul>
-<li>Collection 是一个<strong>集合接口</strong>。它提供了对集合对象进行基本操作的通用接口方法。Collection 接口在 Java 类库中有很多具体的实现。Collection 接口的意义是为各种具体的集合提供了最大化的统一操作方式。</li>
-<li>Collections 是一个<strong>包装类</strong>。它包含有各种有关集合操作的<strong>静态多态</strong>方法。此类<strong>不能实例化</strong>，就像一个工具类，服务于Java的 Collection 框架。</li>
-</ul>
-</li>
-</ol>
-<h4 id="1-1-3-HashCode-和-equals"><a href="#1-1-3-HashCode-和-equals" class="headerlink" title="1.1.3 HashCode() 和 equals()"></a>1.1.3 HashCode() 和 equals()</h4><ol>
-<li>它们都是 Object 类中的方法<ul>
-<li>如果类不重写这两个方法：<ul>
-<li>hashCode():属于是本地方法，返回的是对象的地址值。</li>
-<li>equals():用来比较两个对象的地址值是否相等。</li>
-</ul>
-</li>
-<li>如果重写这两个方法：<ul>
-<li>hashCode(): 返回的是根据对象的成员变量，计算出的一个整数。</li>
-<li>equals(): 比较的是两个对象中成员信息是否相等。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>类中重写 hashCode() 和 equals() 比较两个对象是否相等<ul>
-<li>两个对象通过 equals() 比较是相等的，那 hashCode() 肯定是相等，也就是 equals() 是绝对可靠的。</li>
-<li>两个对象通过 hashCode 比较相等，但是equals去做比较不一定相等，也就是 hashCode 不是绝对可靠的。</li>
-</ul>
-</li>
-<li>通过 hashCode 和 equals 搭配使用提高判断相等效率<ul>
-<li>由于对于一个对象有大量的成员信息，用 equals 比较会降低效率，所以可以先通过 hashCode 进行比较，如果不相等则两个对象一定不同，如果相同再用 equals 比较，这样可以调高效率。</li>
-</ul>
-</li>
-</ol>
-<hr>
-<p>部分内容来源于网络，作为学习使用，如有侵权请联系我删除。请注明来意。</p>
-<p>邮箱：<a href="mailto:&#119;&#105;&#115;&#101;&#x64;&#x75;&#49;&#64;&#x67;&#109;&#97;&#105;&#108;&#x2e;&#99;&#111;&#109;">&#119;&#105;&#115;&#101;&#x64;&#x75;&#49;&#64;&#x67;&#109;&#97;&#105;&#108;&#x2e;&#99;&#111;&#109;</a></p>
-<p>微信：</p>
-<img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%811.jpg" width="200px" />]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>Java 常见难点</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Spring 框架常见问题</title>
     <url>/2021/04/28/Spring%20%E6%A1%86%E6%9E%B6%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/</url>
     <content><![CDATA[<p>[TOC]</p>
@@ -1094,114 +928,280 @@
       </tags>
   </entry>
   <entry>
-    <title>Spring MVC 框架总结</title>
-    <url>/2021/04/27/Spring%20MVC%20%E6%A1%86%E6%9E%B6%E6%80%BB%E7%BB%93/</url>
+    <title>商城项目总结</title>
+    <url>/2021/08/22/%E5%95%86%E5%9F%8E%E9%A1%B9%E7%9B%AE%E6%80%BB%E7%BB%93/</url>
     <content><![CDATA[<p>[TOC]</p>
-<h1 id="Spring-MVC-框架总结"><a href="#Spring-MVC-框架总结" class="headerlink" title="Spring MVC 框架总结"></a>Spring MVC 框架总结</h1><h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>最近开始接触 Spring MVC，但是零零散散，没有在大脑里形成系统的知识结构体系，于是在此进行了梳理。</p>
-<h2 id="什么是-MVC"><a href="#什么是-MVC" class="headerlink" title="什么是 MVC"></a>什么是 MVC</h2><p>Spring MVC 是 Spring 框架的一个模块，Spring MVC 和 Spring 无需通过中间整合层进行整合。</p>
-<p>Spring MVC 是一个基于 MVC 的 web 框架。</p>
-<p><strong>MVC</strong> 模式是软件工程中的一种软件架构模式，把软件系统分为三个基本部分：</p>
-<ul>
-<li>控制器(<strong>C</strong>ontroller)——负责转发请求，对请求进行处理。</li>
-<li>视图 (<strong>V</strong>iew)——界面设计人员进行图形界面设计。</li>
-<li>模型 (<strong>M</strong>odel)——程序员编写程序应有的功能、数据库专家进行数据管理和数据库设计。</li>
-</ul>
-<p>所以，MVC 模式将程序划分了三个组件，<strong>模型 (Model)</strong> 用于封装与应用程序的业务逻辑相关的数据以及对数据的处理方法。<strong>视图 (View)</strong> 负责展示数据，<strong>控制器 (Contoller)</strong> 处理事件并作出响应（事件包括用户的行为，比如请求）和数据 Model 上的改变。</p>
-<ul>
-<li>用户发起 request 请求至控制器 (Controller)，控制器接收用户请求的数据，委托给模型进行处理</li>
-<li>控制器通过模型处理数据并得到处理结果，模型通常是指业务逻辑</li>
-<li>模型处理结果返回给控制器</li>
-<li>控制器将模型数据在视图中展示，web 中模型无法将数据直接在视图上显示，需要通过控制器完成</li>
-<li>控制器将视图 response 响应给用户，通过视图展示给用户要的数据或处理结果</li>
-</ul>
-<h2 id="Spring-MVC-核心架构"><a href="#Spring-MVC-核心架构" class="headerlink" title="Spring MVC 核心架构"></a>Spring MVC 核心架构</h2><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%A1%86%E6%9E%B6/SpringMVC%20%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg"></p>
+<h2 id="1-商城介绍"><a href="#1-商城介绍" class="headerlink" title="1 商城介绍"></a>1 商城介绍</h2><h3 id="1-1-项目介绍"><a href="#1-1-项目介绍" class="headerlink" title="1.1 项目介绍"></a>1.1 项目介绍</h3><p>B2C模式的线上商城，支持用户在线浏览商品、在线搜索商品，并且可以将喜欢的商品加入购物车从而下单购买商品，同时支持线上支付，支付模式支持微信支付。用户还可以参与低价商品秒杀。</p>
+<p>畅购商城后端采用了微服务架构，微服务技术采用了 SpringCloud 技术栈，各个微服务站点基于 SpringBoot 构建，并采用 SpringCloud Gateway 将各个微服务的功能串联起来，形成一套套系统，同时在微服务网关 Gateway 中采用过滤和限流策略，实施对微服务进行保护和权限认定操作。项目采用了 SpringSecurity OAuth2.0 解决了各个微服务之间的单点登录和用户授权。采用了 Seata 来解决微服务与微服务之间的分布式事务。采用了 Elastisearch 解决了海量商品的实时检索。数据库存储采用了 MySQL，并结合 Canal 实现数据同步操作，并利用 Redis 做数据缓存操作。各个微服务之间采用 RabbitMQ 实现异步通信。采用OpenResty 集成的 Nginx 来控制微服务最外层的大量并发，利用 Keepalived + Nginx 来解决Nginx 单点故障问题。</p>
+<h3 id="1-2-项目架构"><a href="#1-2-项目架构" class="headerlink" title="1.2 项目架构"></a>1.2 项目架构</h3><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E9%A1%B9%E7%9B%AE%E6%9E%B6%E6%9E%84%E6%96%B0.png"></p>
+<h2 id="2-商城业务"><a href="#2-商城业务" class="headerlink" title="2 商城业务"></a>2 商城业务</h2><h3 id="2-1-购物车业务"><a href="#2-1-购物车业务" class="headerlink" title="2.1 购物车业务"></a>2.1 购物车业务</h3><p>购物车分为2种情况，一种是用户登录或者不登录均能使用购物车，另一种是用户只能登录后使用购物车。</p>
+<p>方案一：登录 / 不登录均能使用购物车</p>
+<p>如果用户不登录也能使用购物车，此时将会把购物车信息存入到 Cookie 中，如果用户浏览器禁用了 Cookie，我们可以将购物车数据存入到 localStorage 或者 WebSQL 中。</p>
+<p>用户登录后，购物车数据存入到 Redis 中。</p>
+<p>如果用户从未登陆切换到登陆状态，此时需要将用户 Cookie /WebSQL/localStorage 中的数据合并到 Redis 中。</p>
+<p>该购物车实现方式比较方便，用户不登录也能使用购物车，但也存在安全问题，例如：未登录将商品加入购物车，清空浏览器缓存后数据就没了。</p>
+<p>方案 ：用户必须登录才能使用购物车</p>
+<p>用户如果不登录就无法使用购物车，该方案会将用户数据存入到 Redis 中，使用该方案可以确保用户数据安全。</p>
+<p>用户将商品加入购物车后，会将购物车数据存入到 Redis 中，数据类型选中 Hash 类型，将用户的名字作为 namespace，把要加入购物车的商品作为 key，加入购物车的商品信息作为 value。</p>
+<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E8%B4%AD%E7%89%A9%E8%BD%A6%E7%99%BB%E5%BD%95.png"></p>
+<h3 id="2-2-订单业务"><a href="#2-2-订单业务" class="headerlink" title="2.2 订单业务"></a>2.2 订单业务</h3><p>订单流程：</p>
+<p>用户添加订单的时候，可以在购物车列表页选择将哪些商品添加到订单中并下单操作。点击结算的时候，会进入到下单页面，下单页面会显示用户选中的购物车商品信息，点击提交订单，会实现订单的添加操作。</p>
+<p>注意，添加订单后会将订单中的商品信息从购物车中移除，创建订单之前需要校验一下数据库中商品的价格，此时价格以数据库中的商品价格为准，下单后还需要调用商品微服务实现库存的递减操作，库存递减这里需要控制库存超卖问题，解决超卖问题可以使用数据库的行级锁（for update 悲观锁）实现。</p>
+<p>用如下 SQL 语句操作，基于 num &gt; #{num} 实现乐观锁：</p>
+<p>UPDATE tb_sku SET num=num-#{num} WHERE id=#{id} AND num&gt;=#{num}</p>
+<p>当返回缩减库存 &gt;= 剩余库存的时候，才表示减库存操作成功，否则抛出异常实现数据回滚。</p>
+<p>乐观锁效率高于悲观锁，因为没有线程阻塞，最多就是减库存失败。实现回滚。</p>
+<h3 id="2-3-支付业务"><a href="#2-3-支付业务" class="headerlink" title="2.3 支付业务"></a>2.3 支付业务</h3><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E6%94%AF%E4%BB%98%E4%B8%9A%E5%8A%A1.png"></p>
+<p>支付流程：</p>
 <ol>
-<li>用户发起请求到前端控制器 (DispatcherServlet)</li>
-<li>前端控制器请求处理器映射器 HandlerMapping 查找 Handler，可以根据 xml 配置、注解进行查找</li>
-<li>处理器映射器 HandlerMapping 向前端控制器返回 Handler</li>
-<li>前端控制器调用处理器适配器 HandlerAdapter 去执行 Handler</li>
-<li>处理器适配器去执行 Handler</li>
-<li>处理器适配器向前端控制器返回 ModelAndView，它是 Spirng MVC 框架的一个底层对象，包括 Model 和 View</li>
-<li>前端控制器请求视图解析器 ViewResolver 去进行视图解析，根据逻辑视图名解析成真正的视图</li>
-<li>视图解析器 向前端控制器返回 View</li>
-<li>前端控制器进行视图渲染，视图渲染将模型数据（在 ModelAndView 对象中）填充到 request 域</li>
-<li>前端控制器向用户响应结果</li>
+<li>用户在订单微服务中下单，下单后，会向 MQ 发送一个延时队列，延时 30 分钟，队列的信息主要是订单信息；</li>
+<li>下单成功后，前端调用支付系统，根据订单号创建支付二维码，支付二维码的支付地址由订单微服务调用微信服务获取支付地址；</li>
+<li>用户看到支付二维码后，开始扫码付款，并进行授权操作，此时如果授权成功，则用户扣款支付成功；</li>
+<li>用户支付成功后，微信服务器会将支付状态发送给支付微服务，支付微服务会将该信息发送给 RabbitMQ；</li>
+<li>在订单系统中会创建一个支付信息消息的监听，读到支付信息后，根据支付结果，如果支付成功，则修改订单状态，如果支付失败，也修改对应订单状态；</li>
+<li>防止用户长时间不支付，在订单系统中，还编写一个延时队列监听，半小时后，能监听到订单信息，并在数据库中检查订单是否已经支付，如果已经支付，则无需处理，如果未支付，则需要关闭微信支付，同时修改订单状态和商品状态。</li>
 </ol>
-<p>通常，一个项目是由 Spring + SpringMVC + MyBatis 三大框架整合的 SSM 框架完成。</p>
-<h2 id="Spring-MVC-常用注解"><a href="#Spring-MVC-常用注解" class="headerlink" title="Spring MVC 常用注解"></a>Spring MVC 常用注解</h2><ol>
-<li><p>@Controller</p>
-<p>负责注册一个 bean 到 Spring Context中。</p>
+<h3 id="2-4-秒杀业务"><a href="#2-4-秒杀业务" class="headerlink" title="2.4 秒杀业务"></a>2.4 秒杀业务</h3><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E7%A7%92%E6%9D%80.png"></p>
+<p>秒杀中的常见问题的解决：</p>
+<ol>
+<li><p>超卖问题</p>
+<ol>
+<li><p>Redis预减库存：有一个下单请求过来时预减库存，若减完后的redis库存小于0说明已经卖完，此时直接返回客户端已经卖完。后续使用内存标记，减少Redis访问。若预减库存成功，则异步下单，请求入队列，返回客户端排队中。</p>
 </li>
-<li><p>@RequstMapping</p>
-<p>注解为控制器指定可以处理那些 URL 请求。</p>
-</li>
-<li><p>@RequstBody</p>
-<p>该注解用于读取 <code>Request</code> 请求的 body 部分数据，使用系统默认配置的 <code>HttpMessageConverter</code> 进行解析，然后把响应的数据绑定到要返回的对象上，再把 <code>HttpMessageConverter</code> 返回的对象数据绑定到 controller 中方法的参数上。</p>
-</li>
-<li><p>@ResponseBody</p>
-<p>该注解用于将 controller 的方法返回的对象通过适当的 <code>HttpMessageConverter</code> 转换成为指定格式后，写入到 <code>Response</code> 对象的 body 数据区。</p>
-</li>
-<li><p>@ModelAttribute</p>
-<p>在方法定义上使用 @ModelAttribute 注解：Spring MVC 在调用目标处理方法前，会先逐个调用在方法级上标注了 @ModelAttribute 的方法。</p>
-<p>在方法的入参前使用 @ModelAttribute 注解：可以从隐含对象中获取隐含的模型数据中获取对象，再将请求参数绑定到对象中，再传入入参将方法入参对象添加到模型中。</p>
-</li>
-<li><p>@RequstParam</p>
-<p>在处理方法入参处使用 @RequestParam 可以把请求参数传递给请求方法。</p>
-</li>
-<li><p>@PathVariable</p>
-<p>绑定 URL 占位符到入参。</p>
-</li>
-<li><p>@ExceptionHandler</p>
-<p>注解到方法上，出现异常时会执行该方法。</p>
-</li>
-<li><p>@ControllerAdvice</p>
-<p>使一个 Controller 成为全局的异常处理类，类中使用 @ExceptionHandler 注解的方法可以处理所有 Controller 发生的异常。</p>
+<li><p>数据库层面防止超卖：Redis预减库存只是抢到了这个机会，真正是否购买成功还是要等到所有数据库操作的真正成功，即消息队列的消费端是否消费成功。</p>
+<p>数据库层面，秒杀的订单表设置唯一索引，防止重复下单。</p>
+<p>数据库层面，减库存的时候同时判断此时库存是否大于0。</p>
+<p>由于是订单模块和库存模块，涉及到分布式事务的问题，使用 seata 框架。</p>
 </li>
 </ol>
-<hr>
-<p>部分内容来源于网络，作为学习使用，如有侵权请联系我删除。请注明来意。</p>
-<p>邮箱：<a href="mailto:&#x77;&#x69;&#115;&#x65;&#100;&#117;&#49;&#64;&#103;&#x6d;&#97;&#105;&#108;&#x2e;&#99;&#111;&#109;">&#x77;&#x69;&#115;&#x65;&#100;&#117;&#49;&#64;&#103;&#x6d;&#97;&#105;&#108;&#x2e;&#99;&#111;&#109;</a></p>
-<p>微信：</p>
-<img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%811.jpg" width="200px" />]]></content>
+</li>
+<li><p>如何保证 Redis 的库存与数据库库存的一致性</p>
+<ol>
+<li><p>在我们的项目中，Redis的库存并不是真正的库存，而是用于阻挡多余的下单请求，用于保证有多少秒杀商品库存就放多少个请求到消息队列，大大减少数据库访问。</p>
+<p>真正的下单和减库存操作还是操作数据库的。</p>
+<p>所以我们不需要保证Redis缓存与数据库的一致性。</p>
+</li>
+</ol>
+</li>
+<li><p>如何保证 MQ 不丢失消息</p>
+<p>消息丢失的三种情况：</p>
+<ol>
+<li><p><strong>生产者丢失消息：</strong>生产者发送消息到MQ时因为网络问题丢失消息</p>
+<ol>
+<li><p> rabbitmq 提供事务支持，在生产者发送之前开启事务，然后发送消息，如果消息没有成功被rabbitmq接收到，那么生产者会受到异常报错，这时就可以回滚事物，然后尝试重新发送；如果收到了消息，那么就可以提交事物。但是这种方案会阻塞生产者，吞吐量下降。</p>
+</li>
+<li><p>可以将channel开启confirm机制。在生产者哪里设置开启了confirm模式之后，每次写的消息都会分配一个唯一的id，然后写入了rabbitmq之中；<strong>如果rabbitmq没能处理这个消息，会回调你一个nack接口，告诉你这个消息失败了，你可以进行重试。</strong>如果成功发送到mq，也会回调一个ack的接口方法，告诉你成功发送消息。</p>
+<p>这里使用方案二！这样吞吐量更高。</p>
+</li>
+</ol>
+</li>
+<li><p><strong>MQ丢失消息：</strong>没来得及持久化，就挂掉后消息丢失</p>
+<p>置持久化！持久化有两个步骤：</p>
+<ol>
+<li>创建queue时设置持久化，但是这时候持久化的是queue的元数据，不会持久化queue里面的数据。</li>
+<li>发送消息的时候将消息的deliveryMode设置为2，表示将消息持久化。</li>
+</ol>
+<p>而且可以将持久化与生产者的confirm机制结合，只有持久化成功后才回调ack方法。超时未持久化成功或持久化失败也会回调nack。</p>
+</li>
+<li><p><strong>消费端丢失消息：</strong>刚从MQ获取消息，没处理完消费者就挂掉了</p>
+<p>消费者端丢失数据都是因为开启了 rabbitmq 的 autoACK 功能，即消费者获取了数据之后就自动告诉MQ已经消费。</p>
+<p>解决方案：关闭 rabbitmq 的 autoAck，==在确保消息被消费成功之后才发送 ACK。消息没有成功消费的话 rabbitmq 会重发消息，这样能保证消息不会再消费者端丢失。</p>
+</li>
+</ol>
+</li>
+<li><p>MQ 如何保证不重复消费</p>
+<p>不保证。因为保证了消息不丢失就有可能读取重复的消息。这里保证接口的幂等性即可。</p>
+<p>在保证幂等性的基础上，因为写入 MQ 中的数据都有一个唯一编号，当 MQ 消费成功后立即往 Redis 中写入该编号。在消费端，读取 MQ  数据后先判断是否已经消费过。</p>
+</li>
+<li><p>如何保证分布式事务</p>
+<p>在项目中，MQ消费端需要保证下订单和减库存同时成功或失败，这就涉及到事务的问题。</p>
+<p>由于是分布式架构，每一个模块对应自己的数据库，跨库之间的事务就需要分布式事务解决方案。</p>
+<p>当然，还有一种简单的方案，秒杀模块单独建立自己的订单表、自己的秒杀商品库存表，==即在秒杀下单业务中没有调用其他模块的接口，此时也就简单了，没有分布式事务的存在，采用本地事务解决问题。</p>
+<p>在这里，暂且考虑分布式事务，学技术为主。尝试使用 SpringCloudAlibaba 提供的 Seata 组件去完成分布式事务，只需要加上@GlobalTransaction注解，通过TC、TM、RM三个组件完成：事务控制中心、事务发起方、事务的参与方。</p>
+<blockquote>
+<p>TM：全局事务管理器，在标注开启 fescar 分布式事务的服务端开启，并将全局事务发送到TC事务控制端管理<br>TC：事务控制中心，控制全局事务的提交或者回滚。这个组件需要独立部署维护，目前只支持单机版本，后续迭代计划会有集群版本<br>RM：资源管理器，主要负责分支事务的上报，本地事务的管理</p>
+</blockquote>
+<p>Seata事务的执行流程（默认是使用二阶段提交）：</p>
+<p>TM开启分布式事务（TM向TC注册全局事务记录）<br>按业务场景，编排数据库、服务等事务内资源（RM向TC汇报资源准备状态）<br>TM结束分布式事务，事务一阶段结束（TM通知TC提交/回滚事务）<br>TC汇总事务信息，决定事务是提交还是回滚<br>TC通知所有的RM提交或回滚资源，事务的二阶段结束。</p>
+<h2 id="3-技术总结"><a href="#3-技术总结" class="headerlink" title="3 技术总结"></a>3 技术总结</h2><h4 id="3-1-FastDFS"><a href="#3-1-FastDFS" class="headerlink" title="3.1 FastDFS"></a>3.1 FastDFS</h4><h4 id="3-1-1-什么是FastDFS？"><a href="#3-1-1-什么是FastDFS？" class="headerlink" title="3.1.1 什么是FastDFS？"></a>3.1.1 什么是FastDFS？</h4><p>FastDFS是一套分布式文件管理系统，为互联网量身定制，充分考虑了冗余备份、负载均衡、线性扩容等机制，并注重高可用、高性能等指标，使用FastDFS很容易搭建一套高性能的文件服务器集群提供文件上传、下载等服务。</p>
+<ol>
+<li>Tracker:<br>负责任务调度，负载均衡管理以及Storage的注册中心功能</li>
+<li>Storage(操作文件):<br>负责文件上传和下载以及文件的删除等管理功能</li>
+</ol>
+<h4 id="3-1-2-FastDFS有什么缺点"><a href="#3-1-2-FastDFS有什么缺点" class="headerlink" title="3.1.2 FastDFS有什么缺点"></a>3.1.2 FastDFS有什么缺点</h4><ol>
+<li>不支持文件分片，FastDFS不适合大文件存储</li>
+<li>同步机制不支持文件正确性校验，降低了系统的可用性</li>
+</ol>
+<h4 id="3-2-3-FastDFS文件上传流程讲解"><a href="#3-2-3-FastDFS文件上传流程讲解" class="headerlink" title="3.2.3 FastDFS文件上传流程讲解"></a>3.2.3 FastDFS文件上传流程讲解</h4><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/FastDFS.png"></p>
+</li>
+</ol>
+<h3 id="3-2-Nginx"><a href="#3-2-Nginx" class="headerlink" title="3.2 Nginx"></a>3.2 Nginx</h3><p>Nginx介绍：</p>
+<p>Nginx是一款轻量级的Web 服务器/反向代理服务器及电子邮件（IMAP/POP3）代理服务器，在BSD-like 协议下发行。其特点是占有内存少，并发能力强，事实上nginx的并发能力确实在同类型的网页服务器中表现较好，中国大陆使用nginx网站用户有：百度、京东、新浪、网易、腾讯、淘宝等。</p>
+<h4 id="3-2-1-什么是-openResty？"><a href="#3-2-1-什么是-openResty？" class="headerlink" title="3.2.1 什么是 openResty？"></a>3.2.1 什么是 openResty？</h4><p>OpenResty 简单理解成 就相当于封装了nginx,并且集成了LUA脚本，==开发人员只需要简单提供了对应的Lua模块就可以实现相关的逻辑，而不再像之前，还需要在nginx中自己编写lua的脚本，再进行调用了。<br>OpenResty可以 快速构造出足以胜任 10K 以上并发连接响应的超高性能 Web 应用系统。</p>
+<h4 id="3-2-2-Nginx-负载均衡"><a href="#3-2-2-Nginx-负载均衡" class="headerlink" title="3.2.2 Nginx 负载均衡"></a>3.2.2 Nginx 负载均衡</h4><p>upstream: 负载均衡池，主要实现多个节点集群，并且能实现负载均衡策略配置</p>
+<p>载均衡策略:</p>
+<p>ip_hash: 哈希原则<br>weight: 权重<br>轮询：默认</p>
+<h4 id="3-2-3-Nginx-限流策略"><a href="#3-2-3-Nginx-限流策略" class="headerlink" title="3.2.3 Nginx 限流策略"></a>3.2.3 Nginx 限流策略</h4><p>nginx提供两种限流的方式：</p>
+<ol>
+<li>一是控制速率 控制速率的方式之一就是采用漏桶算法。</li>
+<li>二是控制并发连接数</li>
+</ol>
+<p>漏桶算法实现控制速率限流：</p>
+<p>漏桶(Leaky Bucket)算法思路很简单,水(请求)先进入到漏桶里, 漏桶以一定的速度出水(接口有响应速率), 当水流入速度过大会直接溢出(访问频率超过接口响应速率),然后就拒绝请求,可以看出漏桶算法能强行限制数据的传输速率.示意图如下：</p>
+<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/Nginx%E6%BC%8F%E6%A1%B6.png"></p>
+<h4 id="3-2-4-Nginx-动静分离"><a href="#3-2-4-Nginx-动静分离" class="headerlink" title="3.2.4 Nginx 动静分离"></a>3.2.4 Nginx 动静分离</h4><p>动静分离, 使用Nginx将动态请求和静态请求分离开来， 减少不必要的请求消耗, 同时能减少请求的延时。</p>
+<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/Nginx%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB.png"></p>
+<p>静态数据配置：</p>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line">//所有图片|静态页|css|js等 请求使用 http://source.xxx.com</span><br><span class="line">//所有的请求将直接使用Nginx在 /usr/local/server/static下面去找对应的静态资源，而不需要经过Nginx</span><br><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">	<span class="attribute">listener</span> <span class="number">80</span>;</span><br><span class="line">	<span class="attribute">server_name</span> source.xxx.com;</span><br><span class="line">	<span class="attribute">location</span> / &#123;</span><br><span class="line">		<span class="attribute">root</span> /usr/local/server/static;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>动态请求配置：</p>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line">//所有非静态资源请求 使用http://www.xxx.com</span><br><span class="line">//所有请求会直接路由给 http://127.0.0.1:8080的服务器处理</span><br><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">	<span class="attribute">listener</span> <span class="number">80</span>;</span><br><span class="line">	<span class="attribute">server_name</span> www.xxx.com</span><br><span class="line">	location / &#123;</span><br><span class="line">		<span class="attribute">proxy_pass</span> http:<span class="number">127.0.0.1:8080</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-Canal"><a href="#3-3-Canal" class="headerlink" title="3.3 Canal"></a>3.3 Canal</h3><h4 id="3-3-1-Canal-数据库监听工具的原理"><a href="#3-3-1-Canal-数据库监听工具的原理" class="headerlink" title="3.3.1 Canal 数据库监听工具的原理"></a>3.3.1 Canal 数据库监听工具的原理</h4><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/Canal%E5%8E%9F%E7%90%86.png"></p>
+<p>canal可以用来监控数据库数据的变化，从而获得新增数据，或者修改的数据。</p>
+<p>原理相对比较简单：</p>
+<p>canal模拟mysql slave的交互协议，伪装自己为mysql slave，向mysql master发送dump协议<br>mysql master收到dump请求，开始推送binary log给slave(也就是canal)<br>canal解析binary log对象(原始为byte流)</p>
+<h4 id="3-3-2-项目中的-Canal"><a href="#3-3-2-项目中的-Canal" class="headerlink" title="3.3.2 项目中的 Canal"></a>3.3.2 项目中的 Canal</h4><p>canal在项目中，主要用于做数据增量同步操作，可以将数据同步到Redis、其他MySQL、Elasticsearch等，在该项目中主要实现了广告缓存同步, 网站公告，商品数据，击穿缓存更新，商品缓存数据更新，Elasticsearch索引库数据增量更新。</p>
+<h3 id="3-4-微服务网关-Gateway"><a href="#3-4-微服务网关-Gateway" class="headerlink" title="3.4 微服务网关 Gateway"></a>3.4 微服务网关 Gateway</h3><h4 id="3-4-1-为什么要用微服务网关"><a href="#3-4-1-为什么要用微服务网关" class="headerlink" title="3.4.1 为什么要用微服务网关"></a>3.4.1 为什么要用微服务网关</h4><p>项目中，用户请求由Nginx进行拦截处理，再将请求路由给微服务网关，微服务网关再将请求路由给其他微服务，通过微服务网关可以整合相关功能，还可以实现限流、鉴权相关操作。</p>
+<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3Gateway.png"></p>
+<h4 id="3-4-2-微服务网关的优点"><a href="#3-4-2-微服务网关的优点" class="headerlink" title="3.4.2 微服务网关的优点"></a>3.4.2 微服务网关的优点</h4><p>优点如下：</p>
+<p><strong>安全</strong>。只有网关系统对外进行暴露，微服务可以隐藏在内网，通过防火墙保护。<br><strong>易于监控</strong>。可以在网关收集监控数据并将其推送到外部系统进行分析。<br><strong>易于认证</strong>。可以在网关上进行认证，然后再将请求转发到后端的微服务，而无须在每个微服务中进行认证。<br><strong>减少了客户端与各个微服务之间的交互次数，易于统一授权。</strong></p>
+<h4 id="3-4-3-微服务网关中如何实现限流"><a href="#3-4-3-微服务网关中如何实现限流" class="headerlink" title="3.4.3 微服务网关中如何实现限流"></a>3.4.3 微服务网关中如何实现限流</h4><p>在微服务网关中，我们使用<strong>令牌桶算法实现限流</strong>。</p>
+<p>令牌桶算法是比较常见的限流算法之一，大概描述如下：</p>
+<ol>
+<li>所有的请求在处理之前都需要拿到一个可用的令牌才会被处理；</li>
+<li>根据限流大小，设置按照一定的速率往桶里添加令牌；</li>
+<li>桶设置最大的放置令牌限制，当桶满时、新添加的令牌就被丢弃或者拒绝；</li>
+<li>请求达到后首先要获取令牌桶中的令牌，拿着令牌才可以进行其他的业务逻辑，处理完业务逻辑之后，将令牌直接删除；</li>
+<li>令牌桶有最低限额，当桶中的令牌达到最低限额的时候，请求处理完之后将不会删除令牌，以此保证足够的限流。</li>
+</ol>
+<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E4%BB%A4%E7%89%8C%E6%A1%B6%E7%AE%97%E6%B3%95png.png"></p>
+<h3 id="3-5-JWT-令牌"><a href="#3-5-JWT-令牌" class="headerlink" title="3.5 JWT 令牌"></a>3.5 JWT 令牌</h3><h4 id="3-5-1-什么是-JWT-令牌？主要作用是什么？"><a href="#3-5-1-什么是-JWT-令牌？主要作用是什么？" class="headerlink" title="3.5.1 什么是 JWT 令牌？主要作用是什么？"></a>3.5.1 什么是 JWT 令牌？主要作用是什么？</h4><p><strong>JSON Web Token（JWT）</strong>是一个非常轻巧的规范。这个规范允许我们使用<strong>JWT在用户和服务器之间传递安全可靠的信息</strong>。</p>
+<p>简单来说：JWT令牌是一段JSON字符串，主要用于封装用户身份相关信息，可在各个微服务之间进行传递，从而识别用户的身份信息，通过它可以解决微服务中单点登录问题。</p>
+<h4 id="3-5-2-JWT-令牌有哪些组成？"><a href="#3-5-2-JWT-令牌有哪些组成？" class="headerlink" title="3.5.2 JWT 令牌有哪些组成？"></a>3.5.2 JWT 令牌有哪些组成？</h4><p>一个JWT实际上就是一个字符串，它由三部分组成，<strong>头部</strong>、<strong>载荷</strong>与<strong>签名</strong>。</p>
+<p><strong>头部（Header）</strong></p>
+<p>==头部用于描述关于该JWT的最基本的信息，==例如其类型以及签名所用的算法等。这也可以被表示成一个JSON对象。</p>
+<p>{“typ”:“JWT”,“alg”:“HS256”}</p>
+<p><strong>载荷（playload）</strong></p>
+<p>载荷就是存放有效信息的地方。</p>
+<p><strong>签名（signature）</strong></p>
+<p>jwt的第三部分是一个签证信息，这个签名信息由三部分组成：</p>
+<p>header (base64后的)<br>payload (base64后的)<br>secret 秘钥</p>
+<p>这个部分需要<strong>base64加密后的header和base64加密后的payload使用.连接组成的字符串</strong>，<strong>然后通过header中声明的加密方式进行加盐secret组合加密</strong>，然后就构成了jwt的第三部分。</p>
+<h4 id="3-5-3-如何防止令牌被盗用？"><a href="#3-5-3-如何防止令牌被盗用？" class="headerlink" title="3.5.3 如何防止令牌被盗用？"></a>3.5.3 如何防止令牌被盗用？</h4><p>令牌：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJObzAwMDEiLCJpYXQiOjE1NjkxNTg4MDgsInN1YiI6IuS4u-mimCIsImlzcyI6Ind3dy5pdGhlaW1hLmNvbSIsImV4cCI6MTU2OTE1ODgyMywiYWRkcmVzcyI6IuS4reWbvSIsIm1vbmV5IjoxMDAsImFnZSI6MjV9.lkaOahBKcQ-c8sBPp1Op-siL2k6RiwcEiR17JsZDw98</span><br></pre></td></tr></table></figure>
+
+<p>如果令牌被盗，只要该令牌不过期，任何服务都可以使用该令牌，有可能引起不安全操作。我们可以在每次生成令牌的时候，将用户的客户端信息获取，同时获取用户的IP信息，然后将<strong>IP和客户端信息以MD5的方式进行加密，放到令牌中作为载荷的一部分</strong>，用户每次访问微服务的时候，要先经过<strong>微服务网关</strong>，此时我们<strong>也获取用户客户端信息，同时获取用户的IP，然后将IP和客户端信息拼接到一起再进行MD5加密</strong>，如果<strong>MD5值和载荷不一致</strong>，说明用户的IP发生了变化或者终端发生了变化，有被盗的嫌疑，此时不让访问即可。这种解决方案比较有效。</p>
+<p>当然，还有一些别的方法也能减少令牌被盗用的概率，例如设置令牌超时时间不要太长。</p>
+<h3 id="3-6-OAuth-2-0"><a href="#3-6-OAuth-2-0" class="headerlink" title="3.6 OAuth 2.0"></a>3.6 OAuth 2.0</h3><h4 id="3-6-1-什么是-OAuth-2-0"><a href="#3-6-1-什么是-OAuth-2-0" class="headerlink" title="3.6.1 什么是 OAuth 2.0"></a>3.6.1 什么是 OAuth 2.0</h4><p>3.6.1 什么是OAuth2.0<br><strong>OAuth（开放授权）是一个开放标准，允许用户授权第三方移动应用访问他们存储在另外的服务提供者上的信息</strong>，而不需要将用户名和密码提供给第三方移动应用或分享他们数据的所有内容，OAuth2.0是OAuth协议的延续版本。OAuth2.0提供了4种授权模式，分别为授权码模式授权、密码模式授权 、隐式模式授权、客户端模式授权，其中常用的是<strong>授权码模式授权</strong>和<strong>密码模式授权</strong>。</p>
+<h4 id="3-6-2-OAuth2-0授权码认证流程"><a href="#3-6-2-OAuth2-0授权码认证流程" class="headerlink" title="3.6.2 OAuth2.0授权码认证流程"></a>3.6.2 OAuth2.0授权码认证流程</h4><ol>
+<li><p>客户端请求第三方授权(微信：提供授权码，发放令牌)</p>
+</li>
+<li><p>用户(资源拥有者)同意给客户端授权</p>
+</li>
+<li><p>客户端获取到授权码，请求认证服务器申请令牌</p>
+</li>
+<li><p>认证服务器向客户端响应令牌</p>
+</li>
+<li><p>客户端请求资源服务器的资源，资源服务校验令牌合法性，完成授权</p>
+</li>
+<li><p>资源服务器返回受保护资源</p>
+<p>流程如下：</p>
+<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/OAuth2.0%E6%8E%88%E6%9D%83%E7%A0%81%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B.png"></p>
+</li>
+</ol>
+<h4 id="3-6-3-各个微服务中如何实现用户身份识别？"><a href="#3-6-3-各个微服务中如何实现用户身份识别？" class="headerlink" title="3.6.3 各个微服务中如何实现用户身份识别？"></a>3.6.3 各个微服务中如何实现用户身份识别？</h4><p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%94%A8%E6%88%B7%E8%BA%AB%E4%BB%BD%E8%AF%86%E5%88%AB.png"></p>
+<ol>
+<li>用户登录成功后，会将令牌信息存入到cookie中(一般建议存入到头文件中)</li>
+<li>用户携带Cookie(或者Header)中的令牌访问微服务网关</li>
+<li>微服务网关先获取头文件中的令牌信息，如果Header中没有Authorization令牌信息，则去参数中找，参数中如果没有，则去Cookie中找Authorization，最后将令牌信息封装到Header中，并调用其他微服务</li>
+<li>其他微服务会获取头文件中的Authorization令牌信息，然后匹配令牌数据是否能使用公钥解密，如果解密成功说明用户已登录，解密失败，说明用户未登录</li>
+</ol>
+<h4 id="3-6-4-微服务与微服务之间如何实现认证"><a href="#3-6-4-微服务与微服务之间如何实现认证" class="headerlink" title="3.6.4 微服务与微服务之间如何实现认证"></a>3.6.4 微服务与微服务之间如何实现认证</h4><p>微服务与微服务之间实现认证，只需要<strong>将用户传递的令牌Authorization传递给其他微服务即可</strong>。如果微服务之间相互调用采用的是Feign模式，可以创建一个拦截器(实现接口：RequestInterceptor )，每次执行请求之间，将令牌添加到头文件中即可传递给其他微服务。</p>
+<h4 id="3-6-5-微服务之间如果开启了熔断限流，令牌能否传递过去？如何解决？"><a href="#3-6-5-微服务之间如果开启了熔断限流，令牌能否传递过去？如何解决？" class="headerlink" title="3.6.5 微服务之间如果开启了熔断限流，令牌能否传递过去？如何解决？"></a>3.6.5 微服务之间如果开启了熔断限流，令牌能否传递过去？如何解决？</h4><p>微服务之间相互调用，如果使用Feign调用，如果开启feign熔断，默认采用的是线程，feign调用和请求的线程不属于同一个线程，无法获取请求的线程数据,会造成空指针异常。</p>
+<p><strong>解决方案：hystrix隔离策略换为SEMAPHORE(信号量隔离)</strong></p>
+<p>隔离区别：</p>
+<table>
+<thead>
+<tr>
+<th align="center">比较项</th>
+<th align="center">线程池隔离</th>
+<th align="center">信号量隔离</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">线程</td>
+<td align="center">与调用线程非相同线程</td>
+<td align="center">与调用线程相同（jetty线程）</td>
+</tr>
+<tr>
+<td align="center">开销</td>
+<td align="center">调度、上下文开销等</td>
+<td align="center">无线程切换，开销低</td>
+</tr>
+<tr>
+<td align="center">异步</td>
+<td align="center">支持</td>
+<td align="center">不支持</td>
+</tr>
+<tr>
+<td align="center">并发支持</td>
+<td align="center">支持（最大线程池大小）</td>
+<td align="center">支持（最大信号量上限）</td>
+</tr>
+</tbody></table>
+<h3 id="3-7-分布式事务"><a href="#3-7-分布式事务" class="headerlink" title="3.7 分布式事务"></a>3.7 分布式事务</h3><p>分布式事务的作用：<strong>为了保证各个事务、各个微服务之间的事务的数据一致性。</strong></p>
+<h4 id="3-7-1-说说你对2段提交的理解"><a href="#3-7-1-说说你对2段提交的理解" class="headerlink" title="3.7.1 说说你对2段提交的理解"></a>3.7.1 说说你对2段提交的理解</h4><p>两阶段提交协议(Two Phase Commitment Protocol)中，涉及到两种角色</p>
+<p>一个事务协调者（coordinator）：负责协调多个参与者进行事务投票及提交(回滚)<br>多个事务参与者（participants）：即本地事务执行者</p>
+<p>总共处理步骤有两个：</p>
+<p>（1）投票阶段（voting phase）：<br>协调者将通知事务参与者准备提交或取消事务，然后进入表决过程。<br>参与者将告知协调者自己的决策：同意（事务参与者本地事务执行成功，但未提交）或取消（本地事务执行故障）；<br>（2）提交阶段（commit phase）：<br>收到参与者的通知后，协调者再向参与者发出通知，<br>根据反馈情况决定各参与者是否要提交还是回滚；</p>
+<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A12%E6%AE%B5%E6%8F%90%E4%BA%A4.png"></p>
+<h4 id="3-7-2-补偿事务（TCC）"><a href="#3-7-2-补偿事务（TCC）" class="headerlink" title="3.7.2 补偿事务（TCC）"></a>3.7.2 补偿事务（TCC）</h4><p>TCC 将事务提交分为== Try - Confirm - Cancel 3个操作==。其和两阶段提交有点类似，Try为第一阶段，Confirm - Cancel为第二阶段，是一种应用层面侵入业务的两阶段提交。</p>
+<p>操作方法 含义</p>
+<p>Try 预留业务资源/数据效验<br>Confirm 确认执行业务操作，实际提交数据，不做任何业务检查，try成功，confirm必定成功，需保证幂等<br>Cancel 取消执行业务操作，实际回滚数据，需保证幂等<br>其核心在于将业务分为两个操作步骤完成。不依赖 RM 对分布式事务的支持，而是通过对业务逻辑的分解来实现分布式事务。</p>
+<p><img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E9%A1%B9%E7%9B%AE/%E8%A1%A5%E5%81%BF%E4%BA%8B%E5%8A%A1.png"></p>
+<h4 id="3-7-3-Seata的AT模式"><a href="#3-7-3-Seata的AT模式" class="headerlink" title="3.7.3 Seata的AT模式"></a>3.7.3 Seata的AT模式</h4><p>seata中有两种分布式事务实现方案，AT及TCC</p>
+<p><strong>AT模式主要关注多 DB 访问的数据一致性，当然也包括多服务下的多 DB 数据访问一致性问题</strong><br>TCC 模式主要关注业务拆分，在按照业务横向扩展资源时，解决微服务间调用的一致性问题</p>
+<p>Seata AT模式是<strong>基于XA事务演进而来的一个分布式事务中间件</strong>，XA是一个基于数据库实现的分布式事务协议，本质上和两阶段提交一样，需要数据库支持，Mysql5.6以上版本支持XA协议，其他数据库如Oracle，DB2也实现了XA接口</p>
+<p><strong>第一阶段:</strong><br>Seata 的 JDBC 数据源代理通过对业务 SQL 的解析，把业务数据在更新前后的数据镜像组织成回滚日志，利用 本地事务 的 ACID 特性，将业务数据的更新和回滚日志的写入在同一个 本地事务 中提交。<br>这样，可以保证：<strong>任何提交的业务数据的更新一定有相应的回滚日志存在</strong></p>
+<p>基于这样的机制，分支的本地事务便可以在全局事务的第一阶段提交，并马上释放本地事务锁定的资源</p>
+<p>这也是Seata和XA事务的不同之处，两阶段提交往往对资源的锁定需要持续到第二阶段实际的提交或者回滚操作，而有了回滚日志之后，可以在第一阶段释放对资源的锁定，降低了锁范围，提高效率，即使第二阶段发生异常需要回滚，<strong>只需找对undolog中对应数据并反解析成sql来达到回滚目的</strong></p>
+<p>同时Seata通过代理数据源将业务sql的执行解析成undolog来与业务数据的更新同时入库，达到了对业务无侵入的效果。</p>
+<p><strong>第二阶段:</strong><br><strong>如果决议是全局提交</strong>，此时分支事务此时已经完成提交，不需要同步协调处理（只需要异步清理回滚日志），Phase2 可以非常快速地完成.</p>
+<p><strong>如果决议是全局回滚，RM 收到协调器发来的回滚请求，通过 XID 和 Branch ID 找到相应的回滚日志记录，通过回滚记录生成反向的更新 SQL 并执行，以完成分支的回滚</strong></p>
+<h3 id="3-8-MQ"><a href="#3-8-MQ" class="headerlink" title="3.8 MQ"></a>3.8 MQ</h3><h4 id="4-8-1-MQ主要解决了什么问题？"><a href="#4-8-1-MQ主要解决了什么问题？" class="headerlink" title="4.8.1 MQ主要解决了什么问题？"></a>4.8.1 MQ主要解决了什么问题？</h4><p>使用MQ主要可以</p>
+<p>解决分布式应用之间的异步通信，</p>
+<p>同时还降低了分布式应用之间的耦合。</p>
+<h4 id="3-8-2-RabbitMQ有几种队列模式？"><a href="#3-8-2-RabbitMQ有几种队列模式？" class="headerlink" title="3.8.2 RabbitMQ有几种队列模式？"></a>3.8.2 RabbitMQ有几种队列模式？</h4><p>7种：</p>
+<ol>
+<li>简单模式</li>
+<li>工作者模式</li>
+<li>广播模式</li>
+<li>路由模式</li>
+<li>通配符模式</li>
+<li>RPC</li>
+<li>消息确认模式</li>
+</ol>
+<p><strong>1.生产者弄丢了数据</strong><br>生产者将数据发送到rabbitmq的时候，可能数据就在半路给搞丢了,例如网络问题。</p>
+<p><strong>解决方案：</strong>RabbitMQ提供transaction和confirm模式来确保生产者不丢消息。</p>
+<p><strong>transaction机制</strong>就是说，发送消息前开启事物(channel.txSelect())，然后发送消息，如果发送过程中出现什么异常，<br>事物就会回滚(channel.txRollback())，如果发送成功则提交事物(channel.txCommit())。然而缺点就是吞吐量下降了。<br>因此，生产上用<strong>confirm模式</strong>的居多。一旦channel进入confirm模式，所有在该信道上面发布的消息都将会被指派一个唯一的ID(从1开始)，一旦消息被投递到所有匹配的队列之后，rabbitMQ就会发送一个Ack给生产者(包含消息的唯一ID)，这就使得生产者知道消息已经正确到达目的队列了.如果rabiitMQ没能处理该消息，则会发送一个Nack消息给你，你可以进行重试操作。</p>
+<p><strong>2.rabbitmq弄丢了数据</strong><br>就是rabbitmq自己弄丢了数据，这个你必须开启rabbitmq的持久化，就是消息写入之后会持久化到磁盘，哪怕是rabbitmq自己挂了，恢复之后会自动读取之前存储的数据，一般数据不会丢。除非极其罕见的是，rabbitmq还没持久化，自己就挂了，可能导致少量数据会丢失的，但是这个概率较小。</p>
+<p><strong>解决方案：</strong><br>处理消息队列丢数据的情况，一般是开启持久化磁盘的配置。这个持久化配置可以和confirm机制配合使用，你可以在消息持久化磁盘后，再给生产者发送一个Ack信号。这样，如果消息持久化磁盘之前，rabbitMQ阵亡了，那么生产者收不到Ack信号，生产者会自动重发。</p>
+<p><strong>3.消费端弄丢了数据</strong><br>消费端如果丢失了数据，主要是因为你消费的时候，刚消费到，还没处理，结果进程挂了，比如重启了，那么就尴尬了，rabbitmq认为你都消费了，这数据就丢了。</p>
+<p>解决方案：启用<strong>手动确认模式</strong>可以解决这个问题（重试机制）手动确认模式，如果消费者来不及处理就死掉时，没有响应ack时会重复发送一条信息给其他消费者；如果监听程序处理异常了，且未对异常进行捕获，会一直重复接收消息，然后一直抛异常；如果对异常进行了捕获，但是没有在finally里ack，也会一直重复发送消息(重试机制)。</p>
+<h4 id="3-8-4-RabbitMQ如何实现延时队列？"><a href="#3-8-4-RabbitMQ如何实现延时队列？" class="headerlink" title="3.8.4 RabbitMQ如何实现延时队列？"></a>3.8.4 RabbitMQ如何实现延时队列？</h4><p>Rabbitmq实现延时队列一般而言有两种形式：</p>
+<p>==第一种方式：==利用两个特性： Time To Live(TTL)、Dead Letter Exchanges（DLX）[A队列过期-&gt;转发给B队列]</p>
+<p>第二种方式：利用rabbitmq中的插件x-delay-message</p>
+<p>RabbitMQ可以针对队列设置x-expires(则队列中所有的消息都有相同的过期时间)或者针对Message设置x-message-ttl(对消息进行单独设置，每条消息TTL可以不同)，来控制消息的生存时间，如果超时(两者同时设置以最先到期的时间为准)，则消息变为dead letter(死信)</p>
+<p>Dead Letter Exchanges（DLX）<br>RabbitMQ的Queue可以配置x-dead-letter-exchange和x-dead-letter-routing-key（可选）两个参数，如果队列内出现了dead letter，则按照这两个参数重新路由转发到指定的队列。</p>
+<p>x-dead-letter-exchange：出现dead letter之后将dead letter重新发送到指定exchange</p>
+<p>x-dead-letter-routing-key：出现dead letter之后将dead letter重新按照指定的routing-key发送</p>
+]]></content>
       <categories>
-        <category>框架</category>
+        <category>项目</category>
       </categories>
       <tags>
-        <tag>Spring MVC</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Pytorch 和 Tensorflow 环境配置</title>
-    <url>/2021/05/17/Pytorch%20%E5%92%8C%20Tensorflow%20%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<p><strong>一、创建、删除、激活、退出虚拟环境</strong></p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># conda  create -n 虚拟环境名 python==版本号</span></span><br><span class="line"><span class="comment"># 创建一个pytorch版本是3.7的Python环境，命名为pytorch-gpu</span></span><br><span class="line"><span class="comment"># 使用Anaconda Prompt </span></span><br><span class="line">conda create -n pytorch-gpu python==3.7</span><br><span class="line"><span class="comment"># 删除虚拟环境</span></span><br><span class="line">conda remove -n py37 --all</span><br><span class="line"><span class="comment"># 创建完成并进入虚拟环境</span></span><br><span class="line">conda activate pytorch-gpu</span><br><span class="line"><span class="comment"># 退出虚拟环境</span></span><br><span class="line">conda deactivate </span><br><span class="line"><span class="comment"># 查看所有虚拟环境</span></span><br><span class="line">conda-env list</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 列出所有环境，查看环境是否安装成功</span></span><br><span class="line">conda info --envs</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看conda镜像配置</span></span><br><span class="line">conda config --show</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>二、添加镜像源</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">conda config --add channels http://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/</span><br><span class="line">conda config --add channels http://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/</span><br><span class="line">conda config --add channels http://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/</span><br><span class="line"></span><br><span class="line">conda config --add channels http://mirrors.ustc.edu.cn/anaconda/pkgs/main/</span><br><span class="line">conda config --add channels http://mirrors.ustc.edu.cn/anaconda/pkgs/free/</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><strong>三、安装gpu版本pytorch</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看cuda版本（本电脑cuda版本11.2,可以安装低版本）</span></span><br><span class="line">nvidia-smi</span><br><span class="line"><span class="meta">#</span><span class="bash"> pytorch官网下载对应版本</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> CUDA 10.0</span></span><br><span class="line">conda install pytorch==1.2.0 torchvision==0.4.0 cudatoolkit=10.0 -c pytorch</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 离线安装pytorch</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> cudatoolkit=10.0只能在线安装，其他包可以下载安装包</span></span><br><span class="line">下载地址：http://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/win-64</span><br><span class="line"><span class="meta">#</span><span class="bash"> 下载版本</span></span><br><span class="line">pytorch-1.2.0-py37_cuda100_cudnn7_1.tar.bz2</span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装离线包</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 离线包所在的路径（<span class="built_in">cd</span>:....）,然后再安装</span></span><br><span class="line">conda  install --offline pytorch-1.2.0-py37_cuda100_cudnn7_1.tar.bz2</span><br></pre></td></tr></table></figure>
-
-<p><strong>四、验证是否安装成功</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入Python</span></span><br><span class="line">Python</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;import torch</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>五、安装tensorflow-gpu</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 找到与cuda和python版本对应的tensorflow版本</span></span><br><span class="line">conda install tensorflow-gpu==版本号</span><br><span class="line"><span class="meta">#</span><span class="bash"> 我将pytorch和tensorflow安装在同一个文件里面（pytorch-gpu），对应的Python版本为3.7</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 如果不想放在同一个文件，可以新建一个虚拟环境，安装tensorflow</span></span><br></pre></td></tr></table></figure>
-
-<hr>
-<p>部分内容来源于网络，作为学习使用，如有侵权请联系我删除。请注明来意。</p>
-<p>邮箱：<a href="mailto:&#119;&#x69;&#115;&#101;&#100;&#117;&#49;&#x40;&#x67;&#x6d;&#97;&#105;&#x6c;&#46;&#99;&#x6f;&#x6d;">&#119;&#x69;&#115;&#101;&#100;&#117;&#49;&#x40;&#x67;&#x6d;&#97;&#105;&#x6c;&#46;&#99;&#x6f;&#x6d;</a></p>
-<p>微信：</p>
-<img src="https://gitee.com/wisedu1/MyImage/raw/master/imgs/%E6%9C%AC%E4%BA%BA%E7%9A%84%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81/%E4%B8%AA%E4%BA%BA%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%811.jpg" width="200px" />]]></content>
-      <categories>
-        <category>环境搭建</category>
-      </categories>
-      <tags>
-        <tag>Pytorch Tensorflow</tag>
+        <tag>Java 微服务项目</tag>
       </tags>
   </entry>
 </search>
